@@ -155,6 +155,61 @@ nav button{font-size:11px}
 .hero .ft{font-size:12px;color:var(--hero-muted);margin-top:10px}
 :root[data-theme="mache"] .hero::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;background:#FFB547;opacity:.18;right:-50px;top:-60px}
 :root[data-theme="nwit"] .hero{background:radial-gradient(circle at 100% 0,rgba(198,243,107,.16),transparent 60%),var(--card)}
+.seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:var(--line);border-radius:16px;padding:4px;margin-top:14px}
+.seg button{height:40px;border:0;border-radius:12px;background:transparent;font-weight:700;font-size:13px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);font-weight:800;box-shadow:0 1px 3px rgba(17,24,39,.12)}
+:root[data-theme="nwit"] .seg{background:#0D0F14}
+:root[data-theme="nwit"] .seg button.on{background:var(--brand);color:var(--on-brand)}
+.amt{text-align:center;margin-top:16px}
+.amt label{margin:0;font-size:13px}
+.amt-row{display:flex;align-items:baseline;justify-content:center;gap:6px}
+.amt-row input{border:0;background:transparent;padding:0;width:auto;min-width:1ch;max-width:72%;text-align:center;font-family:var(--font-num);font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1.15;color:var(--ink);caret-color:var(--brand)}
+.amt-row span{font-size:20px;font-weight:700;color:var(--muted)}
+.amt .hint{font-size:13px;font-weight:700;color:var(--warn);min-height:18px}
+.chips.c{justify-content:center}
+.pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.pad button{height:52px;border:0;border-radius:14px;background:var(--card);font-family:var(--font-num);font-size:22px;font-weight:700;color:var(--ink);cursor:pointer;box-shadow:var(--shadow)}
+.pad button:active{transform:scale(.97);background:var(--brand-soft)}
+details.more{margin-top:10px;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card)}
+details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size:14px}
+.cta{min-height:58px;font-size:17px;box-shadow:0 10px 24px rgba(17,24,39,.18)}
+.dots{display:flex;justify-content:space-between;gap:6px;margin-top:12px}
+.dots i{flex:1;max-width:44px;aspect-ratio:1;border-radius:50%;background:var(--line);color:var(--muted);font:800 13px/1 var(--font-num);font-style:normal;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.dots i.ok{background:var(--ok);color:var(--card)}
+:root[data-theme="nwit"] .dots i.ok{color:#0D0F14}
+.dots i.late{background:var(--err-soft);color:var(--err);border:2px dashed var(--err)}
+.dots i svg{width:16px;height:16px}
+.segs{display:flex;gap:4px;margin-top:10px}
+.segs i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.segs i.ok{background:var(--ok)}.segs i.late{background:var(--err)}
+.minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.minis div{background:var(--card);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow);min-width:0}
+.minis span{display:block;font-size:11.5px;font-weight:700;color:var(--muted)}
+.minis b{display:block;font-family:var(--font-num);font-size:16px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prof{text-align:center;padding-top:4px}
+.prof .av.big{width:92px;height:92px;font-size:30px;margin:0 auto;border:4px solid var(--card);box-shadow:var(--shadow)}
+.prof .name{font-size:21px!important;margin-top:8px}
+.locc{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow);margin-top:12px;text-decoration:none;color:var(--ink)}
+.locc .ic{width:44px;height:44px;border-radius:14px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;flex:none}
+.grid7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
+.grid7 .chip,.grid4 .chip{padding:10px 0;border-radius:12px;text-align:center;font-family:var(--font-num)}
+:root[data-theme="mache"] .grid4 .chip.sel{background:var(--cream);border-color:var(--cream);color:#141B3D}
+.sumdark{background:#141B3D;color:#fff;border-radius:22px;padding:16px;margin-top:14px;position:relative;overflow:hidden}
+:root[data-theme="nwit"] .sumdark{background:var(--card);box-shadow:0 0 0 1px var(--line)}
+.sumdark::after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;background:var(--cream);opacity:.16;right:-30px;bottom:-50px}
+.sumdark .r{display:flex;justify-content:space-between;gap:8px}
+.sumdark .l{font-size:13px;opacity:.72;font-weight:600}
+.sumdark .v{font-family:var(--font-num);font-size:24px;font-weight:800}
+.sumdark .n{font-size:12px;opacity:.65;margin-top:6px}
+.amtin{position:relative}
+.amtin .lim{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;color:var(--ok);background:var(--ok-soft);padding:3px 9px;border-radius:999px;pointer-events:none}
+.rsum{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--shadow);margin-top:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.rsum .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.rsum .v{font-family:var(--font-num);font-size:22px;font-weight:800;margin-top:2px}
+.rsum .t{font-family:var(--font-num);font-size:24px;font-weight:800;color:var(--brand);text-align:right}
+:root[data-theme="nwit"] .mapbox .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
+:root[data-theme="nwit"] .mapbox{background:#10131A}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -204,7 +259,7 @@ nav button{font-size:11px}
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "1.9 · 04/11/2026";
+const APP_VERSION = "2.0 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -557,6 +612,13 @@ function renderBadge(){
   b.textContent = n; b.classList.toggle("hidden", !n);
 }
 
+const ICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>';
+function dayState(y){
+  const n = +y.nb_jours_prevu || 0, used = +y.jours_consommes || 0, paid = Math.floor((+y.frais_payes || 0) / (+y.frais_journalier || 1));
+  return Array.from({ length: n }, (_, i) => i + 1 <= paid ? "ok" : i + 1 <= used ? "late" : "");
+}
+const dayDots = y => '<div class="dots" aria-label="Jou cycle la">' + dayState(y).map((st, i) => '<i class="' + st + '">' + (st === "ok" ? ICK : i + 1) + '</i>').join("") + '</div>';
+const daySegs = y => '<div class="segs" aria-hidden="true">' + dayState(y).map(st => '<i class="' + st + '"></i>').join("") + '</div>';
 function cycleCard(y){
   const c = clientOfCycle(y), late = +y.frais_en_retard > 0, rest = +y.fonds_a_restituer;
   const ech = y.date_limite && y.date_limite < today() && rest > 0;
@@ -566,7 +628,7 @@ function cycleCard(y){
     + '<div class="sub">' + esc(y._local ? "Nouvo cycle (ap tann)" : y.numero) + ' · ' + htg(y.frais_journalier) + '/jou · fen ' + dmy(y.date_limite)
     + (isMgr() && c && c.agent_id ? ' · 👤 ' + esc(nomAgent(c.agent_id)) : '') + '</div></div>'
     + (ech ? '<span class="tag err">Reta remèt</span>' : late ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : y.statut === "Prévu" ? '<span class="tag n">Pou debloke</span>' : '<span class="tag ok">Ajou</span>')
-    + '</div><div class="bar"><i style="width:' + pct + '%"></i></div>'
+    + '</div>' + daySegs(y)
     + '<div class="row sub" style="margin-top:6px"><span class="grow">Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + ' · frè peye ' + htg(y.frais_payes) + '</span><span>Pou remèt <b class="money">' + htg(rest) + '</b></span></div></div>';
 }
 
@@ -712,9 +774,14 @@ function openClient(id){
   const c = clientById(id); if (!c) return;
   const ks = comptesOf(id), ys = cyclesOfClient(id), kActif = ks.find(k => k.statut === "Actif");
   const gps = c.gps_statut === "Capturé" || c._gpsPending;
-  sheet('<div class="row">' + avatar(c, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
-    + '<div class="sub">' + kodHtml(c.code_client, c.telephone) + '</div></div>'
-    + (c._local ? '<span class="tag n">Ap tann entènèt</span>' : '') + '</div>'
+  const yo = ys.find(isOpen);
+  sheet('<div class="prof">' + avatar(c, true) + '<div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
+    + '<div class="sub">' + kodHtml(c.code_client, c.telephone) + (c.activite ? ' · ' + esc(c.activite) : '') + '</div>'
+    + (c._local ? '<span class="tag n" style="margin-top:6px">Ap tann entènèt</span>' : '') + '</div>'
+    + (yo ? '<div class="card" style="margin-top:12px" data-cycle="' + yo.id + '"><div class="row"><div class="grow"><div class="sub" style="font-weight:700">' + esc(yo._local ? "Nouvo cycle" : yo.numero) + ' · ' + htg(yo.frais_journalier) + '/jou</div><div class="name">Jou ' + (yo.jours_consommes || 0) + ' sou ' + yo.nb_jours_prevu + '</div></div>'
+      + (+yo.frais_en_retard > 0 ? '<span class="tag err">Reta ' + htg(yo.frais_en_retard) + '</span>' : '<span class="tag ok">Ajou</span>') + '</div>' + dayDots(yo) + '</div>' : '')
+    + (c.gps_lat != null ? '<a class="locc" href="https://www.google.com/maps/dir/?api=1&destination=' + c.gps_lat + ',' + c.gps_lng + '" target="_blank" rel="noopener"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/></svg></span>'
+      + '<span class="grow"><b style="display:block">' + esc(c.localisation || "Biznis kliyan an") + '</b>' + etaSpan(c) + '</span><span class="sub" style="font-weight:700;color:var(--brand)">Itinerè</span></a>' : '')
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
     + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div>'
@@ -756,8 +823,12 @@ function openCycle(id){
   const y = S.cycles.find(x => x.id === id); if (!y) return;
   const c = clientOfCycle(y);
   const hist = S.tx.filter(t => t.cycle_id === id).sort((a, b) => String(b.capture_le).localeCompare(String(a.capture_le))).slice(0, 15);
-  sheet('<div class="name" style="font-size:20px">' + esc(c ? c.prenom + " " + c.nom : "") + '</div><div class="sub">' + esc(y.numero) + ' · ' + esc(y.statut) + '</div>'
-    + '<div class="card" style="margin-top:10px"><div class="kv">'
+  const late = +y.frais_en_retard > 0;
+  sheet('<div class="row">' + (c ? avatar(c) : '') + '<div class="grow"><div class="name" style="font-size:19px">' + esc(c ? c.prenom + " " + c.nom : "") + '</div><div class="sub">' + esc(y.numero) + ' · ' + esc(y.statut) + '</div></div>'
+    + (late ? '<span class="tag err">Reta ' + htg(y.frais_en_retard) + '</span>' : isOpen(y) ? '<span class="tag ok">Ajou</span>' : '') + '</div>'
+    + '<div class="card" style="margin-top:12px"><div class="row"><div class="grow"><div class="sub" style="font-weight:700">' + htg(y.frais_journalier) + ' / jou</div><div class="name">Jou ' + (y.jours_consommes || 0) + ' sou ' + y.nb_jours_prevu + '</div></div><div class="sub">fen ' + dmy(y.date_limite) + '</div></div>' + dayDots(y) + '</div>'
+    + '<div class="minis"><div><span>Fon debloke</span><b>' + htg(y.fonds_decaisse) + '</b></div><div><span>Frè peye</span><b style="color:var(--ok)">' + htg(y.frais_payes) + '</b></div><div><span>Pou remèt</span><b style="color:var(--warn)">' + htg(y.fonds_a_restituer) + '</b></div></div>'
+    + '<div class="card" style="margin-top:12px"><div class="kv">'
     + '<div>Fon debloke</div><div class="money">' + htg(y.fonds_decaisse) + ' / ' + htg(y.fonds_debloques) + '</div>'
     + '<div>Frè pa jou</div><div class="money">' + htg(y.frais_journalier) + '</div>'
     + '<div>Jou konsome</div><div>' + (y.jours_consommes || 0) + ' / ' + y.nb_jours_prevu + ' (fen ' + dmy(y.date_limite) + ')</div>'
@@ -766,10 +837,10 @@ function openCycle(id){
     + '<div>Frè an reta</div><div class="money" style="color:' + (+y.frais_en_retard > 0 ? "var(--err)" : "inherit") + '">' + htg(y.frais_en_retard) + '</div>'
     + '<div>Pou remèt</div><div class="money">' + htg(y.fonds_a_restituer) + '</div></div></div>'
     + (isOpen(y) ? '<div class="btns">'
-      + '<button class="btn" data-op="Paiement frais" type="button">💵 Frè</button>'
-      + '<button class="btn" data-op="Restitution du fonds" type="button">↩️ Remèt fon</button>'
-      + '<button class="btn sec" data-op="Déblocage du fonds" type="button">💸 Debloke</button>'
-      + '<button class="btn sec" data-op="Pénalité" type="button">⚠️ Penalite</button></div>'
+      + '<button class="btn" data-op="Paiement frais" type="button">Peye frè</button>'
+      + '<button class="btn" data-op="Restitution du fonds" type="button">Remèt fon</button>'
+      + '<button class="btn sec" data-op="Déblocage du fonds" type="button">Debloke</button>'
+      + '<button class="btn sec" data-op="Pénalité" type="button">Penalite</button></div>'
       + '<button class="btn ghost" id="yOff" type="button">📅 Kliyan an p ap la yon jou</button>'
       + '<button class="btn ghost" id="yClose" type="button">✅ Fèmen cycle la (kliyan an fini)</button>' : '')
     + '<h3>Dènye operasyon</h3>' + (hist.length ? hist.map(t => '<div class="row sub" style="padding:6px 0;border-bottom:1px solid var(--line)"><span class="grow">' + dmy(t.date_operation) + ' · ' + esc(t.type) + (t._local ? ' · <b>ap tann</b>' : '') + '</span><span class="money">' + htg(t.montant) + '</span></div>').join("") : '<div class="sub">Okenn.</div>'));
@@ -805,19 +876,23 @@ function openNewCycle(c, k, opts = {}){
     + '<div>Cycle anvan</div><div>' + nbAv + (prev ? ' · dènye a : ' + htg(prev.fonds_debloques) + ', ' + prev.nb_jours_prevu + ' jou, ' + htg(prev.frais_journalier) + '/jou' : '') + '</div>'
     + (lim ? '<div>Limit kont lan</div><div class="money">' + htg(lim) + '</div>' : '') + '</div></div>'
     + (prev ? '<div class="sub">Montan, jou ak frè yo soti nan dènye cycle a. Chanje sa ki pa bon.</div>' : '')
-    + '<label for="ncM">Montan pou debloke (HTG) *</label><input id="ncM" class="big" type="number" inputmode="numeric" min="1" step="50" value="' + (prev ? Math.round(prev.fonds_debloques) : "") + '">'
-    + '<label>Konbyen jou *</label><div class="chips" id="ncJ">' + [1,2,3,4,5,6,7].map(n => '<button class="chip' + (n === jou ? " sel" : "") + '" data-j="' + n + '" type="button">' + n + '</button>').join("") + '</div>'
-    + '<label>Frè pa jou *</label><div class="chips" id="ncF">' + fr.map(f => '<button class="chip' + (f === frais ? " sel" : "") + '" data-f="' + f + '" type="button">' + htg(f) + '</button>').join("") + '</div>'
+    + '<label for="ncM">Montan pou debloke (HTG) *</label><div class="amtin"><input id="ncM" class="big" style="text-align:left;font-family:var(--font-num);border-color:var(--brand)" type="number" inputmode="numeric" min="1" step="50" value="' + (prev ? Math.round(prev.fonds_debloques) : "") + '">' + (lim ? '<span class="lim">Limit ' + htg(lim) + '</span>' : '') + '</div>'
+    + '<label>Konbyen jou *</label><div class="grid7" id="ncJ">' + [1,2,3,4,5,6,7].map(n => '<button class="chip' + (n === jou ? " sel" : "") + '" data-j="' + n + '" type="button">' + n + '</button>').join("") + '</div>'
+    + '<label>Frè pa jou (HTG) *</label><div class="grid4" id="ncF">' + fr.map(f => '<button class="chip' + (f === frais ? " sel" : "") + '" data-f="' + f + '" type="button">' + f + '</button>').join("") + '</div>'
     + '<label for="ncD">Dat kòmansman</label><input id="ncD" type="date" value="' + today() + '" min="' + addDays(today(), -7) + '">'
     + '<label class="switch"><input id="ncDim" type="checkbox"' + (dim ? " checked" : "") + '><span><b>Pa konte dimanch</b></span></label>'
     + '<label class="switch"><input id="ncDeb" type="checkbox" checked><span><b>M ap bay kliyan an kòb la kounye a</b><br><span class="sub">Déblocage a ap anrejistre an menm tan.</span></span></label>'
-    + '<div class="card" id="ncSum" style="margin-top:10px"></div>'
-    + '<button class="btn" id="ncOk" type="button">Kreye cycle la</button><button class="btn ghost" id="ncNo" type="button">Anile</button>');
+    + '<div class="sumdark" id="ncSum"></div>'
+    + '<button class="btn cta" id="ncOk" type="button">Kreye cycle la</button><button class="btn ghost" id="ncNo" type="button">Anile</button>');
   const sum = () => { const m = Number($("#ncM").value) || 0, y = calcLocal({ date_debut: $("#ncD").value || today(), nb_jours_prevu: jou, dimanches_exclus: dim, frais_journalier: frais || 0, fonds_debloques: m });
-    $("#ncSum").innerHTML = '<div class="kv"><div>Fen cycle la</div><div>' + dmy(y.date_fin_prevue) + '</div><div>Frè total (si l fè tout jou yo)</div><div class="money">' + htg(jou * (frais || 0)) + '</div><div>Kliyan an ap remèt</div><div class="money">' + htg(m) + '</div></div>'; };
+    $("#ncSum").innerHTML = '<div class="r l"><span>Frè total (' + jou + ' jou)</span><span>Fen cycle</span></div>'
+      + '<div class="r" style="align-items:baseline;margin-top:4px"><span class="v">' + htg(jou * (frais || 0)) + '</span><span style="font-weight:700">' + dmy(y.date_fin_prevue) + '</span></div>'
+      + '<div class="r l" style="margin-top:8px"><span>Kliyan an ap remèt</span><span style="font-weight:800;opacity:1">' + htg(m) + '</span></div>'
+      + '<div class="n">Si li fini bone, li peye sèlman jou li konsome yo.</div>';
+    $("#ncOk").textContent = m > 0 && deb ? "Kreye cycle la · debloke " + htg(m) : "Kreye cycle la"; };
   document.querySelectorAll("[data-j]").forEach(b => b.onclick = () => { jou = +b.dataset.j; document.querySelectorAll("[data-j]").forEach(x => x.classList.toggle("sel", x === b)); sum(); });
   document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { frais = +b.dataset.f; document.querySelectorAll("[data-f]").forEach(x => x.classList.toggle("sel", x === b)); sum(); });
-  $("#ncM").oninput = sum; $("#ncD").onchange = sum; $("#ncDim").onchange = e => { dim = e.target.checked; sum(); }; $("#ncDeb").onchange = e => deb = e.target.checked; sum();
+  $("#ncM").oninput = sum; $("#ncD").onchange = sum; $("#ncDim").onchange = e => { dim = e.target.checked; sum(); }; $("#ncDeb").onchange = e => { deb = e.target.checked; sum(); }; sum();
   $("#ncNo").onclick = closeSheet;
   const chg = $("#ncChg"); if (chg) chg.onclick = openCyclePicker;
   $("#ncOk").onclick = async () => {
@@ -947,24 +1022,44 @@ function renderEkip(m){
 
 function openOp(y, type){
   const c = clientOfCycle(y);
+  const resteDeb = Math.max(0, +y.fonds_debloques - +y.fonds_decaisse);
   const def = type === "Paiement frais" ? (+y.frais_en_retard > 0 ? y.frais_en_retard : y.frais_journalier)
     : type === "Restitution du fonds" ? y.fonds_a_restituer
-    : type === "Déblocage du fonds" ? Math.max(0, +y.fonds_debloques - +y.fonds_decaisse) : "";
+    : type === "Déblocage du fonds" ? resteDeb : "";
+  const hint = type === "Paiement frais" ? (+y.frais_en_retard > 0 ? "Gen " + htg(y.frais_en_retard) + " an reta · " + htg(y.frais_journalier) + " pa jou" : htg(y.frais_journalier) + " pa jou")
+    : type === "Restitution du fonds" ? "Rete " + htg(y.fonds_a_restituer) + " pou remèt"
+    : type === "Déblocage du fonds" ? "Rete " + htg(resteDeb) + " pou debloke" : "Penalite pou reta";
+  const OPS = [["Paiement frais", "Frè"], ["Restitution du fonds", "Remèt"], ["Déblocage du fonds", "Debloke"], ["Pénalité", "Penalite"]];
   let gps = null, mode = "Espèces";
-  sheet('<div class="name" style="font-size:20px">' + esc(type) + '</div><div class="sub">' + esc(c ? c.prenom + " " + c.nom : "") + ' · ' + esc(y.numero) + '</div>'
-    + '<label for="opM">Montan (HTG)</label><input id="opM" class="big" type="number" inputmode="decimal" min="1" step="1" value="' + (def ? Math.round(def) : "") + '">'
-    + (type === "Paiement frais" ? '<div class="chips">' + [1,2,3].map(n => '<button class="chip" data-n="' + n + '" type="button">' + n + ' jou · ' + htg(n * y.frais_journalier) + '</button>').join("") + '</div>' : '')
-    + '<label>Mòd peman</label><div class="chips" id="opMode">' + CFG.modes.map(x => '<button class="chip' + (x === mode ? " sel" : "") + '" data-m="' + esc(x) + '" type="button">' + esc(x) + '</button>').join("") + '</div>'
-    + '<label for="opR">Referans (si se MonCash, NatCash…)</label><input id="opR" type="text" autocomplete="off">'
-    + '<label for="opC">Kòmantè</label><input id="opC" type="text" autocomplete="off">'
+  sheet('<div class="row">' + (c ? avatar(c) : '') + '<div class="grow"><div class="name" style="font-size:18px">' + esc(c ? c.prenom + " " + c.nom : "") + '</div>'
+    + '<div class="sub">' + esc(y.numero) + ' · ' + htg(y.frais_journalier) + '/jou · Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + '</div></div></div>'
+    + '<div class="seg" role="tablist">' + OPS.map(([v, l]) => '<button type="button" role="tab" data-sw="' + v + '" class="' + (v === type ? "on" : "") + '" aria-selected="' + (v === type) + '">' + l + '</button>').join("") + '</div>'
+    + '<div class="amt"><label for="opM">' + esc(type) + '</label><div class="amt-row"><input id="opM" type="text" inputmode="none" autocomplete="off" size="6" value="' + (def ? Math.round(def) : "") + '"><span>HTG</span></div><div class="hint">' + esc(hint) + '</div></div>'
+    + (type === "Paiement frais" ? '<div class="chips c">' + [1,2,3].map(n => '<button class="chip" data-n="' + n + '" type="button">' + n + ' jou</button>').join("") + '</div>' : '')
+    + '<div class="pad">' + ["1","2","3","4","5","6","7","8","9","000","0","del"].map(k => '<button type="button" data-k="' + k + '"' + (k === "del" ? ' aria-label="Efase"' : '') + '>'
+        + (k === "del" ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12z"/><path d="M17 9l-5 5M12 9l5 5"/></svg>' : k) + '</button>').join("") + '</div>'
     + '<div id="opG">' + gpsHtml(null) + '</div>'
-    + '<button class="btn" id="opOk" type="button">Anrejistre</button><button class="btn ghost" id="opNo" type="button">Anile</button>');
+    + '<div class="chips c" id="opMode">' + CFG.modes.map(x => '<button class="chip' + (x === mode ? " sel" : "") + '" data-m="' + esc(x) + '" type="button">' + esc(x) + '</button>').join("") + '</div>'
+    + '<details class="more"><summary>Referans / kòmantè</summary>'
+    + '<label for="opR">Referans (si se MonCash, NatCash…)</label><input id="opR" type="text" autocomplete="off">'
+    + '<label for="opC">Kòmantè</label><input id="opC" type="text" autocomplete="off"></details>'
+    + '<button class="btn cta" id="opOk" type="button">Anrejistre</button><button class="btn ghost" id="opNo" type="button">Anile</button>');
+  const inp = $("#opM");
+  const upd = () => { inp.style.width = (Math.max(1, inp.value.length) * 0.62 + 0.1) + "em"; const v = Math.round(Number(inp.value.replace(/\D/g, ""))) || 0; $("#opOk").textContent = v > 0 ? "Anrejistre " + htg(v) : "Anrejistre"; };
+  inp.oninput = () => { inp.value = inp.value.replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 9); upd(); };
+  document.querySelectorAll("[data-k]").forEach(b => b.onclick = () => {
+    const k = b.dataset.k; let v = inp.value;
+    v = k === "del" ? v.slice(0, -1) : (v === "0" ? "" : v) + k;
+    inp.value = v.replace(/^0+(?=\d)/, "").slice(0, 9); upd();
+  });
+  document.querySelectorAll("[data-sw]").forEach(b => b.onclick = () => { if (b.dataset.sw !== type) openOp(y, b.dataset.sw); });
+  upd();
   getGPS(15000).then(g => { gps = g; const b = $("#opG"); if (b) b.innerHTML = gpsHtml(g); });
-  document.querySelectorAll("[data-n]").forEach(b => b.onclick = () => { $("#opM").value = b.dataset.n * y.frais_journalier; });
+  document.querySelectorAll("[data-n]").forEach(b => b.onclick = () => { $("#opM").value = b.dataset.n * y.frais_journalier; upd(); });
   document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { mode = b.dataset.m; document.querySelectorAll("[data-m]").forEach(x => x.classList.toggle("sel", x === b)); });
   $("#opNo").onclick = closeSheet;
   $("#opOk").onclick = async () => {
-    const m = Math.round(Number($("#opM").value));
+    const m = Math.round(Number(String($("#opM").value).replace(/\D/g, "")));
     if (!(m > 0)) return toast("Mete yon montan.", true);
     if (type === "Déblocage du fonds" && m > +y.fonds_debloques - +y.fonds_decaisse) return toast("Montan an depase sa ki rete pou debloke (" + htg(+y.fonds_debloques - +y.fonds_decaisse) + ").", true);
     if (type === "Restitution du fonds" && m > +y.fonds_a_restituer) { if (!confirm("Montan an plis pase sa kliyan an dwe remèt (" + htg(y.fonds_a_restituer) + "). Kontinye?")) return; }
@@ -1411,7 +1506,8 @@ function katOptim(list, bounds){
   if (pts.length > 60) { const ref = start || pts[0]; pts = pts.map(c => ({ c, d: distM(ref, { lat: c.gps_lat, lng: c.gps_lng }) })).sort((a, b) => a.d - b.d).slice(0, 60).map(x => x.c); }
   const tour = optimize(start, pts.map(c => ({ lat: c.gps_lat, lng: c.gps_lng, c })));
   const line = (start ? [[start.lat, start.lng]] : []).concat(tour.map(p => [p.lat, p.lng]));
-  L.polyline(line, { color: "#7B1E28", weight: 4, opacity: .85, dashArray: "8 8" }).addTo(S.layers.route);
+  const rc = getComputedStyle(document.documentElement).getPropertyValue("--brand").trim() || "#8E1B2E";
+  L.polyline(line, { color: rc, weight: 5, opacity: .9, lineCap: "round" }).addTo(S.layers.route);
   if (start) L.marker([start.lat, start.lng], { icon: pinIcon("#1F6FB2", "▶", "num"), zIndexOffset: 800 }).bindPopup("<b>Depa</b><br>" + esc(startLbl)).addTo(S.layers.route);
   let cum = 0, prev = start; const rows = [];
   tour.forEach((p, i) => {
@@ -1425,9 +1521,10 @@ function katOptim(list, bounds){
   });
   const wp = tour.slice(0, -1).slice(0, 9).map(p => p.lat + "," + p.lng).join("|"), last = tour[tour.length - 1];
   const gm = "https://www.google.com/maps/dir/?api=1" + (start ? "&origin=" + start.lat + "," + start.lng : "") + "&destination=" + last.lat + "," + last.lng + (wp ? "&waypoints=" + encodeURIComponent(wp) : "") + "&travelmode=driving";
-  panel.innerHTML = '<div class="kpis"><div class="kpi"><b>' + tour.length + '</b><span>' + (tous ? "Kliyan (tout)" : "Kliyan ak cycle aktif") + '</span></div><div class="kpi"><b>' + fmtD(cum) + '</b><span>Distans total</span></div><div class="kpi"><b>' + mins(cum, V_MOTO) + ' min</b><span>🛵 Moto (🚶 ' + mins(cum, V_PYE) + ' min)</span></div></div>'
+  panel.innerHTML = '<div class="rsum"><div><div class="l">Wout optimize · ' + (tous ? "tout kliyan" : "cycle aktif") + '</div><div class="v">' + tour.length + ' vizit · ' + fmtD(cum) + '</div></div>'
+      + '<div><div class="t">' + mins(cum, V_MOTO) + ' min</div><div class="sub" style="text-align:right">an moto · ' + mins(cum, V_PYE) + ' min a pye</div></div></div>'
     + '<div class="sub" style="margin:8px 2px">' + (start ? "Depa : " + esc(startLbl) + ". " : "Aktive GPS la pou pakou a kòmanse kote w ye. ") + 'Tan yo se estimasyon (wout ≈ 1,3 × distans an liy dwat), san tan pou fè koleksyon an.</div>'
-    + '<a class="btn sec" style="text-align:center;text-decoration:none" href="' + gm + '" target="_blank" rel="noopener">🗺️ Swiv pakou a nan Google Maps' + (tour.length > 10 ? " (10 premye yo)" : "") + '</a>'
+    + '<a class="btn sec" style="text-align:center;text-decoration:none" href="' + gm + '" target="_blank" rel="noopener">Kòmanse wout la (Google Maps)' + (tour.length > 10 ? " (10 premye yo)" : "") + '</a>'
     + '<h3>Lòd vizit la</h3><div class="tl">' + rows.join("") + '</div>';
   hydrate(panel);
 }
