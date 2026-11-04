@@ -1,7 +1,8 @@
 // DEBLOKE Ajan : app la louvri menm san entènèt.
 // Paj yo : entènèt an premye, sinon kopi ki sou telefòn nan. Demann Supabase yo PA janm kache isit la.
 // Kare kat OpenStreetMap yo : kopi sou telefòn nan an premye (zòn ajan an deja gade yo parèt san entènèt).
-var CACHE = "debloke-ajan-v8";
+var CACHE = "debloke-ajan-v9";
+var FONTS = "debloke-font-v1";
 var TILES = "debloke-kat-v1";
 var FILES = ["./", "index.html", "manifest.json", "../icon-192.png", "../icon-512.png",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/layers.png", "vendor/leaflet/images/layers-2x.png"];
@@ -26,6 +27,14 @@ self.addEventListener("fetch", function (e) {
     e.respondWith(caches.open(TILES).then(function (c) {
       return c.match(e.request).then(function (m) {
         return m || fetch(e.request).then(function (r) { if (r.ok || r.type === "opaque") { c.put(e.request, r.clone()); if (++nTiles % 200 === 0) trimTiles(); } return r; });
+      });
+    }));
+    return;
+  }
+  if (u.hostname === "fonts.googleapis.com" || u.hostname === "fonts.gstatic.com") {
+    e.respondWith(caches.open(FONTS).then(function (c) {
+      return c.match(e.request).then(function (m) {
+        return m || fetch(e.request).then(function (r) { if (r.ok || r.type === "opaque") c.put(e.request, r.clone()); return r; });
       });
     }));
     return;
