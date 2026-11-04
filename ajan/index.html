@@ -121,7 +121,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
   <nav>
     <button data-p="jodi" class="act" type="button"><span class="i">☀️</span>Jodi a</button>
     <button data-p="kliyan" type="button"><span class="i">👥</span>Kliyan</button>
-    <button data-p="nouvo" type="button"><span class="i">➕</span>Nouvo</button>
+    <button data-p="tranzaksyon" type="button"><span class="i">💵</span>Tranzaksyon</button>
     <button data-p="ekip" type="button" id="navEkip" class="hidden"><span class="i">🧭</span>Ekip</button>
     <button data-p="senk" type="button"><span class="i">🔄</span><span>Senk<span id="nBadge" class="badge hidden"></span></span></button>
   </nav>
@@ -135,7 +135,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "1.5 · 04/11/2026";
+const APP_VERSION = "1.6 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -464,11 +464,11 @@ const pendingFor = id => S.outbox.some(i => i.status !== "done" && (i.payload.p_
 
 /* ================= EKRAN ================= */
 function render(){
-  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page));
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page || (S.page === "nouvo" && b.dataset.p === "kliyan")));
   const m = $("#main");
   $("#navEkip").classList.toggle("hidden", !isMgr());
   if (S.page === "ekip" && !isMgr()) S.page = "jodi";
-  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
+  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
   hydrate(m);
 }
 function renderNet(){
@@ -544,11 +544,11 @@ function refreshKliyan(){
   renderKliyan(m); hydrate(m);
   if (had) { const n = $("#q", m); n.focus(); try { n.setSelectionRange(p, p); } catch {} }
 }
-const kodHtml = k => k ? '<b class="kod">' + esc(k) + '</b> · ' : '';
+const kodHtml = (k, ...rest) => [k ? '<b class="kod">' + esc(k) + '</b>' : '', ...rest.map(x => x ? esc(x) : '')].filter(Boolean).join(' · ');
 function resultCard(r){
   const tag = r.statut_debloke === "mine" ? '<span class="tag ok">Kliyan ou</span>' : r.statut_debloke === "autre_agent" ? '<span class="tag n">Lòt ajan</span>' : '<span class="tag warn">Ajoute</span>';
   return '<div class="card" data-pers="' + r.id_personne + '"><div class="row">' + avatar({ prenom: r.prenom, nom: r.nom, photo: r.photo })
-    + '<div class="grow"><div class="name">' + esc(r.prenom + " " + r.nom) + '</div><div class="sub">' + kodHtml(r.code_client) + esc(r.telephone || "") + (r.distance_m != null ? " · 📍 " + r.distance_m + " m" : "") + '</div></div>' + tag + '</div></div>';
+    + '<div class="grow"><div class="name">' + esc(r.prenom + " " + r.nom) + '</div><div class="sub">' + kodHtml(r.code_client, r.telephone, r.distance_m != null ? "📍 " + r.distance_m + " m" : "") + '</div></div>' + tag + '</div></div>';
 }
 function renderKliyan(m){
   const q = S.q.trim().toLowerCase(), qd = q.replace(/\D/g, ""), near = S.near;
@@ -557,14 +557,15 @@ function renderKliyan(m){
   else list.sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
   const g = S.glob, mineIds = new Set(S.clients.map(c => c.id));
   const others = (g.res || []).filter(r => !(r.client_id && mineIds.has(r.client_id)));
-  m.innerHTML = '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd kliyan…" value="' + esc(S.q) + '">'
+  m.innerHTML = '<div class="row" style="margin:4px 0 10px"><h2 class="grow" style="margin:0">Kliyan</h2><button class="btn" id="kNew" type="button" style="width:auto;margin:0;padding:10px 14px">➕ Nouvo kliyan</button></div>'
+    + '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd kliyan…" value="' + esc(S.q) + '">'
     + '<button class="btn ' + (near ? "" : "sec") + '" id="qNear" type="button" style="width:auto;margin:0;padding:12px 14px" title="Kliyan toupre m">📍</button></div>'
     + (near ? '<div class="sub" style="margin-top:6px">📍 Kliyan toupre w (±' + near.acc + ' m) · <b id="nearX" style="cursor:pointer;color:var(--brand)">Retire</b></div>' : '')
     + '<h3>Kliyan mwen (' + list.length + ')</h3>'
     + (list.length ? list.map(c => {
       const ys = cyclesOfClient(c.id).filter(isOpen), late = ys.some(y => +y.frais_en_retard > 0);
       return '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
-        + '<div class="sub">' + kodHtml(c.code_client) + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + (near ? " · 📍 " + c._d + " m" : "") + '</div></div>'
+        + '<div class="sub">' + kodHtml(c.code_client, c.telephone, c.activite, near ? "📍 " + c._d + " m" : "") + '</div></div>'
         + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '') + '</div></div>';
     }).join("") : '<div class="sub">Okenn nan kliyan ou yo.</div>')
     + (qValid(S.q.trim()) || near ? '<h3>Nan tout baz la</h3>'
@@ -573,6 +574,7 @@ function renderKliyan(m){
         : g.err ? '<div class="err-msg">' + esc(g.err) + '</div>'
         : g.res ? (others.length ? others.map(resultCard).join("") : '<div class="sub">Pa jwenn lòt moun ki sanble.</div>') : '')
       : '<div class="sub" style="margin-top:14px">Tape omwen 3 lèt oswa yon telefòn pou chèche nan tout baz la, oswa peze 📍 pou kliyan toupre w.</div>');
+  $("#kNew", m).onclick = () => { S.page = "nouvo"; render(); window.scrollTo(0, 0); };
   const i = $("#q", m); i.oninput = () => { S.q = i.value; refreshKliyan(); scheduleGlobal(); };
   $("#qNear", m).onclick = async () => {
     if (S.near) { S.near = null; S.glob.key = ""; refreshKliyan(); scheduleGlobal(); return; }
@@ -594,7 +596,7 @@ async function openResult(r){
 function openChoose(r){
   let act = null, emp = null, gps = null;
   sheet('<div class="row">' + avatar({ prenom: r.prenom, nom: r.nom, photo: r.photo }, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(r.prenom + " " + r.nom) + '</div>'
-    + '<div class="sub">' + kodHtml(r.code_client) + esc(r.telephone || "") + '</div></div></div>'
+    + '<div class="sub">' + kodHtml(r.code_client, r.telephone) + '</div></div></div>'
     + '<div class="warnbox">Verifye se menm moun nan (foto, non, kòd, telefòn) anvan w ajoute l.</div>'
     + '<label>Aktivite</label><div class="chips">' + CFG.activites.map(a => '<button class="chip" data-ca="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
     + '<label>Kote li travay</label><div class="chips">' + CFG.emplacements.map(a => '<button class="chip" data-ce="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
@@ -631,7 +633,7 @@ function openClient(id){
   const ks = comptesOf(id), ys = cyclesOfClient(id), kActif = ks.find(k => k.statut === "Actif");
   const gps = c.gps_statut === "Capturé" || c._gpsPending;
   sheet('<div class="row">' + avatar(c, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
-    + '<div class="sub">' + kodHtml(c.code_client) + esc(c.telephone || "") + '</div></div>'
+    + '<div class="sub">' + kodHtml(c.code_client, c.telephone) + '</div></div>'
     + (c._local ? '<span class="tag n">Ap tann entènèt</span>' : '') + '</div>'
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
@@ -878,7 +880,7 @@ function openOff(y){
 let F = null;
 function renderNouvo(m){
   F = F || { gps: null, atBiz: false, photo: null, photoUrl: null, compte: true };
-  m.innerHTML = '<h2>Nouvo kliyan</h2>'
+  m.innerHTML = '<div class="row" style="margin:4px 0 0"><button class="pill busy" id="nBack" type="button">← Kliyan</button></div><h2>Nouvo kliyan</h2>'
     + '<label for="nP">Prenon *</label><input id="nP" autocomplete="off" autocapitalize="words">'
     + '<label for="nN">Non *</label><input id="nN" autocomplete="off" autocapitalize="words">'
     + '<label for="nT">Telefòn *</label><input id="nT" type="tel" inputmode="tel" placeholder="3700 1234">'
@@ -905,6 +907,7 @@ function renderNouvo(m){
   const doGps = async () => { F.gps = null; $("#nG").innerHTML = gpsHtml(null); const g = await getGPS(); if (!$("#nBiz") || !$("#nBiz").checked) return; F.gps = g; $("#nG").innerHTML = gpsHtml(g) + (g.err || g.acc > 200 ? '<button class="btn ghost" id="nGr" type="button">Eseye ankò</button>' : ""); const r = $("#nGr"); if (r) r.onclick = doGps; };
   $("#nBiz").onchange = e => { F.atBiz = e.target.checked; if (F.atBiz) doGps(); else { F.gps = null; $("#nG").innerHTML = ""; } };
   $("#nK").onchange = e => F.compte = e.target.checked;
+  $("#nBack").onclick = () => { S.page = "kliyan"; render(); };
   // Pandan ajan an ap tape : montre moun ki sanble ki deja nan baz la
   let sugT = null, sugKey = "";
   const sug = () => { clearTimeout(sugT); sugT = setTimeout(async () => {
@@ -950,6 +953,62 @@ function renderNouvo(m){
     F = null; toast("Kliyan anrejistre ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)"));
     S.page = "kliyan"; render();
   };
+}
+
+/* ---------- Tranzaksyon ---------- */
+S.txF = { per: "jodi", typ: "" };
+const TX_LBL = { "Paiement frais": "Frè", "Restitution du fonds": "Remèt fon", "Déblocage du fonds": "Debloke", "Pénalité": "Penalite", "Ajustement": "Ajisteman", "Annulation": "Anilasyon" };
+const TX_ICO = { "Paiement frais": "💵", "Restitution du fonds": "↩️", "Déblocage du fonds": "💸", "Pénalité": "⚠️", "Ajustement": "✏️", "Annulation": "✖️" };
+function renderTranzaksyon(m){
+  const f = S.txF, depi = f.per === "jodi" ? today() : f.per === "7" ? addDays(today(), -6) : addDays(today(), -29);
+  const fa = isMgr() ? S.filtreAgent : "";
+  let list = S.tx.filter(t => t.date_operation >= depi && (!f.typ || t.type === f.typ) && (!fa || t.agent_id === fa));
+  list.sort((a, b) => String(b.date_operation + b.capture_le).localeCompare(String(a.date_operation + a.capture_le)));
+  const sum = typ => list.filter(t => t.type === typ).reduce((s, t) => s + Number(t.montant), 0);
+  const chip = (k, v, l) => '<button class="chip' + (f[k] === v ? " sel" : "") + '" data-tf="' + k + '" data-tv="' + esc(v) + '" type="button">' + l + '</button>';
+  let html = '<div class="row" style="margin:4px 0 10px"><h2 class="grow" style="margin:0">Tranzaksyon</h2><button class="btn" id="tNew" type="button" style="width:auto;margin:0;padding:10px 14px">➕ Nouvo operasyon</button></div>'
+    + '<div class="chips">' + chip("per", "jodi", "Jodi a") + chip("per", "7", "7 jou") + chip("per", "30", "30 jou") + '</div>'
+    + '<div class="chips">' + chip("typ", "", "Tout") + ["Paiement frais", "Restitution du fonds", "Déblocage du fonds", "Pénalité"].map(t => chip("typ", t, TX_ICO[t] + " " + TX_LBL[t])).join("") + '</div>'
+    + (isMgr() && S.equipe.length ? '<div class="chips">' + '<button class="chip' + (!fa ? " sel" : "") + '" data-ta="" type="button">Tout ajan</button>'
+      + S.equipe.filter(p => p.actif !== false).map(p => '<button class="chip' + (fa === p.user_id ? " sel" : "") + '" data-ta="' + p.user_id + '" type="button">' + esc(p.nom) + '</button>').join("") + '</div>' : '')
+    + '<div class="card" style="margin-top:10px"><div class="kv">'
+    + '<div>💵 Frè kolekte</div><div class="money">' + htg(sum("Paiement frais")) + '</div>'
+    + '<div>↩️ Fon remèt</div><div class="money">' + htg(sum("Restitution du fonds")) + '</div>'
+    + '<div>⚠️ Penalite</div><div class="money">' + htg(sum("Pénalité")) + '</div>'
+    + '<div>💸 Fon debloke</div><div class="money">' + htg(sum("Déblocage du fonds")) + '</div>'
+    + '<div>Kantite</div><div><b>' + list.length + '</b> operasyon</div></div></div>';
+  if (!list.length) html += '<div class="empty">Pa gen operasyon pou peryòd sa a.</div>';
+  let jou = "";
+  list.forEach(t => {
+    if (t.date_operation !== jou) { jou = t.date_operation; html += '<h3>' + (jou === today() ? "Jodi a" : dmy(jou)) + '</h3>'; }
+    const y = S.cycles.find(x => x.id === t.cycle_id), c = y && clientOfCycle(y);
+    const out = t.type === "Déblocage du fonds", neg = t.type === "Annulation" || (t.type === "Ajustement" && t.sens < 0);
+    let hr = ""; try { hr = new Date(t.capture_le).toLocaleTimeString("fr-HT", { hour: "2-digit", minute: "2-digit" }); } catch {}
+    html += '<div class="card"' + (y ? ' data-cycle="' + y.id + '"' : '') + '><div class="row">' + (c ? avatar(c) : '<span class="av">' + (TX_ICO[t.type] || "•") + '</span>')
+      + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div>'
+      + '<div class="sub">' + (TX_ICO[t.type] || "") + ' ' + esc(TX_LBL[t.type] || t.type) + ' · ' + esc(t.mode_paiement || "") + (hr ? ' · ' + hr : '')
+      + (isMgr() && t.agent_id ? ' · 👤 ' + esc(nomAgent(t.agent_id)) : '') + '</div></div>'
+      + '<div style="text-align:right"><div class="money" style="color:' + (out || neg ? "var(--err)" : "var(--ok)") + '">' + (out || neg ? "−" : "+") + htg(t.montant) + '</div>'
+      + (t._local ? '<span class="tag n">Ap tann</span>' : '') + '</div></div></div>';
+  });
+  m.innerHTML = html;
+  m.querySelectorAll("[data-tf]").forEach(b => b.onclick = () => { S.txF[b.dataset.tf] = b.dataset.tv; renderTranzaksyon(m); hydrate(m); });
+  m.querySelectorAll("[data-ta]").forEach(b => b.onclick = () => { S.filtreAgent = b.dataset.ta; renderTranzaksyon(m); hydrate(m); });
+  $("#tNew", m).onclick = openPickCycle;
+}
+
+/* Chwazi cycle pou yon nouvo operasyon */
+function openPickCycle(){
+  const open = S.cycles.filter(isOpen);
+  const row = y => { const c = clientOfCycle(y); return '<div class="card" data-pick="' + y.id + '" data-s="' + esc(((c ? c.prenom + " " + c.nom + " " + (c.code_client || "") + " " + (c.telephone || "") : "") + " " + (y.numero || "")).toLowerCase()) + '"><div class="row">' + (c ? avatar(c) : '')
+    + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div><div class="sub">' + kodHtml(c && c.code_client, y._local ? "Nouvo cycle" : y.numero, htg(y.frais_journalier) + "/jou") + '</div></div>'
+    + (+y.frais_en_retard > 0 ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : '') + '</div></div>'; };
+  sheet('<div class="name" style="font-size:20px">Nouvo operasyon</div><div class="sub">Chwazi cycle kliyan an</div>'
+    + '<input id="pkQ" type="search" placeholder="🔎 Non, kòd oswa telefòn…" style="margin-top:10px">'
+    + '<div id="pkL" style="margin-top:10px">' + (open.length ? open.map(row).join("") : '<div class="empty">Pa gen cycle aktif. Ale nan Kliyan pou kreye yon cycle.</div>') + '</div>');
+  const q = $("#pkQ");
+  q.oninput = () => { const v = q.value.trim().toLowerCase(); document.querySelectorAll("[data-pick]").forEach(e => e.classList.toggle("hidden", !!v && !e.dataset.s.includes(v))); };
+  document.querySelectorAll("[data-pick]").forEach(e => e.onclick = () => openCycle(e.dataset.pick));
 }
 
 /* ---------- Senkronizasyon ---------- */
