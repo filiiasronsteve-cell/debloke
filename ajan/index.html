@@ -54,6 +54,8 @@ h3{font-size:15px;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;
 .btn:disabled{opacity:.5}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btns .btn{margin:0}
+.btns > *{min-width:0}
+input[type=date]{min-width:0;-webkit-appearance:none;appearance:none;min-height:48px}
 label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 4px}
 input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);font-size:16px}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
@@ -110,6 +112,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
     <button data-p="jodi" class="act" type="button"><span class="i">☀️</span>Jodi a</button>
     <button data-p="kliyan" type="button"><span class="i">👥</span>Kliyan</button>
     <button data-p="nouvo" type="button"><span class="i">➕</span>Nouvo</button>
+    <button data-p="ekip" type="button" id="navEkip" class="hidden"><span class="i">🧭</span>Ekip</button>
     <button data-p="senk" type="button"><span class="i">🔄</span><span>Senk<span id="nBadge" class="badge hidden"></span></span></button>
   </nav>
 </div>
@@ -168,11 +171,11 @@ const DB = {
 /* ================= ETA ================= */
 const S = {
   session: null, moi: null,          // moi = {user_id, nom, role, telephone}
-  clients: [], comptes: [], cycles: [], tx: [], baremes: [],
+  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], filtreAgent: "",
   outbox: [], lastSync: null, online: navigator.onLine, syncing: false, page: "jodi", q: ""
 };
 async function loadState(){
-  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync"]) {
+  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements"]) {
     const v = await DB.get("kv", k); if (v !== undefined) S[k] = v;
   }
   S.outbox = await DB.all("outbox");
@@ -219,6 +222,11 @@ async function ensureToken(){
 const rpc = (fn, args) => http("/rest/v1/rpc/" + fn, { method: "POST", body: args || {} });
 const sel = (t, q) => http("/rest/v1/" + t + "?" + q);
 const ins = (t, row) => http("/rest/v1/" + t, { method: "POST", body: row, headers: { Prefer: "return=minimal" } });
+const patch = (t, q, row) => http("/rest/v1/" + t + "?" + q, { method: "PATCH", body: row, headers: { Prefer: "return=minimal" } });
+const kontFn = body => http("/functions/v1/debloke-kont", { method: "POST", body });
+const isMgr = () => !!S.moi && ["manager","responsable","admin"].includes(S.moi.role);
+const isAdm = () => !!S.moi && ["responsable","admin"].includes(S.moi.role);
+const nomAgent = id => { const p = S.equipe.find(x => x.user_id === id); return p ? p.nom : (S.moi && id === S.moi.user_id ? S.moi.nom : ""); };
 
 /* ================= GPS ================= */
 function getGPS(timeout = 20000){
@@ -282,6 +290,15 @@ async function pushOne(it){
     case "off":
       try { return await ins("debloke_jours_off", p); }
       catch (e) { if (e.code === "23505") return; throw e; }
+    case "cycle":
+      try { return await ins("debloke_cycles", p); }
+      catch (e) { if (e.code === "23505") return; throw e; }
+    case "cloture": return rpc("debloke_cloturer_cycle", p);
+    case "remplacement":
+      try { return await ins("debloke_remplacements", p); }
+      catch (e) { if (e.code === "23505") return; throw e; }
+    case "annule_rp": return patch("debloke_remplacements", "id=eq." + p.id, { annule: true });
+    case "transfert": return rpc("debloke_transferer_client", p);
   }
 }
 
@@ -324,14 +341,24 @@ async function pull(){
   let tx = [];
   if (ids.length) tx = await sel("debloke_transactions", "select=id,cycle_id,type,montant,sens,affectation,date_operation,mode_paiement,capture_le,agent_id&order=capture_le.desc&limit=1000&cycle_id=in.(" + ids.join(",") + ")");
   if (moi[0]) { S.moi = moi[0]; save("moi"); }
+  if (isMgr()) {
+    const [eq, rp] = await Promise.all([
+      sel("debloke_personnel", "select=user_id,nom,role,telephone,actif&order=nom.asc"),
+      sel("debloke_remplacements", "select=*&annule=eq.false&au=gte." + addDays(today(), -1) + "&order=du.asc")
+    ]);
+    S.equipe = eq; S.remplacements = rp; save("equipe"); save("remplacements");
+  }
   // Kenbe done lokal ki poko pase
   const pend = await DB.all("outbox");
   const pendClients = new Set(pend.filter(i => i.kind === "inscrire").map(i => i.payload.p_id));
   const pendComptes = new Set(pend.filter(i => i.kind === "ouvrir").map(i => i.payload.p_id));
+  const pendCycles = new Set(pend.filter(i => i.kind === "cycle").map(i => i.payload.id));
+  const pendClot = new Map(pend.filter(i => i.kind === "cloture").map(i => [i.payload.p_cycle, i.payload.p_date_fin]));
   const pendTx = new Set(pend.filter(i => i.kind === "tx").map(i => i.payload.id));
   S.clients = clients.concat(S.clients.filter(c => c._local && pendClients.has(c.id) && !clients.some(x => x.id === c.id)));
   S.comptes = comptes.concat(S.comptes.filter(c => c._local && pendComptes.has(c.id) && !comptes.some(x => x.id === c.id)));
-  S.cycles = cycles;
+  S.cycles = cycles.concat(S.cycles.filter(y => y._local && pendCycles.has(y.id) && !cycles.some(x => x.id === y.id)));
+  S.cycles.forEach(y => { if (pendClot.has(y.id) && isOpen(y)) { y.statut = "Terminé"; y._closing = true; } });
   const localTx = S.tx.filter(t => t._local && pendTx.has(t.id) && !tx.some(x => x.id === t.id));
   S.tx = tx.concat(localTx);
   localTx.forEach(applyTxLocal);
@@ -339,6 +366,23 @@ async function pull(){
   for (const k of ["clients","comptes","cycles","tx","baremes"]) await save(k);
 }
 function addDays(s, n){ const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
+
+/* Kalandriye lokal (pou cycle kreye san entènèt) : menm règ ak sèvè a */
+function calcLocal(y){
+  const off = new Set(y.jours_repos || []), jours = [];
+  for (let d = y.date_debut, i = 0; jours.length < y.nb_jours_prevu && i < 60; d = addDays(d, 1), i++) {
+    const dow = new Date(d + "T12:00:00").getDay();
+    if ((y.dimanches_exclus && dow === 0) || off.has(dow)) continue;
+    jours.push(d);
+  }
+  const fin = y.date_fin_reelle && y.date_fin_reelle < today() ? y.date_fin_reelle : today();
+  y.date_fin_prevue = jours[jours.length - 1]; y.date_limite = y.prolonge_jusqu_au || y.date_fin_prevue;
+  y.jours_consommes = jours.filter(d => d <= fin).length;
+  y.frais_dus = y.jours_consommes * y.frais_journalier; y.frais_total_prevu = y.nb_jours_prevu * y.frais_journalier;
+  y.frais_en_retard = Math.max(0, y.frais_dus - (+y.frais_payes || 0));
+  y.fonds_a_restituer = +y.fonds_debloques - (+y.fonds_restitue || 0);
+  return y;
+}
 
 /* Mete chif cycle la ajou lokalman (san entènèt) */
 function applyTxLocal(t){
@@ -363,7 +407,9 @@ const pendingFor = id => S.outbox.some(i => i.status !== "done" && (i.payload.p_
 function render(){
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page));
   const m = $("#main");
-  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, senk: renderSenk }[S.page] || renderJodi)(m);
+  $("#navEkip").classList.toggle("hidden", !isMgr());
+  if (S.page === "ekip" && !isMgr()) S.page = "jodi";
+  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
 }
 function renderNet(){
   const b = $("#hNet");
@@ -382,14 +428,16 @@ function cycleCard(y){
   const pct = Math.min(100, Math.round(100 * (+y.jours_consommes || 0) / (y.nb_jours_prevu || 1)));
   return '<div class="card" data-cycle="' + y.id + '"><div class="row"><div class="grow">'
     + '<div class="name">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div>'
-    + '<div class="sub">' + esc(y.numero) + ' · ' + htg(y.frais_journalier) + '/jou · fen ' + dmy(y.date_limite) + '</div></div>'
+    + '<div class="sub">' + esc(y._local ? "Nouvo cycle (ap tann)" : y.numero) + ' · ' + htg(y.frais_journalier) + '/jou · fen ' + dmy(y.date_limite)
+    + (isMgr() && c && c.agent_id ? ' · 👤 ' + esc(nomAgent(c.agent_id)) : '') + '</div></div>'
     + (ech ? '<span class="tag err">Reta remèt</span>' : late ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : y.statut === "Prévu" ? '<span class="tag n">Pou debloke</span>' : '<span class="tag ok">Ajou</span>')
     + '</div><div class="bar"><i style="width:' + pct + '%"></i></div>'
     + '<div class="row sub" style="margin-top:6px"><span class="grow">Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + ' · frè peye ' + htg(y.frais_payes) + '</span><span>Pou remèt <b class="money">' + htg(rest) + '</b></span></div></div>';
 }
 
 function renderJodi(m){
-  const open = S.cycles.filter(isOpen);
+  const fa = isMgr() ? S.filtreAgent : "";
+  const open = S.cycles.filter(isOpen).filter(y => { if (!fa) return true; const c = clientOfCycle(y); return c && c.agent_id === fa; });
   const order = y => (+y.frais_en_retard > 0 ? 0 : 1) + (y.statut === "Prévu" ? 2 : 0);
   open.sort((a, b) => order(a) - order(b) || String(a.date_limite).localeCompare(String(b.date_limite)));
   const sansGps = S.clients.filter(c => c.gps_statut !== "Capturé" && !c._gpsPending);
@@ -400,10 +448,13 @@ function renderJodi(m){
     + '<div>Fon remèt</div><div class="money">' + htg(sum("Restitution du fonds")) + '</div>'
     + '<div>Fon debloke</div><div class="money">' + htg(sum("Déblocage du fonds")) + '</div></div>'
     + (S.lastSync ? '<div class="sub" style="margin-top:6px">Dènye senk : ' + hm(S.lastSync) + '</div>' : '') + '</div>'
+    + (isMgr() && S.equipe.length ? '<div class="chips" id="fAg"><button class="chip' + (!fa ? " sel" : "") + '" data-fa="" type="button">Tout ajan</button>'
+      + S.equipe.filter(p => p.actif !== false).map(p => '<button class="chip' + (fa === p.user_id ? " sel" : "") + '" data-fa="' + p.user_id + '" type="button">' + esc(p.nom) + '</button>').join("") + '</div>' : '')
     + '<h3>Cycle aktif (' + open.length + ')</h3>'
     + (open.length ? open.map(cycleCard).join("") : '<div class="empty">Pa gen cycle aktif. Senkronize lè w gen entènèt.</div>')
     + (sansGps.length ? '<h3>📍 Pozisyon biznis pou anrejistre (' + sansGps.length + ')</h3>'
       + sansGps.map(c => '<div class="card" data-client="' + c.id + '"><div class="row"><div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div><div class="sub">' + esc(c.localisation || c.activite || "") + '</div></div><span class="tag warn">GPS</span></div></div>').join("") : "");
+  m.querySelectorAll("[data-fa]").forEach(b => b.onclick = () => { S.filtreAgent = b.dataset.fa; renderJodi(m); });
 }
 
 function renderKliyan(m){
@@ -422,23 +473,28 @@ function renderKliyan(m){
 
 function openClient(id){
   const c = clientById(id); if (!c) return;
-  const ks = comptesOf(id), ys = cyclesOfClient(id);
+  const ks = comptesOf(id), ys = cyclesOfClient(id), kActif = ks.find(k => k.statut === "Actif");
   const gps = c.gps_statut === "Capturé" || c._gpsPending;
   sheet('<div class="row"><div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
     + '<div class="sub">' + esc(c.telephone || "") + (c.code_client ? " · " + esc(c.code_client) : "") + '</div></div>'
     + (c._local ? '<span class="tag n">Ap tann entènèt</span>' : '') + '</div>'
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
-    + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div></div></div>'
-    + (!gps ? '<button class="btn sec" id="cGps" type="button">📍 Mwen nan biznis li : anrejistre pozisyon an</button>' : '')
+    + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div>'
+    + (isMgr() && c.agent_id ? '<div>Ajan</div><div>' + esc(nomAgent(c.agent_id)) + '</div>' : '') + '</div></div>'
+    + (!gps ? '<button class="btn sec" id="cGps" type="button">📍 Mwen nan biznis li : anrejistre pozisyon an</button>'
+      : isMgr() && !c._local ? '<button class="btn ghost" id="cGps" type="button">📍 Korije pozisyon biznis la (mwen la kounye a)</button>' : '')
     + '<h3>Kont</h3>' + (ks.length ? ks.map(k => '<div class="card"><div class="row"><div class="grow name">' + esc(k._local ? "Nouvo kont (ap tann)" : k.numero) + '</div><span class="tag ' + (k.statut === "Actif" ? "ok" : "n") + '">' + esc(k.statut) + '</span></div></div>').join("")
       : '<div class="sub">Pa gen kont.</div><button class="btn" id="cOpen" type="button">Ouvri yon kont Debloke</button>')
-    + '<h3>Cycle</h3>' + (ys.length ? ys.map(cycleCard).join("") : '<div class="sub">Pa gen cycle. Se manager la ki kreye cycle yo.</div>'));
+    + (kActif && !ys.some(isOpen) ? '<button class="btn" id="cCyc" type="button">➕ Nouvo cycle</button>' : '')
+    + '<h3>Cycle</h3>' + (ys.length ? ys.map(cycleCard).join("") : '<div class="sub">Pa gen cycle.</div>'));
   const g = $("#cGps"); if (g) g.onclick = () => captureGpsFor(c);
   const o = $("#cOpen"); if (o) o.onclick = () => openCompte(c);
+  const n = $("#cCyc"); if (n) n.onclick = () => openNewCycle(c, kActif);
 }
 
 async function captureGpsFor(c){
+  if (c.gps_statut === "Capturé" && !confirm("Ranplase pozisyon biznis la ak kote w ye kounye a?")) return;
   const box = document.createElement("div"); box.innerHTML = gpsHtml(null); $("#cGps").replaceWith(box);
   const g = await getGPS(); box.innerHTML = gpsHtml(g);
   if (g.err || g.acc > 200) return;
@@ -476,10 +532,141 @@ function openCycle(id){
       + '<button class="btn" data-op="Restitution du fonds" type="button">↩️ Remèt fon</button>'
       + '<button class="btn sec" data-op="Déblocage du fonds" type="button">💸 Debloke</button>'
       + '<button class="btn sec" data-op="Pénalité" type="button">⚠️ Penalite</button></div>'
-      + '<button class="btn ghost" id="yOff" type="button">📅 Kliyan an p ap la yon jou</button>' : '')
+      + '<button class="btn ghost" id="yOff" type="button">📅 Kliyan an p ap la yon jou</button>'
+      + '<button class="btn ghost" id="yClose" type="button">✅ Fèmen cycle la (kliyan an fini)</button>' : '')
     + '<h3>Dènye operasyon</h3>' + (hist.length ? hist.map(t => '<div class="row sub" style="padding:6px 0;border-bottom:1px solid var(--line)"><span class="grow">' + dmy(t.date_operation) + ' · ' + esc(t.type) + (t._local ? ' · <b>ap tann</b>' : '') + '</span><span class="money">' + htg(t.montant) + '</span></div>').join("") : '<div class="sub">Okenn.</div>'));
   document.querySelectorAll("[data-op]").forEach(b => b.onclick = () => openOp(y, b.dataset.op));
   const o = $("#yOff"); if (o) o.onclick = () => openOff(y);
+  const cl = $("#yClose"); if (cl) cl.onclick = () => closeCycle(y);
+}
+
+async function closeCycle(y){
+  const rest = +y.fonds_a_restituer;
+  if (rest > 0 && !isMgr()) return toast("Kliyan an poko remèt tout fon an (rete " + htg(rest) + "). Anrejistre remèt fon an anvan.", true);
+  const c = clientOfCycle(y);
+  if (!confirm("Fèmen " + (y._local ? "cycle sa a" : y.numero) + " pou " + (c ? c.prenom + " " + c.nom : "") + " jodi a?\n\nKliyan an peye sèlman jou li konsome yo (" + (y.jours_consommes || 0) + " jou · " + htg(y.frais_dus) + ")."
+      + (+y.frais_en_retard > 0 ? "\n⚠️ Gen " + htg(y.frais_en_retard) + " frè ki pa peye." : "") + (rest > 0 ? "\n⚠️ Rete " + htg(rest) + " fon pou remèt." : ""))) return;
+  await enqueue("cloture", { p_cycle: y.id, p_date_fin: today() }, "Fèmen cycle · " + (c ? c.prenom + " " + c.nom : ""));
+  y.date_fin_reelle = today(); y.statut = rest > 0 || +y.frais_en_retard > 0 ? "Terminé avec écart" : "Terminé"; y._closing = true; save("cycles");
+  closeSheet(); toast("Cycle fèmen ✔"); render();
+}
+
+/* ---------- Nouvo cycle (ajan an kreye l sou teren) ---------- */
+function openNewCycle(c, k){
+  const fr = S.baremes.length ? S.baremes : CFG.frais;
+  const lim = k.limite_autorisee ? Number(k.limite_autorisee) : null;
+  let jou = 3, frais = null, dim = true, deb = true;
+  sheet('<div class="name" style="font-size:20px">Nouvo cycle</div><div class="sub">' + esc(c.prenom + " " + c.nom) + ' · ' + esc(k._local ? "nouvo kont" : k.numero) + (lim ? ' · limit ' + htg(lim) : '') + '</div>'
+    + '<label for="ncM">Montan pou debloke (HTG)</label><input id="ncM" class="big" type="number" inputmode="numeric" min="1" step="50">'
+    + '<label>Konbyen jou</label><div class="chips" id="ncJ">' + [1,2,3,4,5,6,7].map(n => '<button class="chip' + (n === jou ? " sel" : "") + '" data-j="' + n + '" type="button">' + n + '</button>').join("") + '</div>'
+    + '<label>Frè pa jou</label><div class="chips" id="ncF">' + fr.map(f => '<button class="chip" data-f="' + f + '" type="button">' + htg(f) + '</button>').join("") + '</div>'
+    + '<label for="ncD">Dat kòmansman</label><input id="ncD" type="date" value="' + today() + '" min="' + addDays(today(), -7) + '">'
+    + '<label class="switch"><input id="ncDim" type="checkbox" checked><span><b>Pa konte dimanch</b></span></label>'
+    + '<label class="switch"><input id="ncDeb" type="checkbox" checked><span><b>M ap bay kliyan an kòb la kounye a</b><br><span class="sub">Déblocage a ap anrejistre an menm tan.</span></span></label>'
+    + '<div class="card" id="ncSum" style="margin-top:10px"></div>'
+    + '<button class="btn" id="ncOk" type="button">Kreye cycle la</button><button class="btn ghost" id="ncNo" type="button">Anile</button>');
+  const sum = () => { const m = Number($("#ncM").value) || 0, y = calcLocal({ date_debut: $("#ncD").value || today(), nb_jours_prevu: jou, dimanches_exclus: dim, frais_journalier: frais || 0, fonds_debloques: m });
+    $("#ncSum").innerHTML = '<div class="kv"><div>Fen cycle la</div><div>' + dmy(y.date_fin_prevue) + '</div><div>Frè total (si l fè tout jou yo)</div><div class="money">' + htg(jou * (frais || 0)) + '</div><div>Kliyan an ap remèt</div><div class="money">' + htg(m) + '</div></div>'; };
+  document.querySelectorAll("[data-j]").forEach(b => b.onclick = () => { jou = +b.dataset.j; document.querySelectorAll("[data-j]").forEach(x => x.classList.toggle("sel", x === b)); sum(); });
+  document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { frais = +b.dataset.f; document.querySelectorAll("[data-f]").forEach(x => x.classList.toggle("sel", x === b)); sum(); });
+  $("#ncM").oninput = sum; $("#ncD").onchange = sum; $("#ncDim").onchange = e => { dim = e.target.checked; sum(); }; $("#ncDeb").onchange = e => deb = e.target.checked; sum();
+  $("#ncNo").onclick = closeSheet;
+  $("#ncOk").onclick = async () => {
+    const m = Math.round(Number($("#ncM").value)), d = $("#ncD").value;
+    if (!(m > 0)) return toast("Mete montan an.", true);
+    if (lim && m > lim) return toast("Montan an depase limit kont lan (" + htg(lim) + ").", true);
+    if (!frais) return toast("Chwazi frè pa jou a.", true);
+    if (!d) return toast("Chwazi dat kòmansman an.", true);
+    if (!confirm("Cycle " + jou + " jou · " + htg(m) + " · " + htg(frais) + "/jou\n" + c.prenom + " " + c.nom + (deb ? "\n\nW ap bay kliyan an " + htg(m) + " kounye a." : "") + "\n\nKonfime?")) return;
+    $("#ncOk").disabled = true;
+    const row = { id: uuid(), compte_id: k.id, date_debut: d, nb_jours_prevu: jou, fonds_debloques: m, frais_journalier: frais, dimanches_exclus: dim };
+    await enqueue("cycle", row, "Cycle " + jou + " jou · " + htg(m) + " · " + c.prenom + " " + c.nom);
+    const y = calcLocal({ ...row, numero: "(ap tann)", statut: "Prévu", jours_repos: [], frais_payes: 0, fonds_restitue: 0, fonds_decaisse: 0, penalites_payees: 0, _local: true });
+    S.cycles.unshift(y);
+    if (deb) {
+      let g = null; try { g = await getGPS(8000); } catch {}
+      const okg = g && !g.err && g.acc <= 500;
+      const t = { id: uuid(), cycle_id: row.id, type: "Déblocage du fonds", montant: m, date_operation: today(), mode_paiement: "Espèces", reference: null, commentaire: null,
+        agent_id: S.moi.user_id, gps_lat: okg ? g.lat : null, gps_lng: okg ? g.lng : null, gps_precision_m: okg ? g.acc : null, capture_le: new Date().toISOString(), appareil: (navigator.userAgent || "").slice(0, 120) };
+      await enqueue("tx", t, "Déblocage " + htg(m) + " · " + c.prenom + " " + c.nom);
+      S.tx.unshift({ ...t, _local: true }); applyTxLocal(t); save("tx");
+    }
+    save("cycles"); closeSheet(); toast("Cycle kreye ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)")); openClient(c.id);
+  };
+}
+
+/* ================= EKRAN MANAGER ================= */
+function renderEkip(m){
+  const open = S.cycles.filter(isOpen);
+  const parAgent = {};
+  open.forEach(y => { const c = clientOfCycle(y), a = (c && c.agent_id) || "?"; const o = parAgent[a] = parAgent[a] || { n: 0, dehors: 0, reta: 0 };
+    o.n++; o.dehors += Math.max(0, +y.fonds_a_restituer); o.reta += +y.frais_en_retard || 0; });
+  const tot = Object.values(parAgent).reduce((s, o) => ({ n: s.n + o.n, dehors: s.dehors + o.dehors, reta: s.reta + o.reta }), { n: 0, dehors: 0, reta: 0 });
+  const agents = S.equipe.filter(p => p.actif !== false);
+  const opt = (list, ph) => '<option value="">' + ph + '</option>' + list.map(p => '<option value="' + p.user_id + '">' + esc(p.nom) + ' (' + esc(p.role) + ')</option>').join("");
+  m.innerHTML = '<h2>Ekip</h2><div class="card"><div class="kv"><div>Cycle aktif</div><div><b>' + tot.n + '</b></div><div>Fon deyò</div><div class="money">' + htg(tot.dehors) + '</div><div>Frè an reta</div><div class="money">' + htg(tot.reta) + '</div></div></div>'
+    + '<h3>Pa ajan</h3>' + (Object.keys(parAgent).length ? Object.entries(parAgent).map(([a, o]) => '<div class="card"><div class="row"><div class="grow"><div class="name">' + esc(nomAgent(a) || "—") + '</div><div class="sub">' + o.n + ' cycle · fon deyò ' + htg(o.dehors) + '</div></div>' + (o.reta > 0 ? '<span class="tag warn">Reta ' + htg(o.reta) + '</span>' : '<span class="tag ok">Ajou</span>') + '</div></div>').join("") : '<div class="sub">Pa gen cycle aktif.</div>')
+    + '<h3>Ranplasman</h3>' + (S.remplacements.length ? S.remplacements.map(r => '<div class="card"><div class="row"><div class="grow"><div class="name" style="font-size:15px">' + esc(nomAgent(r.remplacant)) + ' ranplase ' + esc(nomAgent(r.titulaire)) + '</div><div class="sub">' + dmy(r.du) + ' → ' + dmy(r.au) + (r.client_id ? ' · 1 kliyan' : ' · tout kliyan') + (r.motif ? ' · ' + esc(r.motif) : '') + (r._local ? ' · ap tann' : '') + '</div></div>'
+        + (r._local ? '' : '<button class="pill off" data-rpx="' + r.id + '" type="button">Anile</button>') + '</div></div>').join("") : '<div class="sub">Pa gen ranplasman.</div>')
+    + '<div class="card"><label for="rpT">Ajan ki p ap la</label><select id="rpT">' + opt(agents, "Chwazi…") + '</select>'
+    + '<label for="rpR">Ajan k ap ranplase l</label><select id="rpR">' + opt(agents, "Chwazi…") + '</select>'
+    + '<div class="btns" style="margin-top:6px"><div><label for="rpD">Soti</label><input id="rpD" type="date" value="' + today() + '"></div><div><label for="rpA">Rive</label><input id="rpA" type="date" value="' + today() + '"></div></div>'
+    + '<label for="rpM">Rezon</label><input id="rpM" placeholder="Egz. malad, konje…"><button class="btn" id="rpOk" type="button">Kreye ranplasman an</button></div>'
+    + '<h3>Transfè yon kliyan</h3><div class="card"><label for="tfC">Kliyan</label><select id="tfC"><option value="">Chwazi…</option>'
+    + S.clients.filter(c => !c._local).sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom)).map(c => '<option value="' + c.id + '">' + esc(c.prenom + " " + c.nom) + ' — ' + esc(nomAgent(c.agent_id) || "?") + '</option>').join("") + '</select>'
+    + '<label for="tfA">Nouvo ajan</label><select id="tfA">' + opt(agents.filter(p => p.role === "agent"), "Chwazi…") + '</select>'
+    + '<label for="tfM">Rezon</label><input id="tfM"><button class="btn" id="tfOk" type="button">Transfere kliyan an</button></div>'
+    + '<h3>Anplwaye</h3>' + S.equipe.map(p => '<div class="card"><div class="row"><div class="grow"><div class="name" style="font-size:15px">' + esc(p.nom) + '</div><div class="sub">' + esc(p.telephone) + ' · ' + esc(p.role) + '</div></div>'
+        + (p.actif === false ? '<span class="tag err">Dezaktive</span>' : '<span class="tag ok">Aktif</span>') + '</div>'
+        + (isAdm() && p.user_id !== S.moi.user_id ? '<div class="btns" style="margin-top:8px"><button class="btn sec" data-pw="' + esc(p.telephone) + '" type="button">Nouvo modpas</button><button class="btn ghost" data-act="' + esc(p.telephone) + '" data-on="' + (p.actif === false ? 1 : 0) + '" type="button">' + (p.actif === false ? "Reaktive" : "Dezaktive") + '</button></div>' : '') + '</div>').join("")
+    + (isAdm() ? '<h3>Nouvo kont anplwaye</h3><div class="card"><p class="sub" style="margin-top:0">Bezwen entènèt.</p><label for="kaN">Non konplè</label><input id="kaN"><label for="kaT">Telefòn</label><input id="kaT" type="tel" inputmode="tel" placeholder="3700 1234">'
+      + '<label for="kaR">Wòl</label><select id="kaR"><option value="agent">Ajan</option><option value="analyste">Analis</option><option value="manager">Manager</option>' + (S.moi.role === "admin" ? '<option value="responsable">Responsab liy</option><option value="admin">Admin</option>' : '') + '</select>'
+      + '<label for="kaP">Modpas (8 karaktè omwen)</label><input id="kaP" type="text" autocomplete="off"><button class="btn" id="kaOk" type="button">Kreye kont lan</button></div>' : '');
+
+  m.querySelectorAll("[data-rpx]").forEach(b => b.onclick = async () => {
+    if (!confirm("Anile ranplasman sa a?")) return;
+    await enqueue("annule_rp", { id: b.dataset.rpx }, "Anile ranplasman");
+    S.remplacements = S.remplacements.filter(r => r.id !== b.dataset.rpx); save("remplacements"); renderEkip(m);
+  });
+  $("#rpOk").onclick = async () => {
+    const t = $("#rpT").value, r = $("#rpR").value, du = $("#rpD").value, au = $("#rpA").value;
+    if (!t || !r) return toast("Chwazi 2 ajan yo.", true);
+    if (t === r) return toast("Se pa menm ajan an ki ka ranplase tèt li.", true);
+    if (!du || !au || au < du) return toast("Dat yo pa bon.", true);
+    const row = { id: uuid(), titulaire: t, remplacant: r, du, au, motif: $("#rpM").value.trim() || null, cree_par: S.moi.user_id };
+    await enqueue("remplacement", row, "Ranplasman " + nomAgent(t) + " → " + nomAgent(r));
+    S.remplacements.push({ ...row, _local: true }); save("remplacements"); toast("Ranplasman anrejistre ✔"); renderEkip(m);
+  };
+  $("#tfOk").onclick = async () => {
+    const c = clientById($("#tfC").value), a = $("#tfA").value;
+    if (!c || !a) return toast("Chwazi kliyan an ak nouvo ajan an.", true);
+    if (c.agent_id === a) return toast("Kliyan an deja nan men ajan sa a.", true);
+    if (!confirm("Transfere " + c.prenom + " " + c.nom + " bay " + nomAgent(a) + "?")) return;
+    await enqueue("transfert", { p_client: c.id, p_nouvel_agent: a, p_motif: $("#tfM").value.trim() || null }, "Transfè " + c.prenom + " " + c.nom + " → " + nomAgent(a));
+    c.agent_id = a; save("clients"); toast("Transfè anrejistre ✔"); renderEkip(m);
+  };
+  const online = fn => async (...a) => { if (!S.online) return toast("Fòk ou gen entènèt pou sa.", true); try { await fn(...a); } catch (e) { toast(e.message, true); } };
+  m.querySelectorAll("[data-pw]").forEach(b => b.onclick = online(async () => {
+    const pw = prompt("Nouvo modpas pou " + b.dataset.pw + " (8 karaktè omwen) :"); if (!pw) return;
+    if (pw.length < 8) return toast("Modpas la twò kout.", true);
+    await kontFn({ aksyon: "modpas", telefon: b.dataset.pw, modpas: pw }); toast("Modpas chanje ✔. Bay moun nan li.");
+  }));
+  m.querySelectorAll("[data-act]").forEach(b => b.onclick = online(async () => {
+    const on = b.dataset.on === "1"; if (!confirm((on ? "Reaktive" : "Dezaktive") + " kont " + b.dataset.act + "?")) return;
+    await kontFn({ aksyon: on ? "reactiver" : "desactiver", telefon: b.dataset.act });
+    const p = S.equipe.find(x => x.telephone === b.dataset.act); if (p) p.actif = on; save("equipe"); toast("Fèt ✔"); renderEkip(m);
+  }));
+  const ka = $("#kaOk"); if (ka) ka.onclick = online(async () => {
+    const non = $("#kaN").value.trim(), tel = normTel($("#kaT").value), wol = $("#kaR").value, pw = $("#kaP").value;
+    if (non.length < 2) return toast("Mete non an.", true);
+    if (!tel) return toast("Telefòn nan pa bon.", true);
+    if (pw.length < 8) return toast("Modpas la dwe gen 8 karaktè omwen.", true);
+    ka.disabled = true;
+    try { const r = await kontFn({ aksyon: "creer", telefon: tel, non, wol, modpas: pw });
+      S.equipe.push({ user_id: r.user_id, nom: non, role: wol, telephone: tel, actif: true }); save("equipe");
+      toast("Kont " + non + " kreye ✔"); renderEkip(m); }
+    finally { ka.disabled = false; }
+  });
 }
 
 function openOp(y, type){
