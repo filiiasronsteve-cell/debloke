@@ -84,6 +84,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
 .upd{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 64px);z-index:40;background:var(--brand-2);color:#fff;border-radius:12px;padding:12px 14px;font-weight:700;text-align:center;max-width:600px;margin:0 auto;cursor:pointer;box-shadow:var(--shadow)}
 .search.row input{flex:1}
 .warnbox{background:var(--warn-soft);border-radius:12px;padding:10px 12px;margin-top:10px}
+.kod{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--brand);letter-spacing:.3px}
 .switch{display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;margin-top:10px}
 .switch input{width:22px;height:22px;accent-color:var(--brand)}
 .login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px;max-width:420px;margin:0 auto}
@@ -134,7 +135,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "1.4 · 04/11/2026";
+const APP_VERSION = "1.5 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -543,10 +544,11 @@ function refreshKliyan(){
   renderKliyan(m); hydrate(m);
   if (had) { const n = $("#q", m); n.focus(); try { n.setSelectionRange(p, p); } catch {} }
 }
+const kodHtml = k => k ? '<b class="kod">' + esc(k) + '</b> · ' : '';
 function resultCard(r){
   const tag = r.statut_debloke === "mine" ? '<span class="tag ok">Kliyan ou</span>' : r.statut_debloke === "autre_agent" ? '<span class="tag n">Lòt ajan</span>' : '<span class="tag warn">Ajoute</span>';
   return '<div class="card" data-pers="' + r.id_personne + '"><div class="row">' + avatar({ prenom: r.prenom, nom: r.nom, photo: r.photo })
-    + '<div class="grow"><div class="name">' + esc(r.prenom + " " + r.nom) + '</div><div class="sub">' + esc(r.telephone || "") + (r.distance_m != null ? " · 📍 " + r.distance_m + " m" : "") + '</div></div>' + tag + '</div></div>';
+    + '<div class="grow"><div class="name">' + esc(r.prenom + " " + r.nom) + '</div><div class="sub">' + kodHtml(r.code_client) + esc(r.telephone || "") + (r.distance_m != null ? " · 📍 " + r.distance_m + " m" : "") + '</div></div>' + tag + '</div></div>';
 }
 function renderKliyan(m){
   const q = S.q.trim().toLowerCase(), qd = q.replace(/\D/g, ""), near = S.near;
@@ -555,14 +557,14 @@ function renderKliyan(m){
   else list.sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
   const g = S.glob, mineIds = new Set(S.clients.map(c => c.id));
   const others = (g.res || []).filter(r => !(r.client_id && mineIds.has(r.client_id)));
-  m.innerHTML = '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd…" value="' + esc(S.q) + '">'
+  m.innerHTML = '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd kliyan…" value="' + esc(S.q) + '">'
     + '<button class="btn ' + (near ? "" : "sec") + '" id="qNear" type="button" style="width:auto;margin:0;padding:12px 14px" title="Kliyan toupre m">📍</button></div>'
     + (near ? '<div class="sub" style="margin-top:6px">📍 Kliyan toupre w (±' + near.acc + ' m) · <b id="nearX" style="cursor:pointer;color:var(--brand)">Retire</b></div>' : '')
     + '<h3>Kliyan mwen (' + list.length + ')</h3>'
     + (list.length ? list.map(c => {
       const ys = cyclesOfClient(c.id).filter(isOpen), late = ys.some(y => +y.frais_en_retard > 0);
       return '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
-        + '<div class="sub">' + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + (near ? " · 📍 " + c._d + " m" : "") + '</div></div>'
+        + '<div class="sub">' + kodHtml(c.code_client) + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + (near ? " · 📍 " + c._d + " m" : "") + '</div></div>'
         + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '') + '</div></div>';
     }).join("") : '<div class="sub">Okenn nan kliyan ou yo.</div>')
     + (qValid(S.q.trim()) || near ? '<h3>Nan tout baz la</h3>'
@@ -592,8 +594,8 @@ async function openResult(r){
 function openChoose(r){
   let act = null, emp = null, gps = null;
   sheet('<div class="row">' + avatar({ prenom: r.prenom, nom: r.nom, photo: r.photo }, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(r.prenom + " " + r.nom) + '</div>'
-    + '<div class="sub">' + esc(r.telephone || "") + '</div></div></div>'
-    + '<div class="warnbox">Verifye se menm moun nan (foto, non, telefòn) anvan w ajoute l.</div>'
+    + '<div class="sub">' + kodHtml(r.code_client) + esc(r.telephone || "") + '</div></div></div>'
+    + '<div class="warnbox">Verifye se menm moun nan (foto, non, kòd, telefòn) anvan w ajoute l.</div>'
     + '<label>Aktivite</label><div class="chips">' + CFG.activites.map(a => '<button class="chip" data-ca="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
     + '<label>Kote li travay</label><div class="chips">' + CFG.emplacements.map(a => '<button class="chip" data-ce="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
     + '<label for="chL">Adrès / repè</label><input id="chL">'
@@ -629,7 +631,7 @@ function openClient(id){
   const ks = comptesOf(id), ys = cyclesOfClient(id), kActif = ks.find(k => k.statut === "Actif");
   const gps = c.gps_statut === "Capturé" || c._gpsPending;
   sheet('<div class="row">' + avatar(c, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
-    + '<div class="sub">' + esc(c.telephone || "") + (c.code_client ? " · " + esc(c.code_client) : "") + '</div></div>'
+    + '<div class="sub">' + kodHtml(c.code_client) + esc(c.telephone || "") + '</div></div>'
     + (c._local ? '<span class="tag n">Ap tann entènèt</span>' : '') + '</div>'
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
