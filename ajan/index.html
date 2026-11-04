@@ -210,6 +210,20 @@ details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size
 .rsum .t{font-family:var(--font-num);font-size:24px;font-weight:800;color:var(--brand);text-align:right}
 :root[data-theme="nwit"] .mapbox .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
 :root[data-theme="nwit"] .mapbox{background:#10131A}
+.agf{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;padding:6px 2px 8px;margin:4px -16px 6px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.agf::-webkit-scrollbar{display:none}
+.agf button{flex:none;width:68px;scroll-snap-align:start;background:none;border:0;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--muted);font:600 12px/1.15 var(--font)}
+.agf .ci{position:relative;width:52px;height:52px;border-radius:50%;background:color-mix(in srgb,var(--c) 14%,var(--card));color:var(--c);display:flex;align-items:center;justify-content:center;font:800 17px/1 var(--font-num);transition:transform .15s,box-shadow .15s}
+.agf .ci svg{width:24px;height:24px}
+.agf .nm{max-width:68px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.agf .bd{position:absolute;top:-3px;right:-5px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border-radius:10px;background:var(--card);color:var(--ink);font:800 11px/20px var(--font-num);text-align:center;box-shadow:0 1px 4px rgba(17,24,39,.2)}
+:root[data-theme="nwit"] .agf .ci{background:color-mix(in srgb,var(--c) 32%,var(--card));color:color-mix(in srgb,var(--c) 45%,#fff)}
+:root[data-theme="nwit"] .agf button.sel .ci{background:var(--c);color:#fff}
+.agf button.sel{color:var(--ink);font-weight:800}
+.agf button.sel .ci{background:var(--c);color:#fff;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--c);transform:scale(1.04)}
+.agf button.sel .bd{background:var(--ink);color:var(--bg)}
+.agf-h{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}
+.agf-h b{font-size:15px}.agf-h span{font-size:12px;color:var(--muted);font-weight:600}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -259,7 +273,7 @@ details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.0 · 04/11/2026";
+const APP_VERSION = "2.1 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -638,18 +652,17 @@ function renderJodi(m){
   const order = y => (+y.frais_en_retard > 0 ? 0 : 1) + (y.statut === "Prévu" ? 2 : 0);
   open.sort((a, b) => order(a) - order(b) || String(a.date_limite).localeCompare(String(b.date_limite)));
   const sansGps = S.clients.filter(c => c.gps_statut !== "Capturé" && !c._gpsPending);
-  const kolekte = S.tx.filter(t => t.date_operation === today() && t.agent_id === (S.moi && S.moi.user_id));
+  const kolekte = S.tx.filter(t => t.date_operation === today() && (isMgr() ? (!fa || t.agent_id === fa) : t.agent_id === (S.moi && S.moi.user_id)));
   const sum = typ => kolekte.filter(t => t.type === typ).reduce((s, t) => s + Number(t.montant), 0);
   const nb = n => Number(n || 0).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ");
   const fre = sum("Paiement frais") + sum("Pénalité"), rem = sum("Restitution du fonds"), deb = sum("Déblocage du fonds");
-  m.innerHTML = '<div class="hero"><div class="lbl">Kolekte jodi a · ' + dmy(today()) + '</div>'
+  m.innerHTML = '<div class="hero"><div class="lbl">' + (isMgr() ? (fa ? "Kolekte " + esc(nomAgent(fa)) : "Kolekte ekip la") : "Kolekte jodi a") + ' · ' + dmy(today()) + '</div>'
     + '<div class="tot">' + nb(fre + rem) + '<small>HTG</small></div>'
     + '<div class="tiles"><div class="tile"><span>Frè</span><b>' + nb(fre) + '</b></div>'
     + '<div class="tile"><span>Remèt</span><b>' + nb(rem) + '</b></div>'
     + '<div class="tile"><span>Debloke</span><b>' + nb(deb) + '</b></div></div>'
     + (S.lastSync ? '<div class="ft">Dènye senk : ' + hm(S.lastSync) + '</div>' : '') + '</div>'
-    + (isMgr() && S.equipe.length ? '<div class="chips" id="fAg"><button class="chip' + (!fa ? " sel" : "") + '" data-fa="" type="button">Tout ajan</button>'
-      + S.equipe.filter(p => p.actif !== false).map(p => '<button class="chip' + (fa === p.user_id ? " sel" : "") + '" data-fa="' + p.user_id + '" type="button">' + esc(p.nom) + '</button>').join("") + '</div>' : '')
+    + (isMgr() && S.equipe.length ? agentPicker("data-fa", fa) : '')
     + '<h3>Cycle aktif (' + open.length + ')</h3>'
     + (open.length ? open.map(cycleCard).join("") : '<div class="empty">Pa gen cycle aktif. Senkronize lè w gen entènèt.</div>')
     + (sansGps.length ? '<h3>📍 Pozisyon biznis pou anrejistre (' + sansGps.length + ')</h3>'
@@ -1224,8 +1237,7 @@ function renderIstorik(match){
   const chip = (k, v, l) => '<button class="chip' + (f[k] === v ? " sel" : "") + '" data-tf="' + k + '" data-tv="' + esc(v) + '" type="button">' + l + '</button>';
   let html = '<div class="chips">' + chip("per", "jodi", "Jodi a") + chip("per", "7", "7 jou") + chip("per", "30", "30 jou") + '</div>'
     + '<div class="chips">' + chip("typ", "", "Tout") + ["Paiement frais", "Restitution du fonds", "Déblocage du fonds", "Pénalité"].map(t => chip("typ", t, TX_ICO[t] + " " + TX_LBL[t])).join("") + '</div>'
-    + (isMgr() && S.equipe.length ? '<div class="chips"><button class="chip' + (!fa ? " sel" : "") + '" data-ta="" type="button">Tout ajan</button>'
-      + S.equipe.filter(p => p.actif !== false).map(p => '<button class="chip' + (fa === p.user_id ? " sel" : "") + '" data-ta="' + p.user_id + '" type="button">' + esc(p.nom) + '</button>').join("") + '</div>' : '')
+    + (isMgr() && S.equipe.length ? agentPicker("data-ta", fa) : '')
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>💵 Frè kolekte</div><div class="money">' + htg(sum("Paiement frais")) + '</div>'
     + '<div>↩️ Fon remèt</div><div class="money">' + htg(sum("Restitution du fonds")) + '</div>'
@@ -1371,6 +1383,19 @@ function loadLeaflet(){
   return LF;
 }
 const AG_COL = ["#7B1E28", "#1F6FB2", "#2F7D32", "#B26A00", "#6B3FA0", "#00838F", "#C2185B", "#5D4037"];
+function agentPicker(attr, cur, opts = {}){
+  const actifs = S.cycles.filter(isOpen), n = id => actifs.filter(y => { const c = clientOfCycle(y); return c && c.agent_id === id; }).length;
+  const ppl = S.equipe.filter(p => p.actif !== false && (p.role === "agent" || n(p.user_id) > 0) && (!opts.agentsOnly || p.role === "agent"))
+    .sort((a, b) => (a.role !== "agent") - (b.role !== "agent") || n(b.user_id) - n(a.user_id) || String(a.nom).localeCompare(String(b.nom)));
+  const ini = s => String(s || "?").replace(/\(.*?\)/g, "").trim().split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const it = (id, nom, inner, c, cnt) => '<button type="button" ' + attr + '="' + id + '" class="' + (cur === id ? "sel" : "") + '" aria-pressed="' + (cur === id) + '" style="--c:' + c + '">'
+    + '<span class="ci">' + inner + (cnt != null ? '<span class="bd">' + cnt + '</span>' : '') + '</span><span class="nm">' + esc(nom) + '</span></button>';
+  const cible = cur ? S.equipe.find(p => p.user_id === cur) : null;
+  return '<div class="agf-h"><b>' + (cible ? esc(cible.nom) : "Tout ekip la") + '</b><span>' + ppl.length + ' moun · ' + (cur ? n(cur) : actifs.length) + ' cycle aktif</span></div>'
+    + '<div class="agf" role="group" aria-label="Filtre pa ajan">'
+    + (opts.noAll ? '' : it("", "Tout", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.6 3.6 5.2"/></svg>', "var(--brand)", null))
+    + ppl.map(p => it(p.user_id, p.nom, ini(p.nom), agColor(p.user_id), n(p.user_id))).join("") + '</div>';
+}
 const agColor = id => { const i = S.equipe.findIndex(p => p.user_id === id); return AG_COL[(i < 0 ? 0 : i) % AG_COL.length]; };
 const ST = { reta: { c: "#C0352B", l: "An reta" }, ajou: { c: "#2F7D32", l: "Ajou" }, prevu: { c: "#B26A00", l: "Pou debloke" }, san: { c: "#7A6A6C", l: "San cycle" } };
 function clientState(c){
@@ -1391,8 +1416,7 @@ function renderKat(m){
   m.innerHTML = '<div class="row" style="margin:4px 0 8px"><h2 class="grow" style="margin:0">Kat</h2>'
     + (TRACK() ? '<span class="tag ' + (watchId !== null && !S.posErr ? "ok" : "warn") + '">📡 ' + (watchId !== null && !S.posErr ? "Pozisyon ap anrejistre" : "GPS pa aktif") + '</span>' : '') + '</div>'
     + '<div class="chips">' + modes.map(([v, l]) => '<button class="chip' + (k.mode === v ? " sel" : "") + '" data-km="' + v + '" type="button">' + l + '</button>').join("") + '</div>'
-    + (mgr && S.equipe.length ? '<div class="chips">' + (k.mode !== "pakou" ? '<button class="chip' + (!k.agent ? " sel" : "") + '" data-ka="" type="button">Tout ekip la</button>' : '')
-      + S.equipe.filter(p => p.actif !== false && p.role === "agent").map(p => '<button class="chip' + (k.agent === p.user_id ? " sel" : "") + '" data-ka="' + p.user_id + '" type="button"><i class="dot" style="background:' + agColor(p.user_id) + '"></i>' + esc(p.nom) + '</button>').join("") + '</div>' : '')
+    + (mgr && S.equipe.length ? agentPicker("data-ka", k.agent, { agentsOnly: true, noAll: k.mode === "pakou" }) : '')
     + (mgr && k.mode === "pakou" ? '<div class="row" style="margin-top:8px"><label for="kDate" style="margin:0">Dat</label><input id="kDate" type="date" value="' + k.date + '" max="' + today() + '" style="flex:1"></div>' : '')
     + '<div class="mapbox"><div id="map"></div><button id="mMe" class="fab" type="button" title="Kote m ye">🎯</button><div class="legend" id="mLeg"></div></div>'
     + '<div id="mPanel"></div>';
