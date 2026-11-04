@@ -466,7 +466,8 @@ function renderKliyan(m){
       const ys = cyclesOfClient(c.id).filter(isOpen), late = ys.some(y => +y.frais_en_retard > 0);
       return '<div class="card" data-client="' + c.id + '"><div class="row"><div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
         + '<div class="sub">' + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + '</div></div>'
-        + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '') + '</div></div>';
+        + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '')
+        + (c.correspondance === "a_verifier" ? ' <span class="tag err">A verifye</span>' : '') + '</div></div>';
     }).join("") : '<div class="empty">Pa gen kliyan.</div>');
   const i = $("#q", m); i.oninput = () => { S.q = i.value; const p = i.selectionStart; renderKliyan(m); const n = $("#q", m); n.focus(); n.setSelectionRange(p, p); };
 }
@@ -481,7 +482,8 @@ function openClient(id){
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
     + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div>'
-    + (isMgr() && c.agent_id ? '<div>Ajan</div><div>' + esc(nomAgent(c.agent_id)) + '</div>' : '') + '</div></div>'
+    + (isMgr() && c.agent_id ? '<div>Ajan</div><div>' + esc(nomAgent(c.agent_id)) + '</div>' : '')
+    + (isMgr() && c.correspondance ? '<div>Doublon</div><div>' + ({ nouveau: "Nouvo moun", nif: "Konekte pa NIF", telephone: "Konekte pa telefòn", a_verifier: '<span class="tag err">A verifye</span> telefòn oswa NIF sa a egziste deja pou lòt moun' }[c.correspondance] || esc(c.correspondance)) + '</div>' : '') + '</div></div>'
     + (!gps ? '<button class="btn sec" id="cGps" type="button">📍 Mwen nan biznis li : anrejistre pozisyon an</button>'
       : isMgr() && !c._local ? '<button class="btn ghost" id="cGps" type="button">📍 Korije pozisyon biznis la (mwen la kounye a)</button>' : '')
     + '<h3>Kont</h3>' + (ks.length ? ks.map(k => '<div class="card"><div class="row"><div class="grow name">' + esc(k._local ? "Nouvo kont (ap tann)" : k.numero) + '</div><span class="tag ' + (k.statut === "Actif" ? "ok" : "n") + '">' + esc(k.statut) + '</span></div></div>').join("")
@@ -752,7 +754,7 @@ function renderNouvo(m){
     const p = $("#nP").value.trim(), n = $("#nN").value.trim(), tel = normTel($("#nT").value);
     if (p.length < 2 || n.length < 2) return toast("Mete prenon ak non kliyan an.", true);
     if (!tel) return toast("Nimewo telefòn nan pa bon (8 chif).", true);
-    if (S.clients.some(c => c.telephone === tel)) return toast("Ou gen yon kliyan deja ak telefòn sa a.", true);
+    if (S.clients.some(c => normTel(c.telephone) === tel)) return toast("Ou gen yon kliyan deja ak telefòn sa a.", true);
     const g = F.atBiz && F.gps && !F.gps.err && F.gps.acc <= 200 ? F.gps : null;
     if (F.atBiz && !g && !confirm("GPS la poko bon. Anrejistre kliyan an san pozisyon (w ap fè l pita)?")) return;
     $("#nOk").disabled = true;
