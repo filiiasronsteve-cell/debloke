@@ -223,6 +223,7 @@ details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size
 .agf button.sel{color:var(--ink);font-weight:800}
 .agf button.sel .ci{background:var(--c);color:#fff;box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--c);transform:scale(1.04)}
 .agf button.sel .bd{background:var(--ink);color:var(--bg)}
+#sheetBody .agf-h{display:none}
 .agf-h{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}
 .agf-h b{font-size:15px}.agf-h span{font-size:12px;color:var(--muted);font-weight:600}
 nav .sh{display:none}nav.mgr .lg{display:none}nav.mgr .sh{display:inline}
@@ -312,7 +313,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.3 · 04/11/2026";
+const APP_VERSION = "2.4 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -1394,8 +1395,8 @@ function renderRapo(m){
       + (!mgr && a.statut === "En attente" && a.agent_id === S.moi.user_id ? '<div class="av-bt"><button class="btn" data-avok="' + a.id + '" type="button">Mwen resevwa l</button><button class="btn ghost" data-avno="' + a.id + '" type="button">Montan an pa bon</button></div>' : '')
       + (mgr && a.statut !== "Confirmé" ? '<div class="av-bt"><button class="btn sec" data-aved="' + a.id + '" type="button">Korije</button><button class="btn ghost" data-avx="' + a.id + '" type="button">Anile</button></div>' : '')
       + '</div>').join("")
-    + (mgr && ag ? '<div class="av-it" style="border-top:1px solid var(--line)"><input id="rAvM" type="number" inputmode="numeric" min="1" step="50" placeholder="Montan (HTG)" style="flex:1;min-width:0;font-family:var(--font-num);font-weight:700"><input id="rAvN" type="text" placeholder="Nòt (opsyonèl)" style="flex:1;min-width:0"><button class="btn" id="rAvOk" type="button" style="margin:0">Antre fon pou ' + esc(nomAg) + '</button></div>' : '')
-    + (mgr && !ag ? '<div class="sub" style="margin-top:8px">Chwazi yon ajan pou antre kòb finans ba li.</div>' : '')
+    + (mgr && ag ? '<div class="sub" style="margin-top:10px;font-weight:700">Antre kòb finans bay ' + esc(nomAg) + ' :</div><div class="av-it" style="border-top:0;padding-top:4px"><input id="rAvM" type="number" inputmode="numeric" min="1" step="50" placeholder="Montan (HTG)" style="flex:1;min-width:0;font-family:var(--font-num);font-weight:700"><input id="rAvN" type="text" placeholder="Nòt (opsyonèl)" style="flex:1;min-width:0"><button class="btn" id="rAvOk" type="button" style="margin:0">Antre fon pou ' + esc(nomAg) + '</button></div>' : '')
+    + (mgr && !ag ? '<button class="btn" id="rAvNew" type="button" style="margin-top:12px">＋ Antre kòb finans bay yon ajan</button>' : '')
     + '</div>';
 
   // 2-4. Frè, Remèt, Debloke
@@ -1431,6 +1432,31 @@ function renderRapo(m){
     const id = uuid();
     go("avance", { p_id: id, p_agent: ag, p_date: d, p_montant: v, p_note: note }, "Fon " + htg(v) + " · " + nomAg,
       () => S.avances.push({ id, agent_id: ag, date_jour: d, montant: v, note, statut: "En attente", _local: true }));
+  };
+  const nw = $("#rAvNew", m);
+  if (nw) nw.onclick = () => {
+    const ags = S.equipe.filter(p => p.actif !== false && p.role === "agent");
+    let pick = "";
+    sheet('<div class="name" style="font-size:20px">Antre kòb finans bay</div><div class="sub">Pou ' + dmy(d) + '</div>'
+      + '<label>Ajan ki resevwa kòb la *</label>' + agentPicker("data-avag", "", { agentsOnly: true, noAll: true })
+      + '<label for="rsM">Montan (HTG) *</label><input id="rsM" class="big" style="text-align:left;font-family:var(--font-num)" type="number" inputmode="numeric" min="1" step="50">'
+      + '<label for="rsN">Nòt (opsyonèl)</label><input id="rsN" type="text" placeholder="Egz. kès maten">'
+      + '<div class="sub" style="margin-top:8px">Ajan an ap resevwa l sou telefòn li pou l konfime. Kòb la konte nan rapò a sèlman lè l konfime.</div>'
+      + '<button class="btn cta" id="rsOk" type="button">Anrejistre</button><button class="btn ghost" id="rsNo" type="button">Anile</button>');
+    const sb = $("#sheetBody");
+    const upd = () => { const v = Math.round(Number($("#rsM").value)) || 0, a = ags.find(p => p.user_id === pick); $("#rsOk").textContent = "Anrejistre" + (v > 0 ? " " + htg(v) : "") + (a ? " · " + a.nom : ""); };
+    sb.querySelectorAll("[data-avag]").forEach(b => b.onclick = () => { pick = b.dataset.avag; sb.querySelectorAll("[data-avag]").forEach(x => { x.classList.toggle("sel", x === b); x.setAttribute("aria-pressed", x === b); }); upd(); });
+    $("#rsM").oninput = upd; $("#rsNo").onclick = closeSheet;
+    $("#rsOk").onclick = () => {
+      const v = Math.round(Number($("#rsM").value)), note = $("#rsN").value.trim() || null;
+      if (!pick) return toast("Chwazi yon ajan.", true);
+      if (!(v > 0)) return toast("Mete montan an.", true);
+      const nom = nomAgent(pick);
+      if (!confirm("Finans bay " + nom + " " + htg(v) + " pou " + dmy(d) + "?")) return;
+      const id = uuid(); closeSheet(); S.rAg = pick;
+      go("avance", { p_id: id, p_agent: pick, p_date: d, p_montant: v, p_note: note }, "Fon " + htg(v) + " · " + nom,
+        () => S.avances.push({ id, agent_id: pick, date_jour: d, montant: v, note, statut: "En attente", _local: true }));
+    };
   };
   m.querySelectorAll("[data-aved]").forEach(b => b.onclick = () => {
     const a = S.avances.find(x => x.id === b.dataset.aved); if (!a) return;

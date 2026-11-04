@@ -204,6 +204,9 @@
     ["pa MonCash/lòt", "par MonCash/autre"], ["Rapò Debloke ·", "Rapport Debloke ·"], ["Rapò a kopye", "Rapport copié"], ["Ajan :", "Agent :"],
     ["Mete montan an.", "Entrez le montant."],
     // Mo jeneral
+    ["＋ Antre kòb finans bay yon ajan", "＋ Saisir les fonds remis à un agent"], ["Antre kòb finans bay", "Saisir les fonds remis à"], ["Ajan ki resevwa kòb la *", "Agent qui reçoit l'argent *"],
+    ["Ajan an ap resevwa l sou telefòn li pou l konfime. Kòb la konte nan rapò a sèlman lè l konfime.", "L'agent le recevra sur son téléphone pour confirmer. Le montant ne compte dans le rapport qu'après confirmation."],
+    ["Egz. kès maten", "Ex. : caisse du matin"], ["Montan (HTG) *", "Montant (HTG) *"], ["Pou", "Pour"],
     ["Kote m ye", "Ma position"], ["Egz. maladi, mache fèmen…", "Ex. : maladie, marché fermé…"], ["Egz. malad, konje…", "Ex. : malade, congé…"],
     ["Non, kòd kliyan, nimewo kont oswa telefòn…", "Nom, code client, numéro de compte ou téléphone…"], ["Filtre pa ajan", "Filtrer par agent"],
     ["Fon deyò", "Fonds en cours"], ["fon deyò", "fonds en cours"],
