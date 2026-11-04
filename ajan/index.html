@@ -281,6 +281,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 .ask-b{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:18px}
 .ask-b .btn{margin:0;padding:14px 10px;font-size:15px}
 .ask-card.danger #askOk{background:var(--err);color:#fff}
+.mode-auto{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:13px;font-weight:700;color:var(--muted)}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -333,7 +334,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.5 · 04/11/2026";
+const APP_VERSION = "2.6 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -1123,9 +1124,8 @@ function openOp(y, type){
     + '<div class="pad">' + ["1","2","3","4","5","6","7","8","9","000","0","del"].map(k => '<button type="button" data-k="' + k + '"' + (k === "del" ? ' aria-label="Efase"' : '') + '>'
         + (k === "del" ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12z"/><path d="M17 9l-5 5M12 9l5 5"/></svg>' : k) + '</button>').join("") + '</div>'
     + '<div id="opG">' + gpsHtml(null) + '</div>'
-    + '<div class="chips c" id="opMode">' + CFG.modes.map(x => '<button class="chip' + (x === mode ? " sel" : "") + '" data-m="' + esc(x) + '" type="button">' + esc(x) + '</button>').join("") + '</div>'
-    + '<details class="more"><summary>Referans / kòmantè</summary>'
-    + '<label for="opR">Referans (si se MonCash, NatCash…)</label><input id="opR" type="text" autocomplete="off">'
+    + '<div class="mode-auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>Peman an kach (Espèces)</div>'
+    + '<details class="more"><summary>Kòmantè</summary>'
     + '<label for="opC">Kòmantè</label><input id="opC" type="text" autocomplete="off"></details>'
     + '<button class="btn cta" id="opOk" type="button">Anrejistre</button><button class="btn ghost" id="opNo" type="button">Anile</button>');
   const inp = $("#opM");
@@ -1151,7 +1151,7 @@ function openOp(y, type){
     $("#opOk").disabled = true;
     const ok = gps && !gps.err && gps.acc <= 500;
     const t = { id: uuid(), cycle_id: y.id, type, montant: m, date_operation: today(), mode_paiement: mode,
-      reference: $("#opR").value.trim() || null, commentaire: $("#opC").value.trim() || null, agent_id: S.moi.user_id,
+      reference: null, commentaire: $("#opC").value.trim() || null, agent_id: S.moi.user_id,
       gps_lat: ok ? gps.lat : null, gps_lng: ok ? gps.lng : null, gps_precision_m: ok ? gps.acc : null,
       capture_le: new Date().toISOString(), appareil: (navigator.userAgent || "").slice(0, 120) };
     await enqueue("tx", t, type + " " + htg(m) + " · " + (c ? c.prenom + " " + c.nom : ""));
