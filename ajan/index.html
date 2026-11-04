@@ -262,6 +262,25 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 .lsw button.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
 .lsw.big{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
 .lsw.big button{padding:12px;font-size:15px;border-radius:14px}
+.ask{position:fixed;inset:0;z-index:60;background:rgba(10,12,20,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .15s}
+.ask.on{opacity:1}
+.ask-card{width:100%;max-width:380px;background:var(--card);color:var(--ink);border-radius:26px;padding:22px 20px 18px;box-shadow:0 24px 60px rgba(10,12,20,.35);text-align:center;transform:translateY(12px) scale(.98);transition:transform .18s}
+.ask.on .ask-card{transform:none}
+.ask-ic{width:56px;height:56px;border-radius:18px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;background:var(--brand-soft);color:var(--brand)}
+.ask-card.danger .ask-ic{background:var(--err-soft);color:var(--err)}
+.ask-ic svg{width:28px;height:28px}
+.ask-t{font-size:18px;font-weight:800}
+.ask-big{font-family:var(--font-num);font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:4px;font-variant-numeric:tabular-nums}
+.ask-rows{margin:14px 0 2px;background:var(--bg);border-radius:16px;padding:6px 14px;text-align:left}
+.ask-rows div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px;border-bottom:1px solid var(--line)}
+.ask-rows div:last-child{border-bottom:0}
+.ask-rows span{color:var(--muted);font-weight:600}
+.ask-rows b{text-align:right;overflow-wrap:anywhere}
+.ask-m{font-size:14px;color:var(--muted);margin-top:12px;line-height:1.45}
+.ask-card input{margin-top:14px;text-align:center;font-weight:700}
+.ask-b{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:18px}
+.ask-b .btn{margin:0;padding:14px 10px;font-size:15px}
+.ask-card.danger #askOk{background:var(--err);color:#fff}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -307,13 +326,14 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 
 <div id="sheet" class="sheet-bg hidden"><div class="sheet" id="sheetBody"></div></div>
 <div id="toast" class="toast hidden"></div>
+<div id="ask" class="ask hidden"></div>
 <div id="viewer" class="viewer hidden"><button class="x" type="button" aria-label="Fèmen">✕</button><img id="viewerImg" alt="Foto kliyan"></div>
 <div id="upd" class="upd hidden">🔄 Nouvo vèsyon app la disponib · peze la a</div>
 
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.4 · 04/11/2026";
+const APP_VERSION = "2.5 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -862,7 +882,7 @@ function openClient(id){
 }
 
 async function captureGpsFor(c){
-  if (c.gps_statut === "Capturé" && !confirm("Ranplase pozisyon biznis la ak kote w ye kounye a?")) return;
+  if (c.gps_statut === "Capturé" && !await ask("Ranplase pozisyon biznis la ak kote w ye kounye a?")) return;
   const box = document.createElement("div"); box.innerHTML = gpsHtml(null); $("#cGps").replaceWith(box);
   const g = await getGPS(); box.innerHTML = gpsHtml(g);
   if (g.err || g.acc > 200) return;
@@ -872,7 +892,7 @@ async function captureGpsFor(c){
 
 async function openCompte(c){
   const kid = uuid();
-  const atBiz = confirm("Èske w nan biznis kliyan an kounye a?\n\nOK = wi, anrejistre pozisyon GPS la\nAnile = non, m ap anrejistre l pita");
+  const atBiz = await ask({ icon: "pin", title: "Ou nan biznis kliyan an?", msg: "Si w la kounye a, app la ap anrejistre pozisyon GPS biznis la.", ok: "Wi, anrejistre GPS", cancel: "Non, pita" });
   let g = null;
   if (atBiz && c.gps_statut !== "Capturé") { toast("Ap chèche pozisyon GPS…"); g = await getGPS(); if (g.err || g.acc > 200) { toast((g.err || "GPS pa presi ase") + " Kont lan ap ouvri san GPS.", true); g = null; } }
   await enqueue("ouvrir", { p_id: kid, p_client: c.id, p_gps_lat: g && g.lat, p_gps_lng: g && g.lng, p_gps_precision: g && g.acc, p_capture_le: (g && g.at) || new Date().toISOString() }, "Kont " + c.prenom + " " + c.nom);
@@ -916,8 +936,9 @@ async function closeCycle(y){
   const rest = +y.fonds_a_restituer;
   if (rest > 0 && !isMgr()) return toast("Kliyan an poko remèt tout fon an (rete " + htg(rest) + "). Anrejistre remèt fon an anvan.", true);
   const c = clientOfCycle(y);
-  if (!confirm("Fèmen " + (y._local ? "cycle sa a" : y.numero) + " pou " + (c ? c.prenom + " " + c.nom : "") + " jodi a?\n\nKliyan an peye sèlman jou li konsome yo (" + (y.jours_consommes || 0) + " jou · " + htg(y.frais_dus) + ")."
-      + (+y.frais_en_retard > 0 ? "\n⚠️ Gen " + htg(y.frais_en_retard) + " frè ki pa peye." : "") + (rest > 0 ? "\n⚠️ Rete " + htg(rest) + " fon pou remèt." : ""))) return;
+  if (!await ask({ icon: "check", title: "Fèmen cycle la jodi a?", rows: [["Kliyan", c ? c.prenom + " " + c.nom : "—"], ["Cycle", y._local ? "cycle sa a" : y.numero], ["Jou konsome", (y.jours_consommes || 0) + " / " + y.nb_jours_prevu], ["Frè dwe", htg(y.frais_dus)]]
+      .concat(+y.frais_en_retard > 0 ? [["Frè an reta", htg(y.frais_en_retard)]] : []).concat(rest > 0 ? [["Pou remèt", htg(rest)]] : []),
+      msg: "Kliyan an peye sèlman jou li konsome yo.", tone: (+y.frais_en_retard > 0 || rest > 0) ? "danger" : "", ok: "Fèmen cycle la" })) return;
   await enqueue("cloture", { p_cycle: y.id, p_date_fin: today() }, "Fèmen cycle · " + (c ? c.prenom + " " + c.nom : ""));
   y.date_fin_reelle = today(); y.statut = rest > 0 || +y.frais_en_retard > 0 ? "Terminé avec écart" : "Terminé"; y._closing = true; save("cycles");
   closeSheet(); toast("Cycle fèmen ✔"); render();
@@ -964,7 +985,7 @@ function openNewCycle(c, k, opts = {}){
     if (lim && m > lim) return toast("Montan an depase limit kont lan (" + htg(lim) + ").", true);
     if (!frais) return toast("Chwazi frè pa jou a.", true);
     if (!d) return toast("Chwazi dat kòmansman an.", true);
-    if (!confirm("Cycle " + jou + " jou · " + htg(m) + " · " + htg(frais) + "/jou\n" + c.prenom + " " + c.nom + (deb ? "\n\nW ap bay kliyan an " + htg(m) + " kounye a." : "") + "\n\nKonfime?")) return;
+    if (!await ask({ icon: "cycle", title: "Nouvo cycle", big: htg(m), rows: [["Kliyan", c.prenom + " " + c.nom], ["Jou", String(jou)], ["Frè pa jou", htg(frais)], ["Frè total", htg(jou * frais)]], msg: deb ? "W ap bay kliyan an " + htg(m) + " kounye a." : "", ok: "Kreye cycle la" })) return;
     $("#ncOk").disabled = true;
     if (!k) {   // kliyan an pa gen kont : ouvri youn otomatikman
       const kid = uuid();
@@ -1038,7 +1059,7 @@ function renderEkip(m){
       + '<label for="kaP">Modpas (8 karaktè omwen)</label><input id="kaP" type="text" autocomplete="off"><button class="btn" id="kaOk" type="button">Kreye kont lan</button></div>' : '');
 
   m.querySelectorAll("[data-rpx]").forEach(b => b.onclick = async () => {
-    if (!confirm("Anile ranplasman sa a?")) return;
+    if (!await ask("Anile ranplasman sa a?")) return;
     await enqueue("annule_rp", { id: b.dataset.rpx }, "Anile ranplasman");
     S.remplacements = S.remplacements.filter(r => r.id !== b.dataset.rpx); save("remplacements"); renderEkip(m);
   });
@@ -1055,18 +1076,18 @@ function renderEkip(m){
     const c = clientById($("#tfC").value), a = $("#tfA").value;
     if (!c || !a) return toast("Chwazi kliyan an ak nouvo ajan an.", true);
     if (c.agent_id === a) return toast("Kliyan an deja nan men ajan sa a.", true);
-    if (!confirm("Transfere " + c.prenom + " " + c.nom + " bay " + nomAgent(a) + "?")) return;
+    if (!await ask("Transfere " + c.prenom + " " + c.nom + " bay " + nomAgent(a) + "?")) return;
     await enqueue("transfert", { p_client: c.id, p_nouvel_agent: a, p_motif: $("#tfM").value.trim() || null }, "Transfè " + c.prenom + " " + c.nom + " → " + nomAgent(a));
     c.agent_id = a; save("clients"); toast("Transfè anrejistre ✔"); renderEkip(m);
   };
   const online = fn => async (...a) => { if (!S.online) return toast("Fòk ou gen entènèt pou sa.", true); try { await fn(...a); } catch (e) { toast(e.message, true); } };
   m.querySelectorAll("[data-pw]").forEach(b => b.onclick = online(async () => {
-    const pw = prompt("Nouvo modpas pou " + b.dataset.pw + " (8 karaktè omwen) :"); if (!pw) return;
+    const pw = await ask({ icon: "key", title: "Nouvo modpas", msg: "Nouvo modpas pou " + b.dataset.pw + " (8 karaktè omwen)", input: { type: "text", value: "" }, ok: "Chanje modpas la" }); if (!pw) return;
     if (pw.length < 8) return toast("Modpas la twò kout.", true);
     await kontFn({ aksyon: "modpas", telefon: b.dataset.pw, modpas: pw }); toast("Modpas chanje ✔. Bay moun nan li.");
   }));
   m.querySelectorAll("[data-act]").forEach(b => b.onclick = online(async () => {
-    const on = b.dataset.on === "1"; if (!confirm((on ? "Reaktive" : "Dezaktive") + " kont " + b.dataset.act + "?")) return;
+    const on = b.dataset.on === "1"; if (!await ask((on ? "Reaktive" : "Dezaktive") + " kont " + b.dataset.act + "?")) return;
     await kontFn({ aksyon: on ? "reactiver" : "desactiver", telefon: b.dataset.act });
     const p = S.equipe.find(x => x.telephone === b.dataset.act); if (p) p.actif = on; save("equipe"); toast("Fèt ✔"); renderEkip(m);
   }));
@@ -1125,8 +1146,8 @@ function openOp(y, type){
     const m = Math.round(Number(String($("#opM").value).replace(/\D/g, "")));
     if (!(m > 0)) return toast("Mete yon montan.", true);
     if (type === "Déblocage du fonds" && m > +y.fonds_debloques - +y.fonds_decaisse) return toast("Montan an depase sa ki rete pou debloke (" + htg(+y.fonds_debloques - +y.fonds_decaisse) + ").", true);
-    if (type === "Restitution du fonds" && m > +y.fonds_a_restituer) { if (!confirm("Montan an plis pase sa kliyan an dwe remèt (" + htg(y.fonds_a_restituer) + "). Kontinye?")) return; }
-    if (!confirm(type + " · " + htg(m) + "\n" + (c ? c.prenom + " " + c.nom : "") + "\n\nKonfime?")) return;
+    if (type === "Restitution du fonds" && m > +y.fonds_a_restituer) { if (!await ask("Montan an plis pase sa kliyan an dwe remèt (" + htg(y.fonds_a_restituer) + "). Kontinye?")) return; }
+    if (!await ask({ icon: type === "Déblocage du fonds" ? "out" : "in", title: type, big: htg(m), rows: [["Kliyan", c ? c.prenom + " " + c.nom : "—"], ["Cycle", y.numero], ["Mòd peman", mode]], ok: "Wi, anrejistre" })) return;
     $("#opOk").disabled = true;
     const ok = gps && !gps.err && gps.acc <= 500;
     const t = { id: uuid(), cycle_id: y.id, type, montant: m, date_operation: today(), mode_paiement: mode,
@@ -1207,7 +1228,7 @@ function renderNouvo(m){
     if (!tel) return toast("Nimewo telefòn nan pa bon (8 chif).", true);
     if (S.clients.some(c => normTel(c.telephone) === tel)) return toast("Ou gen yon kliyan deja ak telefòn sa a.", true);
     const g = F.atBiz && F.gps && !F.gps.err && F.gps.acc <= 200 ? F.gps : null;
-    if (F.atBiz && !g && !confirm("GPS la poko bon. Anrejistre kliyan an san pozisyon (w ap fè l pita)?")) return;
+    if (F.atBiz && !g && !await ask("GPS la poko bon. Anrejistre kliyan an san pozisyon (w ap fè l pita)?")) return;
     $("#nOk").disabled = true;
     const cid = uuid(), now = new Date().toISOString();
     let photoPath = null;
@@ -1334,12 +1355,12 @@ function renderSenk(m){
   wireLang(m);
   m.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { setTheme(b.dataset.th); renderSenk(m); });
   m.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
-    if (!confirm("Retire operasyon sa a? Li p ap janm voye.")) return;
+    if (!await ask("Retire operasyon sa a? Li p ap janm voye.")) return;
     await DB.del("outbox", Number(b.dataset.del)); S.outbox = await DB.all("outbox"); renderBadge(); render();
   });
   $("#sOut").onclick = async () => {
     const n = S.outbox.filter(i => i.status !== "done").length;
-    if (n && !confirm(n + " operasyon poko voye. Si w dekonekte, yo ap rete sou telefòn nan epi y ap voye lè w konekte ankò. Kontinye?")) return;
+    if (n && !await ask(n + " operasyon poko voye. Si w dekonekte, yo ap rete sou telefòn nan epi y ap voye lè w konekte ankò. Kontinye?")) return;
     stopWatch(); S.session = null; await DB.del("kv", "session"); showLogin();
   };
 }
@@ -1425,10 +1446,10 @@ function renderRapo(m){
   m.querySelectorAll("[data-rag]").forEach(b => b.onclick = () => { S.rAg = b.dataset.rag; renderRapo(m); });
   const go = async (kind, payload, label, apply) => { await enqueue(kind, payload, label); apply(); save("avances"); renderRapo(m); toast(label + " ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)")); };
   const ok = $("#rAvOk", m);
-  if (ok) ok.onclick = () => {
+  if (ok) ok.onclick = async () => {
     const v = Math.round(Number($("#rAvM", m).value)), note = $("#rAvN", m).value.trim() || null;
     if (!(v > 0)) return toast("Mete montan an.", true);
-    if (!confirm("Finans bay " + nomAg + " " + htg(v) + " pou " + dmy(d) + "?")) return;
+    if (!await ask({ icon: "cash", title: "Kòb finans bay ajan", big: htg(v), rows: [["Ajan", nomAg], ["Dat", dmy(d)], ["Nòt", note || "—"]], msg: "Ajan an ap resevwa l sou telefòn li pou l konfime.", ok: "Wi, anrejistre" })) return;
     const id = uuid();
     go("avance", { p_id: id, p_agent: ag, p_date: d, p_montant: v, p_note: note }, "Fon " + htg(v) + " · " + nomAg,
       () => S.avances.push({ id, agent_id: ag, date_jour: d, montant: v, note, statut: "En attente", _local: true }));
@@ -1447,35 +1468,35 @@ function renderRapo(m){
     const upd = () => { const v = Math.round(Number($("#rsM").value)) || 0, a = ags.find(p => p.user_id === pick); $("#rsOk").textContent = "Anrejistre" + (v > 0 ? " " + htg(v) : "") + (a ? " · " + a.nom : ""); };
     sb.querySelectorAll("[data-avag]").forEach(b => b.onclick = () => { pick = b.dataset.avag; sb.querySelectorAll("[data-avag]").forEach(x => { x.classList.toggle("sel", x === b); x.setAttribute("aria-pressed", x === b); }); upd(); });
     $("#rsM").oninput = upd; $("#rsNo").onclick = closeSheet;
-    $("#rsOk").onclick = () => {
+    $("#rsOk").onclick = async () => {
       const v = Math.round(Number($("#rsM").value)), note = $("#rsN").value.trim() || null;
       if (!pick) return toast("Chwazi yon ajan.", true);
       if (!(v > 0)) return toast("Mete montan an.", true);
       const nom = nomAgent(pick);
-      if (!confirm("Finans bay " + nom + " " + htg(v) + " pou " + dmy(d) + "?")) return;
+      if (!await ask({ icon: "cash", title: "Kòb finans bay ajan", big: htg(v), rows: [["Ajan", nom], ["Dat", dmy(d)], ["Nòt", note || "—"]], msg: "Ajan an ap resevwa l sou telefòn li pou l konfime.", ok: "Wi, anrejistre" })) return;
       const id = uuid(); closeSheet(); S.rAg = pick;
       go("avance", { p_id: id, p_agent: pick, p_date: d, p_montant: v, p_note: note }, "Fon " + htg(v) + " · " + nom,
         () => S.avances.push({ id, agent_id: pick, date_jour: d, montant: v, note, statut: "En attente", _local: true }));
     };
   };
-  m.querySelectorAll("[data-aved]").forEach(b => b.onclick = () => {
+  m.querySelectorAll("[data-aved]").forEach(b => b.onclick = async () => {
     const a = S.avances.find(x => x.id === b.dataset.aved); if (!a) return;
-    const v = Math.round(Number(prompt("Nouvo montan pou " + nomAgent(a.agent_id) + " (HTG)", Math.round(a.montant))));
+    const v = Math.round(Number(await ask({ icon: "cash", title: "Korije montan an", msg: "Nouvo montan pou " + nomAgent(a.agent_id) + " (HTG)", input: { type: "number", value: Math.round(a.montant) }, ok: "Anrejistre" })));
     if (!(v > 0)) return;
     go("avance", { p_id: a.id, p_agent: a.agent_id, p_date: a.date_jour, p_montant: v, p_note: a.note || null }, "Fon korije " + htg(v),
       () => Object.assign(a, { montant: v, statut: "En attente", commentaire_agent: null, _local: true }));
   });
-  m.querySelectorAll("[data-avx]").forEach(b => b.onclick = () => {
-    const a = S.avances.find(x => x.id === b.dataset.avx); if (!a || !confirm("Anile fon " + htg(a.montant) + " sa a?")) return;
+  m.querySelectorAll("[data-avx]").forEach(b => b.onclick = async () => {
+    const a = S.avances.find(x => x.id === b.dataset.avx); if (!a || !await ask({ icon: "warn", tone: "danger", title: "Anile fon sa a?", big: htg(a.montant), rows: [["Ajan", nomAgent(a.agent_id)], ["Dat", dmy(a.date_jour)]], ok: "Anile l" })) return;
     go("avance_x", { p_id: a.id }, "Fon anile", () => { S.avances = S.avances.filter(x => x.id !== a.id); });
   });
-  m.querySelectorAll("[data-avok]").forEach(b => b.onclick = () => {
-    const a = S.avances.find(x => x.id === b.dataset.avok); if (!a || !confirm("Ou konfime ou resevwa " + htg(a.montant) + " nan men finans?")) return;
+  m.querySelectorAll("[data-avok]").forEach(b => b.onclick = async () => {
+    const a = S.avances.find(x => x.id === b.dataset.avok); if (!a || !await ask({ icon: "cash", title: "Ou resevwa kòb sa a?", big: htg(a.montant), rows: [["Dat", dmy(a.date_jour)], ["Nòt", a.note || "—"]], msg: "Konfime sèlman si kòb la nan men w kounye a.", ok: "Wi, mwen resevwa l" })) return;
     go("avance_ok", { p_id: a.id, p_ok: true, p_commentaire: null }, "Fon konfime", () => Object.assign(a, { statut: "Confirmé", _local: true }));
   });
-  m.querySelectorAll("[data-avno]").forEach(b => b.onclick = () => {
+  m.querySelectorAll("[data-avno]").forEach(b => b.onclick = async () => {
     const a = S.avances.find(x => x.id === b.dataset.avno); if (!a) return;
-    const c = prompt("Konbyen ou resevwa vrèman? Ekri yon ti mesaj pou manager a.", ""); if (c === null) return;
+    const c = await ask({ icon: "warn", tone: "danger", title: "Montan an pa bon", big: htg(a.montant), msg: "Konbyen ou resevwa vrèman? Ekri yon ti mesaj pou manager a.", input: { type: "text", value: "", placeholder: "Egz. mwen resevwa 5 000 HTG sèlman" }, ok: "Voye" }); if (c === null) return;
     go("avance_ok", { p_id: a.id, p_ok: false, p_commentaire: c.trim() || "Montan an pa bon" }, "Ou di montan an pa bon", () => Object.assign(a, { statut: "Contesté", commentaire_agent: c.trim(), _local: true }));
   });
   $("#rShare", m).onclick = async () => {
@@ -1489,6 +1510,44 @@ function renderRapo(m){
     const tt = window.tr ? window.tr(t) : t;
     try { if (navigator.share) await navigator.share({ text: tt }); else { await navigator.clipboard.writeText(tt); toast("Rapò a kopye ✔"); } } catch (e) {}
   };
+}
+
+/* ---------- Fenèt konfimasyon (ranplase confirm/prompt navigatè a) ---------- */
+const ASK_IC = {
+  q: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/>',
+  cash: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/>',
+  in: '<path d="M12 3v18M16 7.5c0-1.7-1.8-3-4-3s-4 1.3-4 3 1.8 2.6 4 3 4 1.3 4 3-1.8 3-4 3-4-1.3-4-3"/>',
+  out: '<path d="M15 10l5 5-5 5"/><path d="M20 15H9a5 5 0 0 1 0-10h3"/>',
+  cycle: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/>',
+  check: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
+  warn: '<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.5v.01"/>',
+  pin: '<circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>'
+};
+function ask(o){
+  if (typeof o === "string") o = { msg: o };
+  const msg = String(o.msg || "").replace(/⚠️\s?/g, "");
+  return new Promise(res => {
+    const el = $("#ask"), prev = document.activeElement;
+    el.innerHTML = '<div class="ask-card ' + (o.tone || "") + '" role="dialog" aria-modal="true" aria-labelledby="askT">'
+      + '<div class="ask-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ASK_IC[o.icon] || ASK_IC.q) + '</svg></div>'
+      + '<div class="ask-t" id="askT">' + esc(o.title || "Konfimasyon") + '</div>'
+      + (o.big ? '<div class="ask-big">' + esc(o.big) + '</div>' : '')
+      + (o.rows && o.rows.length ? '<div class="ask-rows">' + o.rows.map(r => '<div><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>').join("") + '</div>' : '')
+      + (msg ? '<div class="ask-m">' + esc(msg).replace(/\n+/g, "<br>") + '</div>' : '')
+      + (o.input ? '<input id="askIn" type="' + (o.input.type || "text") + '"' + (o.input.type === "number" ? ' inputmode="numeric"' : '') + ' value="' + esc(o.input.value ?? "") + '" placeholder="' + esc(o.input.placeholder || "") + '" autocomplete="off">' : '')
+      + '<div class="ask-b"><button class="btn ghost" id="askNo" type="button">' + esc(o.cancel || "Anile") + '</button><button class="btn" id="askOk" type="button">' + esc(o.ok || "Wi, konfime") + '</button></div></div>';
+    el.classList.remove("hidden");
+    requestAnimationFrame(() => el.classList.add("on"));
+    const inp = $("#askIn");
+    const done = v => { document.removeEventListener("keydown", kd, true); el.classList.remove("on"); el.classList.add("hidden"); el.innerHTML = ""; try { prev && prev.focus && prev.focus(); } catch (e) {} res(v); };
+    const okv = () => done(o.input ? inp.value : true), nov = () => done(o.input ? null : false);
+    const kd = e => { if (e.key === "Escape") { e.preventDefault(); nov(); } else if (e.key === "Enter" && (!o.input || document.activeElement === inp)) { e.preventDefault(); okv(); } };
+    document.addEventListener("keydown", kd, true);
+    $("#askOk").onclick = okv; $("#askNo").onclick = nov;
+    el.onclick = e => { if (e.target === el) nov(); };
+    (inp || $("#askOk")).focus();
+  });
 }
 
 /* ---------- Lang (Kreyòl / Français) : wè i18n.js ---------- */
