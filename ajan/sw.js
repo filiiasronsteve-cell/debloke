@@ -1,6 +1,6 @@
 // DEBLOKE Ajan : app la louvri menm san entènèt.
 // Paj yo : entènèt an premye, sinon kopi ki sou telefòn nan. Demann Supabase yo PA janm kache isit la.
-var CACHE = "debloke-ajan-v6";
+var CACHE = "debloke-ajan-v7";
 var FILES = ["./", "index.html", "manifest.json", "../icon-192.png", "../icon-512.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }));

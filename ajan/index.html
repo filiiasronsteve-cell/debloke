@@ -135,7 +135,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "1.6 · 04/11/2026";
+const APP_VERSION = "1.7 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -710,16 +710,26 @@ async function closeCycle(y){
 }
 
 /* ---------- Nouvo cycle (ajan an kreye l sou teren) ---------- */
-function openNewCycle(c, k){
+function openNewCycle(c, k, opts = {}){
   const fr = S.baremes.length ? S.baremes : CFG.frais;
-  const lim = k.limite_autorisee ? Number(k.limite_autorisee) : null;
-  let jou = 3, frais = null, dim = true, deb = true;
-  sheet('<div class="name" style="font-size:20px">Nouvo cycle</div><div class="sub">' + esc(c.prenom + " " + c.nom) + ' · ' + esc(k._local ? "nouvo kont" : k.numero) + (lim ? ' · limit ' + htg(lim) : '') + '</div>'
-    + '<label for="ncM">Montan pou debloke (HTG)</label><input id="ncM" class="big" type="number" inputmode="numeric" min="1" step="50">'
-    + '<label>Konbyen jou</label><div class="chips" id="ncJ">' + [1,2,3,4,5,6,7].map(n => '<button class="chip' + (n === jou ? " sel" : "") + '" data-j="' + n + '" type="button">' + n + '</button>').join("") + '</div>'
-    + '<label>Frè pa jou</label><div class="chips" id="ncF">' + fr.map(f => '<button class="chip" data-f="' + f + '" type="button">' + htg(f) + '</button>').join("") + '</div>'
+  const lim = k && k.limite_autorisee ? Number(k.limite_autorisee) : null;
+  // Ranpli otomatik apati dènye cycle kont lan (kliyan an ka renouvle menm kondisyon yo)
+  const prev = k ? cyclesOfCompte(k.id).slice().sort((x, y) => String(y.date_debut).localeCompare(String(x.date_debut)))[0] : null;
+  let jou = prev ? +prev.nb_jours_prevu : 3, frais = prev && fr.includes(+prev.frais_journalier) ? +prev.frais_journalier : null,
+      dim = prev ? prev.dimanches_exclus !== false : true, deb = true;
+  const nbAv = k ? cyclesOfCompte(k.id).length : 0;
+  sheet('<div class="row"><div class="name grow" style="font-size:20px">Nouvo cycle</div>' + (opts.fromPicker ? '<button class="pill busy" id="ncChg" type="button">Chanje kont</button>' : '') + '</div>'
+    + '<div class="card" style="margin-top:10px"><div class="row">' + avatar(c, true) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
+    + '<div class="sub">' + kodHtml(c.code_client, c.telephone) + '</div></div></div>'
+    + '<div class="kv" style="margin-top:8px"><div>Kont</div><div><b>' + esc(k ? (k._local ? "Nouvo kont (ap tann)" : k.numero) : "Nouvo kont · ap ouvri otomatikman") + '</b></div>'
+    + '<div>Cycle anvan</div><div>' + nbAv + (prev ? ' · dènye a : ' + htg(prev.fonds_debloques) + ', ' + prev.nb_jours_prevu + ' jou, ' + htg(prev.frais_journalier) + '/jou' : '') + '</div>'
+    + (lim ? '<div>Limit kont lan</div><div class="money">' + htg(lim) + '</div>' : '') + '</div></div>'
+    + (prev ? '<div class="sub">Montan, jou ak frè yo soti nan dènye cycle a. Chanje sa ki pa bon.</div>' : '')
+    + '<label for="ncM">Montan pou debloke (HTG) *</label><input id="ncM" class="big" type="number" inputmode="numeric" min="1" step="50" value="' + (prev ? Math.round(prev.fonds_debloques) : "") + '">'
+    + '<label>Konbyen jou *</label><div class="chips" id="ncJ">' + [1,2,3,4,5,6,7].map(n => '<button class="chip' + (n === jou ? " sel" : "") + '" data-j="' + n + '" type="button">' + n + '</button>').join("") + '</div>'
+    + '<label>Frè pa jou *</label><div class="chips" id="ncF">' + fr.map(f => '<button class="chip' + (f === frais ? " sel" : "") + '" data-f="' + f + '" type="button">' + htg(f) + '</button>').join("") + '</div>'
     + '<label for="ncD">Dat kòmansman</label><input id="ncD" type="date" value="' + today() + '" min="' + addDays(today(), -7) + '">'
-    + '<label class="switch"><input id="ncDim" type="checkbox" checked><span><b>Pa konte dimanch</b></span></label>'
+    + '<label class="switch"><input id="ncDim" type="checkbox"' + (dim ? " checked" : "") + '><span><b>Pa konte dimanch</b></span></label>'
     + '<label class="switch"><input id="ncDeb" type="checkbox" checked><span><b>M ap bay kliyan an kòb la kounye a</b><br><span class="sub">Déblocage a ap anrejistre an menm tan.</span></span></label>'
     + '<div class="card" id="ncSum" style="margin-top:10px"></div>'
     + '<button class="btn" id="ncOk" type="button">Kreye cycle la</button><button class="btn ghost" id="ncNo" type="button">Anile</button>');
@@ -729,6 +739,7 @@ function openNewCycle(c, k){
   document.querySelectorAll("[data-f]").forEach(b => b.onclick = () => { frais = +b.dataset.f; document.querySelectorAll("[data-f]").forEach(x => x.classList.toggle("sel", x === b)); sum(); });
   $("#ncM").oninput = sum; $("#ncD").onchange = sum; $("#ncDim").onchange = e => { dim = e.target.checked; sum(); }; $("#ncDeb").onchange = e => deb = e.target.checked; sum();
   $("#ncNo").onclick = closeSheet;
+  const chg = $("#ncChg"); if (chg) chg.onclick = openCyclePicker;
   $("#ncOk").onclick = async () => {
     const m = Math.round(Number($("#ncM").value)), d = $("#ncD").value;
     if (!(m > 0)) return toast("Mete montan an.", true);
@@ -737,6 +748,11 @@ function openNewCycle(c, k){
     if (!d) return toast("Chwazi dat kòmansman an.", true);
     if (!confirm("Cycle " + jou + " jou · " + htg(m) + " · " + htg(frais) + "/jou\n" + c.prenom + " " + c.nom + (deb ? "\n\nW ap bay kliyan an " + htg(m) + " kounye a." : "") + "\n\nKonfime?")) return;
     $("#ncOk").disabled = true;
+    if (!k) {   // kliyan an pa gen kont : ouvri youn otomatikman
+      const kid = uuid();
+      await enqueue("ouvrir", { p_id: kid, p_client: c.id, p_capture_le: new Date().toISOString() }, "Kont " + c.prenom + " " + c.nom);
+      k = { id: kid, client_id: c.id, numero: "(ap tann)", statut: "Actif", _local: true }; S.comptes.push(k); save("comptes");
+    }
     const row = { id: uuid(), compte_id: k.id, date_debut: d, nb_jours_prevu: jou, fonds_debloques: m, frais_journalier: frais, dimanches_exclus: dim };
     await enqueue("cycle", row, "Cycle " + jou + " jou · " + htg(m) + " · " + c.prenom + " " + c.nom);
     const y = calcLocal({ ...row, numero: "(ap tann)", statut: "Prévu", jours_repos: [], frais_payes: 0, fonds_restitue: 0, fonds_decaisse: 0, penalites_payees: 0, _local: true });
@@ -749,8 +765,30 @@ function openNewCycle(c, k){
       await enqueue("tx", t, "Déblocage " + htg(m) + " · " + c.prenom + " " + c.nom);
       S.tx.unshift({ ...t, _local: true }); applyTxLocal(t); save("tx");
     }
-    save("cycles"); closeSheet(); toast("Cycle kreye ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)")); openClient(c.id);
+    save("cycles"); toast("Cycle kreye ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)"));
+    if (opts.back) { closeSheet(); render(); } else openClient(c.id);
   };
+}
+
+/* Fòm "Nouvo cycle" : chèche kont kliyan an (non, kòd, nimewo kont, telefòn) */
+function openCyclePicker(){
+  const items = S.clients.map(c => {
+    const k = comptesOf(c.id).find(x => x.statut === "Actif"), open = cyclesOfClient(c.id).find(isOpen);
+    return { c, k, open, s: (c.prenom + " " + c.nom + " " + (c.code_client || "") + " " + (c.telephone || "") + " " + (k && k.numero || "")).toLowerCase() };
+  }).sort((a, b) => (!!a.open - !!b.open) || (a.c.nom + a.c.prenom).localeCompare(b.c.nom + b.c.prenom));
+  const row = (it, i) => '<div class="card" data-pk="' + i + '" data-s="' + esc(it.s) + '" style="' + (it.open ? "opacity:.55" : "") + '"><div class="row">' + avatar(it.c)
+    + '<div class="grow"><div class="name" style="font-size:15px">' + esc(it.c.prenom + " " + it.c.nom) + '</div><div class="sub">' + kodHtml(it.c.code_client, it.k ? (it.k._local ? "Nouvo kont" : it.k.numero) : "Pa gen kont", it.c.telephone) + '</div></div>'
+    + (it.open ? '<span class="tag n">Cycle louvri</span>' : it.k ? '<span class="tag ok">Disponib</span>' : '<span class="tag warn">Kont ap ouvri</span>') + '</div></div>';
+  sheet('<div class="name" style="font-size:20px">Nouvo cycle</div>'
+    + '<label for="pkQ">Kont kliyan *</label><input id="pkQ" type="search" placeholder="🔎 Non, kòd kliyan, nimewo kont oswa telefòn…" autocomplete="off">'
+    + '<div id="pkL" style="margin-top:10px">' + (items.length ? items.map(row).join("") : '<div class="empty">Pa gen kliyan. Kreye yon kliyan an premye.</div>') + '</div>', true);
+  const q = $("#pkQ"); setTimeout(() => q.focus(), 50);
+  q.oninput = () => { const v = q.value.trim().toLowerCase(); document.querySelectorAll("[data-pk]").forEach(e => e.classList.toggle("hidden", !!v && !e.dataset.s.includes(v))); };
+  document.querySelectorAll("[data-pk]").forEach(e => e.onclick = () => {
+    const it = items[+e.dataset.pk];
+    if (it.open) return toast(it.c.prenom + " gen yon cycle ki poko fèmen. Fèmen l anvan.", true);
+    openNewCycle(it.c, it.k || null, { fromPicker: true, back: true });
+  });
 }
 
 /* ================= EKRAN MANAGER ================= */
@@ -956,20 +994,62 @@ function renderNouvo(m){
 }
 
 /* ---------- Tranzaksyon ---------- */
-S.txF = { per: "jodi", typ: "" };
+S.txF = { per: "jodi", typ: "" }; S.txTab = "kont"; S.txQ = "";
 const TX_LBL = { "Paiement frais": "Frè", "Restitution du fonds": "Remèt fon", "Déblocage du fonds": "Debloke", "Pénalité": "Penalite", "Ajustement": "Ajisteman", "Annulation": "Anilasyon" };
 const TX_ICO = { "Paiement frais": "💵", "Restitution du fonds": "↩️", "Déblocage du fonds": "💸", "Pénalité": "⚠️", "Ajustement": "✏️", "Annulation": "✖️" };
 function renderTranzaksyon(m){
+  const open = S.cycles.filter(isOpen);
+  const q = S.txQ.trim().toLowerCase();
+  const match = (c, y) => !q || ((c ? c.prenom + " " + c.nom + " " + (c.code_client || "") + " " + (c.telephone || "") : "") + " " + (y && y.numero || "")).toLowerCase().includes(q);
+  m.innerHTML = '<div class="row" style="margin:4px 0 10px"><h2 class="grow" style="margin:0">Tranzaksyon</h2><button class="btn" id="tNewC" type="button" style="width:auto;margin:0;padding:10px 14px">➕ Nouvo cycle</button></div>'
+    + '<div class="chips" style="margin-bottom:8px"><button class="chip' + (S.txTab === "kont" ? " sel" : "") + '" data-tab="kont" type="button">Kont aktif (' + open.length + ')</button>'
+    + '<button class="chip' + (S.txTab === "istorik" ? " sel" : "") + '" data-tab="istorik" type="button">Istorik</button></div>'
+    + '<div class="search"><input id="tQ" type="search" placeholder="🔎 Non, kòd, nimewo kont oswa telefòn…" value="' + esc(S.txQ) + '"></div>'
+    + '<div id="tBody"></div>';
+  const body = $("#tBody", m);
+  if (S.txTab === "kont") body.innerHTML = renderKontAktif(open, match); else body.innerHTML = renderIstorik(match);
+  const i = $("#tQ", m); i.oninput = () => { S.txQ = i.value; const p = i.selectionStart; renderTranzaksyon(m); hydrate(m); const n = $("#tQ", m); n.focus(); try { n.setSelectionRange(p, p); } catch {} };
+  m.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { S.txTab = b.dataset.tab; renderTranzaksyon(m); hydrate(m); });
+  m.querySelectorAll("[data-tf]").forEach(b => b.onclick = () => { S.txF[b.dataset.tf] = b.dataset.tv; renderTranzaksyon(m); hydrate(m); });
+  m.querySelectorAll("[data-ta]").forEach(b => b.onclick = () => { S.filtreAgent = b.dataset.ta; renderTranzaksyon(m); hydrate(m); });
+  m.querySelectorAll("[data-qop]").forEach(b => b.onclick = e => { e.stopPropagation(); const y = S.cycles.find(x => x.id === b.dataset.cy); if (y) openOp(y, b.dataset.qop); });
+  $("#tNewC", m).onclick = openCyclePicker;
+}
+
+/* Onglè "Kont aktif" : chak cycle ak bouton operasyon yo dirèkteman */
+function renderKontAktif(open, match){
+  const list = open.filter(y => match(clientOfCycle(y), y));
+  const ord = y => (+y.frais_en_retard > 0 ? 0 : 1);
+  list.sort((a, b) => ord(a) - ord(b) || String(a.date_limite).localeCompare(String(b.date_limite)));
+  if (!list.length) return '<div class="empty">' + (open.length ? "Pa jwenn kont." : "Pa gen cycle aktif. Peze « ➕ Nouvo cycle ».") + '</div>';
+  return list.map(y => {
+    const c = clientOfCycle(y), late = +y.frais_en_retard > 0, rest = Math.max(0, +y.fonds_a_restituer), aDeb = +y.fonds_debloques - (+y.fonds_decaisse || 0);
+    const due = late ? +y.frais_en_retard : +y.frais_journalier;
+    return '<div class="card"><div class="row" data-cycle="' + y.id + '" style="cursor:pointer">' + (c ? avatar(c) : '')
+      + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div>'
+      + '<div class="sub">' + kodHtml(c && c.code_client, y._local ? "Nouvo cycle" : y.numero, htg(y.frais_journalier) + "/jou") + '</div>'
+      + '<div class="sub">Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + ' · pou remèt <b class="money">' + htg(rest) + '</b>' + (isMgr() && c && c.agent_id ? ' · 👤 ' + esc(nomAgent(c.agent_id)) : '') + '</div></div>'
+      + (late ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : y.statut === "Prévu" ? '<span class="tag n">Pou debloke</span>' : '<span class="tag ok">Ajou</span>') + '</div>'
+      + '<div class="btns" style="grid-template-columns:repeat(' + (aDeb > 0 ? 3 : 2) + ',1fr);margin-top:10px">'
+      + '<button class="btn" style="padding:10px 4px;font-size:14px" data-qop="Paiement frais" data-cy="' + y.id + '" type="button">💵 Frè ' + htg(due) + '</button>'
+      + '<button class="btn sec" style="padding:10px 4px;font-size:14px" data-qop="Restitution du fonds" data-cy="' + y.id + '" type="button">↩️ Remèt</button>'
+      + (aDeb > 0 ? '<button class="btn sec" style="padding:10px 4px;font-size:14px" data-qop="Déblocage du fonds" data-cy="' + y.id + '" type="button">💸 Debloke</button>' : '')
+      + '</div></div>';
+  }).join("");
+}
+
+/* Onglè "Istorik" : tout operasyon yo ak filtè */
+function renderIstorik(match){
   const f = S.txF, depi = f.per === "jodi" ? today() : f.per === "7" ? addDays(today(), -6) : addDays(today(), -29);
   const fa = isMgr() ? S.filtreAgent : "";
-  let list = S.tx.filter(t => t.date_operation >= depi && (!f.typ || t.type === f.typ) && (!fa || t.agent_id === fa));
+  let list = S.tx.filter(t => { if (t.date_operation < depi || (f.typ && t.type !== f.typ) || (fa && t.agent_id !== fa)) return false;
+    const y = S.cycles.find(x => x.id === t.cycle_id); return match(y && clientOfCycle(y), y); });
   list.sort((a, b) => String(b.date_operation + b.capture_le).localeCompare(String(a.date_operation + a.capture_le)));
   const sum = typ => list.filter(t => t.type === typ).reduce((s, t) => s + Number(t.montant), 0);
   const chip = (k, v, l) => '<button class="chip' + (f[k] === v ? " sel" : "") + '" data-tf="' + k + '" data-tv="' + esc(v) + '" type="button">' + l + '</button>';
-  let html = '<div class="row" style="margin:4px 0 10px"><h2 class="grow" style="margin:0">Tranzaksyon</h2><button class="btn" id="tNew" type="button" style="width:auto;margin:0;padding:10px 14px">➕ Nouvo operasyon</button></div>'
-    + '<div class="chips">' + chip("per", "jodi", "Jodi a") + chip("per", "7", "7 jou") + chip("per", "30", "30 jou") + '</div>'
+  let html = '<div class="chips">' + chip("per", "jodi", "Jodi a") + chip("per", "7", "7 jou") + chip("per", "30", "30 jou") + '</div>'
     + '<div class="chips">' + chip("typ", "", "Tout") + ["Paiement frais", "Restitution du fonds", "Déblocage du fonds", "Pénalité"].map(t => chip("typ", t, TX_ICO[t] + " " + TX_LBL[t])).join("") + '</div>'
-    + (isMgr() && S.equipe.length ? '<div class="chips">' + '<button class="chip' + (!fa ? " sel" : "") + '" data-ta="" type="button">Tout ajan</button>'
+    + (isMgr() && S.equipe.length ? '<div class="chips"><button class="chip' + (!fa ? " sel" : "") + '" data-ta="" type="button">Tout ajan</button>'
       + S.equipe.filter(p => p.actif !== false).map(p => '<button class="chip' + (fa === p.user_id ? " sel" : "") + '" data-ta="' + p.user_id + '" type="button">' + esc(p.nom) + '</button>').join("") + '</div>' : '')
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>💵 Frè kolekte</div><div class="money">' + htg(sum("Paiement frais")) + '</div>'
@@ -991,24 +1071,7 @@ function renderTranzaksyon(m){
       + '<div style="text-align:right"><div class="money" style="color:' + (out || neg ? "var(--err)" : "var(--ok)") + '">' + (out || neg ? "−" : "+") + htg(t.montant) + '</div>'
       + (t._local ? '<span class="tag n">Ap tann</span>' : '') + '</div></div></div>';
   });
-  m.innerHTML = html;
-  m.querySelectorAll("[data-tf]").forEach(b => b.onclick = () => { S.txF[b.dataset.tf] = b.dataset.tv; renderTranzaksyon(m); hydrate(m); });
-  m.querySelectorAll("[data-ta]").forEach(b => b.onclick = () => { S.filtreAgent = b.dataset.ta; renderTranzaksyon(m); hydrate(m); });
-  $("#tNew", m).onclick = openPickCycle;
-}
-
-/* Chwazi cycle pou yon nouvo operasyon */
-function openPickCycle(){
-  const open = S.cycles.filter(isOpen);
-  const row = y => { const c = clientOfCycle(y); return '<div class="card" data-pick="' + y.id + '" data-s="' + esc(((c ? c.prenom + " " + c.nom + " " + (c.code_client || "") + " " + (c.telephone || "") : "") + " " + (y.numero || "")).toLowerCase()) + '"><div class="row">' + (c ? avatar(c) : '')
-    + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div><div class="sub">' + kodHtml(c && c.code_client, y._local ? "Nouvo cycle" : y.numero, htg(y.frais_journalier) + "/jou") + '</div></div>'
-    + (+y.frais_en_retard > 0 ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : '') + '</div></div>'; };
-  sheet('<div class="name" style="font-size:20px">Nouvo operasyon</div><div class="sub">Chwazi cycle kliyan an</div>'
-    + '<input id="pkQ" type="search" placeholder="🔎 Non, kòd oswa telefòn…" style="margin-top:10px">'
-    + '<div id="pkL" style="margin-top:10px">' + (open.length ? open.map(row).join("") : '<div class="empty">Pa gen cycle aktif. Ale nan Kliyan pou kreye yon cycle.</div>') + '</div>');
-  const q = $("#pkQ");
-  q.oninput = () => { const v = q.value.trim().toLowerCase(); document.querySelectorAll("[data-pick]").forEach(e => e.classList.toggle("hidden", !!v && !e.dataset.s.includes(v))); };
-  document.querySelectorAll("[data-pick]").forEach(e => e.onclick = () => openCycle(e.dataset.pick));
+  return html;
 }
 
 /* ---------- Senkronizasyon ---------- */
@@ -1039,7 +1102,7 @@ function renderSenk(m){
 }
 
 /* ---------- Sheet ---------- */
-function sheet(html){ $("#sheetBody").innerHTML = '<div class="grab"></div>' + html; $("#sheet").classList.remove("hidden"); $("#sheetBody").scrollTop = 0;
+function sheet(html, tall){ $("#sheetBody").style.minHeight = tall ? "80vh" : ""; $("#sheetBody").innerHTML = '<div class="grab"></div>' + html; $("#sheet").classList.remove("hidden"); $("#sheetBody").scrollTop = 0;
   $("#sheetBody").querySelectorAll("[data-cycle]").forEach(e => e.onclick = () => openCycle(e.dataset.cycle)); hydrate($("#sheetBody")); }
 function closeSheet(){ $("#sheet").classList.add("hidden"); $("#sheetBody").innerHTML = ""; }
 $("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
