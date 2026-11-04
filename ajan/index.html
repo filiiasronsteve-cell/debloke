@@ -75,6 +75,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
 .gps{border-radius:10px;padding:10px 12px;font-size:14px;margin-top:8px}
 .gps.ok{background:var(--ok-soft);color:var(--ok)}.gps.wait{background:var(--warn-soft);color:var(--warn)}.gps.err{background:var(--err-soft);color:var(--err)}
 .photo{width:96px;height:96px;border-radius:12px;object-fit:cover;background:var(--line);display:block}
+.av{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--brand-soft);color:var(--brand);flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;cursor:pointer}
+.av.big{width:76px;height:76px;font-size:26px}
+img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
+.viewer{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px}
+.viewer img{max-width:100%;max-height:100%;border-radius:10px}
+.viewer .x{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;color:#fff;font-size:30px;background:none;border:0}
+.upd{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 64px);z-index:40;background:var(--brand-2);color:#fff;border-radius:12px;padding:12px 14px;font-weight:700;text-align:center;max-width:600px;margin:0 auto;cursor:pointer;box-shadow:var(--shadow)}
+.search.row input{flex:1}
+.warnbox{background:var(--warn-soft);border-radius:12px;padding:10px 12px;margin-top:10px}
 .switch{display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;margin-top:10px}
 .switch input{width:22px;height:22px;accent-color:var(--brand)}
 .login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px;max-width:420px;margin:0 auto}
@@ -119,10 +128,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
 
 <div id="sheet" class="sheet-bg hidden"><div class="sheet" id="sheetBody"></div></div>
 <div id="toast" class="toast hidden"></div>
+<div id="viewer" class="viewer hidden"><button class="x" type="button" aria-label="Fèmen">✕</button><img id="viewerImg" alt="Foto kliyan"></div>
+<div id="upd" class="upd hidden">🔄 Nouvo vèsyon app la disponib · peze la a</div>
 
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
+const APP_VERSION = "1.4 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -256,6 +268,51 @@ function compressImage(file, max = 1280, q = 0.72){
   });
 }
 
+/* Afichaj foto : "local:<id>" (poko voye), "dbk:<chemen>" (depo prive Debloke), oswa yon lyen https */
+const PH = new Map();
+const photoRef = c => c._photo ? "local:" + c._photo : c.photo_path ? "dbk:" + c.photo_path : c.photo_bs || c.photo || null;
+const initials = c => (((c.prenom || "?")[0] || "") + ((c.nom || "")[0] || "")).toUpperCase();
+function avatar(c, big){
+  const ref = photoRef(c), cl = "av" + (big ? " big" : "");
+  return ref ? '<img class="' + cl + '" data-ph="' + esc(ref) + '" alt="Foto ' + esc(c.prenom || "") + '">' : '<span class="' + cl + '">' + esc(initials(c)) + '</span>';
+}
+async function photoUrl(ref){
+  if (PH.has(ref)) return PH.get(ref);
+  let url = null, b = null;
+  if (/^https?:\/\//.test(ref)) url = ref;
+  else if (ref.startsWith("local:")) b = await DB.get("photos", ref.slice(6));
+  else if (ref.startsWith("dbk:")) {
+    const path = ref.slice(4);
+    b = await DB.get("photos", "p:" + path);
+    if (!b && S.online && S.session) {
+      try { await ensureToken();
+        const r = await fetch(CFG.url + "/storage/v1/object/authenticated/" + CFG.bucket + "/" + path, { headers: { apikey: CFG.key, Authorization: "Bearer " + S.session.access_token } });
+        if (r.ok) { b = await r.blob(); DB.set("photos", "p:" + path, b); } } catch {}
+    }
+  }
+  if (b) url = URL.createObjectURL(b);
+  if (url) PH.set(ref, url);
+  return url;
+}
+function hydrate(root){
+  (root || document).querySelectorAll("img[data-ph]:not([src])").forEach(async im => {
+    const u = await photoUrl(im.dataset.ph);
+    if (u) { im.onerror = () => { const s = document.createElement("span"); s.className = im.className; s.textContent = "📷"; im.replaceWith(s); }; im.src = u; }
+    else { const s = document.createElement("span"); s.className = im.className; s.textContent = "📷"; s.title = "Foto a ap parèt lè gen entènèt"; im.replaceWith(s); }
+  });
+}
+async function viewPhoto(ref){
+  const u = await photoUrl(ref); if (!u) return toast("Foto a poko disponib (bezwen entènèt).", true);
+  $("#viewerImg").src = u; $("#viewer").classList.remove("hidden");
+}
+$("#viewer").addEventListener("click", () => { $("#viewer").classList.add("hidden"); $("#viewerImg").removeAttribute("src"); });
+// Klike sou yon foto : agrandi l (san louvri fich la)
+document.addEventListener("click", e => { const im = e.target.closest("img.av[data-ph]"); if (im) { e.stopPropagation(); e.preventDefault(); viewPhoto(im.dataset.ph); } }, true);
+
+/* Distans an mèt ant 2 pwen GPS */
+function distM(a, b){ const R = 6371000, r = x => x * Math.PI / 180, dLa = r(b.lat - a.lat), dLo = r(b.lng - a.lng);
+  const h = Math.sin(dLa/2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLo/2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(h))); }
+
 /* ================= OUTBOX (operasyon k ap tann) ================= */
 async function enqueue(kind, payload, label){
   const item = { kind, payload, label, created: new Date().toISOString(), status: "pending", error: null, user_id: S.moi && S.moi.user_id };
@@ -273,6 +330,7 @@ async function pushOne(it){
       if (blob) {
         try { await http("/storage/v1/object/" + CFG.bucket + "/" + p.path, { method: "POST", body: blob, headers: { "Content-Type": "image/jpeg" } }); }
         catch (e) { if (!(e.status === 409 || /exists|duplicate/i.test(e.message))) throw e; }   // deja voye
+        await DB.set("photos", "p:" + p.path, blob);   // kenbe l sou telefòn nan pou l parèt san entènèt
         await DB.del("photos", p.key);
       }
       return;
@@ -410,6 +468,7 @@ function render(){
   $("#navEkip").classList.toggle("hidden", !isMgr());
   if (S.page === "ekip" && !isMgr()) S.page = "jodi";
   ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
+  hydrate(m);
 }
 function renderNet(){
   const b = $("#hNet");
@@ -426,7 +485,7 @@ function cycleCard(y){
   const c = clientOfCycle(y), late = +y.frais_en_retard > 0, rest = +y.fonds_a_restituer;
   const ech = y.date_limite && y.date_limite < today() && rest > 0;
   const pct = Math.min(100, Math.round(100 * (+y.jours_consommes || 0) / (y.nb_jours_prevu || 1)));
-  return '<div class="card" data-cycle="' + y.id + '"><div class="row"><div class="grow">'
+  return '<div class="card" data-cycle="' + y.id + '"><div class="row">' + (c ? avatar(c) : '') + '<div class="grow">'
     + '<div class="name">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div>'
     + '<div class="sub">' + esc(y._local ? "Nouvo cycle (ap tann)" : y.numero) + ' · ' + htg(y.frais_journalier) + '/jou · fen ' + dmy(y.date_limite)
     + (isMgr() && c && c.agent_id ? ' · 👤 ' + esc(nomAgent(c.agent_id)) : '') + '</div></div>'
@@ -453,30 +512,123 @@ function renderJodi(m){
     + '<h3>Cycle aktif (' + open.length + ')</h3>'
     + (open.length ? open.map(cycleCard).join("") : '<div class="empty">Pa gen cycle aktif. Senkronize lè w gen entènèt.</div>')
     + (sansGps.length ? '<h3>📍 Pozisyon biznis pou anrejistre (' + sansGps.length + ')</h3>'
-      + sansGps.map(c => '<div class="card" data-client="' + c.id + '"><div class="row"><div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div><div class="sub">' + esc(c.localisation || c.activite || "") + '</div></div><span class="tag warn">GPS</span></div></div>').join("") : "");
+      + sansGps.map(c => '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div><div class="sub">' + esc(c.localisation || c.activite || "") + '</div></div><span class="tag warn">GPS</span></div></div>').join("") : "");
   m.querySelectorAll("[data-fa]").forEach(b => b.onclick = () => { S.filtreAgent = b.dataset.fa; renderJodi(m); });
 }
 
+/* ---------- Rechèch : kliyan mwen (sou telefòn nan) + tout baz la (entènèt) ---------- */
+S.glob = { key: "", res: null, loading: false, err: null };
+S.near = null;
+const qValid = q => !!normTel(q) || q.replace(/[^a-zA-ZÀ-ÿ]/g, "").length >= 3;
+let globT = null;
+function scheduleGlobal(){
+  clearTimeout(globT);
+  globT = setTimeout(runGlobal, 450);
+}
+async function runGlobal(){
+  const q = S.q.trim(), near = S.near;
+  if (!S.online || (!qValid(q) && !near)) { S.glob = { key: "", res: null, loading: false, err: null }; return; }
+  const key = q + "|" + (near ? near.lat.toFixed(4) + "," + near.lng.toFixed(4) : "");
+  if (S.glob.key === key && (S.glob.res || S.glob.loading)) return;
+  S.glob = { key, res: null, loading: true, err: null }; refreshKliyan();
+  try {
+    const res = await rpc("debloke_rechercher", { p_q: qValid(q) ? q : null, p_lat: near && near.lat, p_lng: near && near.lng, p_rayon_m: 500 });
+    if (S.glob.key === key) S.glob = { key, res, loading: false, err: null };
+  } catch (e) { if (S.glob.key === key) S.glob = { key, res: null, loading: false, err: e.message }; }
+  refreshKliyan();
+}
+function refreshKliyan(){
+  if (S.page !== "kliyan") return;
+  const m = $("#main"), i = $("#q", m), had = document.activeElement === i, p = i ? i.selectionStart : 0;
+  renderKliyan(m); hydrate(m);
+  if (had) { const n = $("#q", m); n.focus(); try { n.setSelectionRange(p, p); } catch {} }
+}
+function resultCard(r){
+  const tag = r.statut_debloke === "mine" ? '<span class="tag ok">Kliyan ou</span>' : r.statut_debloke === "autre_agent" ? '<span class="tag n">Lòt ajan</span>' : '<span class="tag warn">Ajoute</span>';
+  return '<div class="card" data-pers="' + r.id_personne + '"><div class="row">' + avatar({ prenom: r.prenom, nom: r.nom, photo: r.photo })
+    + '<div class="grow"><div class="name">' + esc(r.prenom + " " + r.nom) + '</div><div class="sub">' + esc(r.telephone || "") + (r.distance_m != null ? " · 📍 " + r.distance_m + " m" : "") + '</div></div>' + tag + '</div></div>';
+}
 function renderKliyan(m){
-  const q = S.q.trim().toLowerCase();
-  const list = S.clients.filter(c => !q || (c.prenom + " " + c.nom + " " + (c.telephone || "") + " " + (c.code_client || "")).toLowerCase().includes(q))
-    .sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
-  m.innerHTML = '<div class="search"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd…" value="' + esc(S.q) + '"></div><h3>' + list.length + ' kliyan</h3>'
+  const q = S.q.trim().toLowerCase(), qd = q.replace(/\D/g, ""), near = S.near;
+  let list = S.clients.filter(c => !q || (c.prenom + " " + c.nom + " " + (c.code_client || "")).toLowerCase().includes(q) || (qd.length >= 3 && String(c.telephone || "").includes(qd.slice(-8))));
+  if (near) list = list.filter(c => c.gps_lat != null).map(c => (c._d = distM(near, { lat: c.gps_lat, lng: c.gps_lng }), c)).filter(c => c._d <= 1000).sort((a, b) => a._d - b._d);
+  else list.sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
+  const g = S.glob, mineIds = new Set(S.clients.map(c => c.id));
+  const others = (g.res || []).filter(r => !(r.client_id && mineIds.has(r.client_id)));
+  m.innerHTML = '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd…" value="' + esc(S.q) + '">'
+    + '<button class="btn ' + (near ? "" : "sec") + '" id="qNear" type="button" style="width:auto;margin:0;padding:12px 14px" title="Kliyan toupre m">📍</button></div>'
+    + (near ? '<div class="sub" style="margin-top:6px">📍 Kliyan toupre w (±' + near.acc + ' m) · <b id="nearX" style="cursor:pointer;color:var(--brand)">Retire</b></div>' : '')
+    + '<h3>Kliyan mwen (' + list.length + ')</h3>'
     + (list.length ? list.map(c => {
       const ys = cyclesOfClient(c.id).filter(isOpen), late = ys.some(y => +y.frais_en_retard > 0);
-      return '<div class="card" data-client="' + c.id + '"><div class="row"><div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
-        + '<div class="sub">' + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + '</div></div>'
-        + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '')
-        + (c.correspondance === "a_verifier" ? ' <span class="tag err">A verifye</span>' : '') + '</div></div>';
-    }).join("") : '<div class="empty">Pa gen kliyan.</div>');
-  const i = $("#q", m); i.oninput = () => { S.q = i.value; const p = i.selectionStart; renderKliyan(m); const n = $("#q", m); n.focus(); n.setSelectionRange(p, p); };
+      return '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
+        + '<div class="sub">' + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + (near ? " · 📍 " + c._d + " m" : "") + '</div></div>'
+        + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '') + '</div></div>';
+    }).join("") : '<div class="sub">Okenn nan kliyan ou yo.</div>')
+    + (qValid(S.q.trim()) || near ? '<h3>Nan tout baz la</h3>'
+      + (!S.online ? '<div class="sub">Rechèch nan tout baz la bezwen entènèt.</div>'
+        : g.loading ? '<div class="sub">Ap chèche…</div>'
+        : g.err ? '<div class="err-msg">' + esc(g.err) + '</div>'
+        : g.res ? (others.length ? others.map(resultCard).join("") : '<div class="sub">Pa jwenn lòt moun ki sanble.</div>') : '')
+      : '<div class="sub" style="margin-top:14px">Tape omwen 3 lèt oswa yon telefòn pou chèche nan tout baz la, oswa peze 📍 pou kliyan toupre w.</div>');
+  const i = $("#q", m); i.oninput = () => { S.q = i.value; refreshKliyan(); scheduleGlobal(); };
+  $("#qNear", m).onclick = async () => {
+    if (S.near) { S.near = null; S.glob.key = ""; refreshKliyan(); scheduleGlobal(); return; }
+    toast("Ap chèche pozisyon w…"); const gp = await getGPS(15000);
+    if (gp.err) return toast(gp.err, true);
+    S.near = gp; refreshKliyan(); runGlobal();
+  };
+  const x = $("#nearX", m); if (x) x.onclick = () => { S.near = null; S.glob.key = ""; refreshKliyan(); scheduleGlobal(); };
+  m.querySelectorAll("[data-pers]").forEach(el => el.onclick = () => { const r = (S.glob.res || []).find(z => z.id_personne === el.dataset.pers); if (r) openResult(r); });
+}
+
+async function openResult(r){
+  if (r.statut_debloke === "mine" && r.client_id) { if (!clientById(r.client_id) && S.online) await pull(); return openClient(r.client_id); }
+  if (r.statut_debloke === "autre_agent") return toast("Kliyan sa a nan pòtfèy yon lòt ajan. Mande manager a fè yon transfè.", true);
+  openChoose(r);
+}
+
+/* Ajan an chwazi yon moun ki deja nan baz la → li vin kliyan li, ak kont, epi li kreye cycle la */
+function openChoose(r){
+  let act = null, emp = null, gps = null;
+  sheet('<div class="row">' + avatar({ prenom: r.prenom, nom: r.nom, photo: r.photo }, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(r.prenom + " " + r.nom) + '</div>'
+    + '<div class="sub">' + esc(r.telephone || "") + '</div></div></div>'
+    + '<div class="warnbox">Verifye se menm moun nan (foto, non, telefòn) anvan w ajoute l.</div>'
+    + '<label>Aktivite</label><div class="chips">' + CFG.activites.map(a => '<button class="chip" data-ca="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
+    + '<label>Kote li travay</label><div class="chips">' + CFG.emplacements.map(a => '<button class="chip" data-ce="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
+    + '<label for="chL">Adrès / repè</label><input id="chL">'
+    + '<label class="switch"><input id="chBiz" type="checkbox"><span><b>Mwen nan biznis li kounye a</b><br><span class="sub">Anrejistre pozisyon GPS biznis la.</span></span></label><div id="chG"></div>'
+    + '<button class="btn" id="chOk" type="button">✔ Se li · Ajoute l epi kreye yon cycle</button><button class="btn ghost" id="chNo" type="button">Anile</button>');
+  document.querySelectorAll("[data-ca]").forEach(b => b.onclick = () => { act = b.dataset.ca; document.querySelectorAll("[data-ca]").forEach(x => x.classList.toggle("sel", x === b)); });
+  document.querySelectorAll("[data-ce]").forEach(b => b.onclick = () => { emp = b.dataset.ce; document.querySelectorAll("[data-ce]").forEach(x => x.classList.toggle("sel", x === b)); });
+  $("#chBiz").onchange = async e => { gps = null; if (!e.target.checked) { $("#chG").innerHTML = ""; return; } $("#chG").innerHTML = gpsHtml(null); const g = await getGPS(); if ($("#chBiz") && $("#chBiz").checked) { gps = g; $("#chG").innerHTML = gpsHtml(g); } };
+  $("#chNo").onclick = closeSheet;
+  $("#chOk").onclick = async () => {
+    if (!S.online) return toast("Fòk ou gen entènèt pou ajoute yon moun ki deja nan baz la.", true);
+    const g = gps && !gps.err && gps.acc <= 200 ? gps : null;
+    $("#chOk").disabled = true;
+    try {
+      const res = await rpc("debloke_choisir_personne", { p_id: uuid(), p_id_personne: r.id_personne, p_activite: act, p_type_emplacement: emp,
+        p_localisation: ($("#chL").value || "").trim() || null, p_gps_lat: g && g.lat, p_gps_lng: g && g.lng, p_gps_precision: g && g.acc, p_capture_le: new Date().toISOString() });
+      await pull(); S.glob.key = "";
+      const c = clientById(res.client_id); if (!c) throw new Error("Kliyan an poko parèt. Senkronize.");
+      let k = comptesOf(c.id).find(x => x.statut === "Actif");
+      if (!k) {
+        const kid = uuid();
+        await enqueue("ouvrir", { p_id: kid, p_client: c.id, p_capture_le: new Date().toISOString() }, "Kont " + c.prenom + " " + c.nom);
+        k = { id: kid, client_id: c.id, numero: "(ap tann)", statut: "Actif", _local: true }; S.comptes.push(k); save("comptes");
+      }
+      toast(c.prenom + " " + c.nom + " ajoute nan kliyan ou yo ✔");
+      if (cyclesOfClient(c.id).some(isOpen)) openClient(c.id); else openNewCycle(c, k);
+    } catch (e) { toast(e.message, true); const b = $("#chOk"); if (b) b.disabled = false; }
+  };
 }
 
 function openClient(id){
   const c = clientById(id); if (!c) return;
   const ks = comptesOf(id), ys = cyclesOfClient(id), kActif = ks.find(k => k.statut === "Actif");
   const gps = c.gps_statut === "Capturé" || c._gpsPending;
-  sheet('<div class="row"><div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
+  sheet('<div class="row">' + avatar(c, true) + '<div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
     + '<div class="sub">' + esc(c.telephone || "") + (c.code_client ? " · " + esc(c.code_client) : "") + '</div></div>'
     + (c._local ? '<span class="tag n">Ap tann entènèt</span>' : '') + '</div>'
     + '<div class="card" style="margin-top:10px"><div class="kv">'
@@ -728,6 +880,7 @@ function renderNouvo(m){
     + '<label for="nP">Prenon *</label><input id="nP" autocomplete="off" autocapitalize="words">'
     + '<label for="nN">Non *</label><input id="nN" autocomplete="off" autocapitalize="words">'
     + '<label for="nT">Telefòn *</label><input id="nT" type="tel" inputmode="tel" placeholder="3700 1234">'
+    + '<div id="nSug"></div>'
     + '<label for="nNif">NIF / CIN</label><input id="nNif" autocomplete="off">'
     + '<label>Aktivite</label><div class="chips" id="nAct">' + CFG.activites.map(a => '<button class="chip" data-a="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
     + '<label>Kote li travay</label><div class="chips" id="nEmp">' + CFG.emplacements.map(a => '<button class="chip" data-e="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
@@ -750,6 +903,23 @@ function renderNouvo(m){
   const doGps = async () => { F.gps = null; $("#nG").innerHTML = gpsHtml(null); const g = await getGPS(); if (!$("#nBiz") || !$("#nBiz").checked) return; F.gps = g; $("#nG").innerHTML = gpsHtml(g) + (g.err || g.acc > 200 ? '<button class="btn ghost" id="nGr" type="button">Eseye ankò</button>' : ""); const r = $("#nGr"); if (r) r.onclick = doGps; };
   $("#nBiz").onchange = e => { F.atBiz = e.target.checked; if (F.atBiz) doGps(); else { F.gps = null; $("#nG").innerHTML = ""; } };
   $("#nK").onchange = e => F.compte = e.target.checked;
+  // Pandan ajan an ap tape : montre moun ki sanble ki deja nan baz la
+  let sugT = null, sugKey = "";
+  const sug = () => { clearTimeout(sugT); sugT = setTimeout(async () => {
+    const tel = normTel($("#nT").value), nm = ($("#nP").value.trim() + " " + $("#nN").value.trim()).trim();
+    const q = tel || (nm.replace(/[^a-zA-ZÀ-ÿ]/g, "").length >= 4 ? nm : "");
+    const box = $("#nSug"); if (!box) return;
+    if (!q || !S.online) { box.innerHTML = ""; sugKey = ""; return; }
+    if (q === sugKey) return; sugKey = q;
+    try {
+      const res = (await rpc("debloke_rechercher", { p_q: q })).filter(r => tel ? normTel(r.telephone) === tel || r.score >= 0.99 : r.score >= 0.45).slice(0, 5);
+      if (!$("#nSug") || sugKey !== q) return;
+      box.innerHTML = res.length ? '<div class="warnbox"><b>Moun sa a ka deja nan baz la.</b> Si se youn ladan yo, chwazi l olye w kreye yon nouvo kliyan :</div>' + res.map(resultCard).join("") : "";
+      box.querySelectorAll("[data-pers]").forEach(el => el.onclick = () => { const r = res.find(z => z.id_personne === el.dataset.pers); if (r) openResult(r); });
+      hydrate(box);
+    } catch { box.innerHTML = ""; }
+  }, 600); };
+  ["#nT", "#nP", "#nN"].forEach(s => $(s).addEventListener("input", sug));
   $("#nOk").onclick = async () => {
     const p = $("#nP").value.trim(), n = $("#nN").value.trim(), tel = normTel($("#nT").value);
     if (p.length < 2 || n.length < 2) return toast("Mete prenon ak non kliyan an.", true);
@@ -767,7 +937,7 @@ function renderNouvo(m){
       p_gps_lat: g && g.lat, p_gps_lng: g && g.lng, p_gps_precision: g && g.acc, p_notes: $("#nNo").value.trim() || null, p_capture_le: now };
     await enqueue("inscrire", pl, "Kliyan " + p + " " + n);
     S.clients.push({ id: cid, prenom: p, nom: n, telephone: tel, activite: act, localisation: pl.p_localisation, type_emplacement: emp,
-      gps_statut: g ? "Capturé" : "À capturer", _local: true });
+      gps_statut: g ? "Capturé" : "À capturer", gps_lat: g && g.lat, gps_lng: g && g.lng, _photo: photoPath ? cid : null, _local: true });
     save("clients");
     if (F.compte) {
       const kid = uuid();
@@ -793,7 +963,8 @@ function renderSenk(m){
         + (i.status === "error" ? '<button class="pill off" data-del="' + i.seq + '" type="button">Retire</button>' : '<span class="tag n">Ap tann</span>') + '</div></div>').join("")
       : '<div class="empty">✔ Tout done yo voye.</div>')
     + '<h3>Kont</h3><div class="card"><div class="kv"><div>Non</div><div>' + esc(S.moi && S.moi.nom) + '</div><div>Telefòn</div><div>' + esc(S.moi && S.moi.telephone) + '</div><div>Wòl</div><div>' + esc(S.moi && S.moi.role) + '</div></div></div>'
-    + '<button class="btn ghost" id="sOut" type="button">Dekonekte</button>';
+    + '<button class="btn ghost" id="sOut" type="button">Dekonekte</button>'
+    + '<p class="sub" style="text-align:center">Vèsyon app la : ' + APP_VERSION + '</p>';
   $("#sGo").onclick = () => sync(true);
   m.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
     if (!confirm("Retire operasyon sa a? Li p ap janm voye.")) return;
@@ -808,7 +979,7 @@ function renderSenk(m){
 
 /* ---------- Sheet ---------- */
 function sheet(html){ $("#sheetBody").innerHTML = '<div class="grab"></div>' + html; $("#sheet").classList.remove("hidden"); $("#sheetBody").scrollTop = 0;
-  $("#sheetBody").querySelectorAll("[data-cycle]").forEach(e => e.onclick = () => openCycle(e.dataset.cycle)); }
+  $("#sheetBody").querySelectorAll("[data-cycle]").forEach(e => e.onclick = () => openCycle(e.dataset.cycle)); hydrate($("#sheetBody")); }
 function closeSheet(){ $("#sheet").classList.add("hidden"); $("#sheetBody").innerHTML = ""; }
 $("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
 
@@ -855,9 +1026,18 @@ window.addEventListener("offline", () => { S.online = false; renderNet(); });
 setInterval(() => { if (S.online && S.session && document.visibilityState === "visible") sync(); }, 120000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.online && S.session) sync(); });
 
+const hadController = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
 (async function start(){
   if (CFG.test) $("#testBanner").classList.remove("hidden");
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").then(reg => {
+      // Nouvo vèsyon : montre yon bann pou rechaje (done yo pa efase)
+      reg.addEventListener("updatefound", () => { const w = reg.installing; if (w) w.addEventListener("statechange", () => {
+        if (w.state === "activated" && hadController) $("#upd").classList.remove("hidden"); }); });
+      setInterval(() => reg.update().catch(() => {}), 30 * 60 * 1000);
+    }).catch(() => {});
+  }
+  $("#upd").onclick = () => location.reload();
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   await loadState();
   if (S.session && S.moi && S.moi.role) { showApp(); if (S.online) sync(); }
