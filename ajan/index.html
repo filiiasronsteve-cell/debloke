@@ -224,6 +224,37 @@ details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size
 .agf button.sel .bd{background:var(--ink);color:var(--bg)}
 .agf-h{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}
 .agf-h b{font-size:15px}.agf-h span{font-size:12px;color:var(--muted);font-weight:600}
+nav .sh{display:none}nav.mgr .lg{display:none}nav.mgr .sh{display:inline}
+nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:var(--line);border-radius:16px;padding:4px;margin:6px 0 4px}
+:root[data-theme="nwit"] .dsel{background:#0D0F14}
+.dsel button{border:0;background:transparent;border-radius:12px;padding:8px 4px;cursor:pointer;color:var(--muted);font-weight:700;font-size:14px;line-height:1.15}
+.dsel button small{display:block;font-size:11px;font-weight:600;opacity:.8;font-family:var(--font-num)}
+.dsel button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(17,24,39,.12)}
+:root[data-theme="nwit"] .dsel button.on{background:var(--brand);color:var(--on-brand)}
+.rk{background:var(--card);border-radius:20px;padding:14px;box-shadow:var(--shadow);margin-top:10px}
+.rk .h{display:flex;align-items:center;gap:12px}
+.rk .ic{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex:none;background:color-mix(in srgb,var(--k) 14%,var(--card));color:var(--k)}
+.rk .ic svg{width:22px;height:22px}
+.rk .t{font-size:13px;font-weight:700;color:var(--muted)}
+.rk .v{font-family:var(--font-num);font-size:24px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.rk .s{font-size:12px;color:var(--muted);margin-top:2px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rgrid .rk{margin-top:10px}
+.rgrid .rk .v{font-size:20px}
+.av-it{display:flex;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.av-it .grow b{font-family:var(--font-num)}
+.av-bt{display:flex;gap:6px;width:100%}
+.av-bt .btn{margin:0;padding:11px;font-size:14px}
+.rsumm{background:#141B3D;color:#fff;border-radius:24px;padding:18px;margin-top:14px;position:relative;overflow:hidden}
+:root[data-theme="kle"] .rsumm{background:#111827}
+:root[data-theme="nwit"] .rsumm{background:var(--brand);color:#0D0F14}
+.rsumm .ln{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:4px 0;opacity:.88;font-variant-numeric:tabular-nums}
+.rsumm .ln b{font-family:var(--font-num)}
+.rsumm .tot{border-top:1px dashed currentColor;margin-top:8px;padding-top:10px;opacity:1}
+.rsumm .big{font-family:var(--font-num);font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.05;text-align:left}
+.rsumm .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.75}
+.rsumm .nt{font-size:12px;opacity:.75;margin-top:8px}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -258,7 +289,8 @@ details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size
   <nav>
     <button data-p="jodi" class="act" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Jodi a</button>
     <button data-p="kliyan" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.6 3.6 5.2"/></svg></span>Kliyan</button>
-    <button data-p="tranzaksyon" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span>Tranzaksyon</button>
+    <button data-p="tranzaksyon" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span class="lg">Tranzaksyon</span><span class="sh">Tranz.</span></button>
+    <button data-p="rapo" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>Rapò</button>
     <button data-p="ekip" type="button" id="navEkip" class="hidden"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>Ekip</button>
     <button data-p="kat" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/><path d="M9 4v13M15 6.5v13"/></svg></span>Kat</button>
     <button data-p="senk" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9M20 20v-4h-4"/></svg></span><span>Senk<span id="nBadge" class="badge hidden"></span></span></button>
@@ -273,7 +305,7 @@ details.more summary{font-weight:700;color:var(--muted);cursor:pointer;font-size
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.1 · 04/11/2026";
+const APP_VERSION = "2.2 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -322,11 +354,11 @@ const DB = {
 /* ================= ETA ================= */
 const S = {
   session: null, moi: null,          // moi = {user_id, nom, role, telephone}
-  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], filtreAgent: "",
+  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], avances: [], filtreAgent: "", rDate: "", rAg: "",
   outbox: [], lastSync: null, online: navigator.onLine, syncing: false, page: "jodi", q: ""
 };
 async function loadState(){
-  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements"]) {
+  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements","avances"]) {
     const v = await DB.get("kv", k); if (v !== undefined) S[k] = v;
   }
   S.outbox = await DB.all("outbox");
@@ -499,6 +531,9 @@ async function pushOne(it){
       catch (e) { if (e.code === "23505") return; throw e; }
     case "annule_rp": return patch("debloke_remplacements", "id=eq." + p.id, { annule: true });
     case "transfert": return rpc("debloke_transferer_client", p);
+    case "avance": return rpc("debloke_avance_saisir", p);
+    case "avance_ok": return rpc("debloke_avance_confirmer", p);
+    case "avance_x": return rpc("debloke_avance_annuler", p);
   }
 }
 
@@ -542,6 +577,12 @@ async function pull(){
   let tx = [];
   if (ids.length) tx = await sel("debloke_transactions", "select=id,cycle_id,type,montant,sens,affectation,date_operation,mode_paiement,capture_le,agent_id&order=capture_le.desc&limit=1000&cycle_id=in.(" + ids.join(",") + ")");
   if (moi[0]) { S.moi = moi[0]; save("moi"); }
+  try {
+    const av = await sel("debloke_avances", "select=*&statut=neq.Annul%C3%A9&date_jour=gte." + addDays(today(), -2) + "&order=saisi_le.asc");
+    const pendAv = await DB.all("outbox");
+    const loc = S.avances.filter(a => a._local && pendAv.some(i => (i.kind === "avance" && i.payload.p_id === a.id) || (i.kind === "avance_ok" && i.payload.p_id === a.id)));
+    S.avances = av.filter(a => !loc.some(l => l.id === a.id)).concat(loc).filter(a => a.statut !== "Annulé"); save("avances");
+  } catch (e) { console.warn("avances", e); }
   if (isMgr()) {
     const [eq, rp] = await Promise.all([
       sel("debloke_personnel", "select=user_id,nom,role,telephone,actif&order=nom.asc"),
@@ -609,10 +650,11 @@ function render(){
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page || (S.page === "nouvo" && b.dataset.p === "kliyan")));
   const m = $("#main");
   $("#navEkip").classList.toggle("hidden", !isMgr());
+  document.querySelector("nav").classList.toggle("mgr", isMgr());
   if (S.page === "ekip" && !isMgr()) S.page = "jodi";
   if (S.page === "kat" && S.map && document.getElementById("map")) { katRefresh(); return; }   // pa rekonstwi kat la
   if (S.page !== "kat" && S.map) { S.map.remove(); S.map = null; }
-  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, kat: renderKat, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
+  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, kat: renderKat, senk: renderSenk, ekip: renderEkip, rapo: renderRapo }[S.page] || renderJodi)(m);
   hydrate(m); updateDistances();
 }
 function renderNet(){
@@ -1289,6 +1331,123 @@ function renderSenk(m){
     const n = S.outbox.filter(i => i.status !== "done").length;
     if (n && !confirm(n + " operasyon poko voye. Si w dekonekte, yo ap rete sou telefòn nan epi y ap voye lè w konekte ankò. Kontinye?")) return;
     stopWatch(); S.session = null; await DB.del("kv", "session"); showLogin();
+  };
+}
+
+/* ================= RAPÒ JOUNEN AN ================= */
+const RAPO_TYPES = ["Paiement frais", "Pénalité", "Restitution du fonds", "Déblocage du fonds"];
+function rapoCalc(date, ag){
+  const parAg = x => !ag || x.agent_id === ag;
+  const tx = S.tx.filter(t => t.date_operation === date && parAg(t));
+  const z = () => ({ esp: 0, aut: 0, n: 0 });
+  const r = {}; RAPO_TYPES.forEach(k => r[k] = z());
+  tx.forEach(t => {
+    const cat = RAPO_TYPES.includes(t.type) ? t.type : t.affectation; if (!r[cat]) return;
+    const m = Number(t.montant) * (t.type === "Ajustement" || t.type === "Annulation" ? (Number(t.sens) || -1) : 1);
+    if ((t.mode_paiement || "Espèces") === "Espèces") r[cat].esp += m; else r[cat].aut += m;
+    if (RAPO_TYPES.includes(t.type)) r[cat].n++;
+  });
+  const av = S.avances.filter(a => a.date_jour === date && parAg(a) && a.statut !== "Annulé");
+  const avOk = av.filter(a => a.statut === "Confirmé").reduce((s, a) => s + Number(a.montant), 0);
+  const avAt = av.filter(a => a.statut !== "Confirmé").reduce((s, a) => s + Number(a.montant), 0);
+  const fre = r["Paiement frais"], pen = r["Pénalité"], rem = r["Restitution du fonds"], deb = r["Déblocage du fonds"];
+  const kes = avOk + fre.esp + pen.esp + rem.esp - deb.esp;
+  const lotMod = fre.aut + pen.aut + rem.aut - deb.aut;
+  return { tx, av, avOk, avAt, fre, pen, rem, deb, kes, lotMod };
+}
+const RIC = {
+  av: '<path d="M3 7h18v10H3z"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/>',
+  fre: '<path d="M12 3v18M16 7.5c0-1.7-1.8-3-4-3s-4 1.3-4 3 1.8 2.6 4 3 4 1.3 4 3-1.8 3-4 3-4-1.3-4-3"/>',
+  rem: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  deb: '<path d="M15 10l5 5-5 5"/><path d="M20 15H9a5 5 0 0 1 0-10h3"/>'
+};
+const ric = k => '<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + RIC[k] + '</svg></span>';
+const AV_TAG = { "En attente": '<span class="tag warn">Ap tann ajan an</span>', "Confirmé": '<span class="tag ok">Konfime</span>', "Contesté": '<span class="tag err">Ajan an di l pa bon</span>' };
+
+function renderRapo(m){
+  const jou = [0, -1, -2].map(n => addDays(today(), n));
+  if (!jou.includes(S.rDate)) S.rDate = today();
+  const mgr = isMgr(), ag = mgr ? S.rAg : (S.moi && S.moi.user_id);
+  const d = S.rDate, r = rapoCalc(d, ag);
+  const nomAg = ag ? (mgr ? nomAgent(ag) : (S.moi && S.moi.nom)) : "Tout ekip la";
+  const lbl = ["Jodi a", "Yè", "Avan yè"];
+  const pc = x => '<span class="s">' + x.n + ' operasyon' + (x.aut ? ' · ' + htg(x.aut) + ' pa MonCash/lòt' : '') + '</span>';
+  let html = '<div class="row" style="margin:4px 0 2px"><h2 class="grow" style="margin:0">Rapò</h2><button class="pill busy" id="rShare" type="button">Pataje</button></div>'
+    + '<div class="dsel" role="tablist">' + jou.map((x, i) => '<button type="button" role="tab" data-rd="' + x + '" class="' + (x === d ? "on" : "") + '" aria-selected="' + (x === d) + '">' + lbl[i] + '<small>' + x.slice(8, 10) + '/' + x.slice(5, 7) + '</small></button>').join("") + '</div>'
+    + (mgr && S.equipe.length ? agentPicker("data-rag", S.rAg) : '');
+
+  // 1. Fon finans bay ajan an
+  html += '<div class="rk" style="--k:#1D4ED8"><div class="h">' + ric("av") + '<div class="grow"><div class="t">Fon finans bay pou debloke</div><div class="v">' + htg(r.avOk + r.avAt) + '</div>'
+    + (r.avAt ? '<div class="s" style="color:var(--warn);font-weight:700">' + htg(r.avAt) + ' poko konfime pa ajan an</div>' : r.av.length ? '<div class="s">Ajan an konfime l resevwa l</div>' : '<div class="s">Manager a poko antre anyen</div>') + '</div></div>'
+    + r.av.map(a => '<div class="av-it"><div class="grow"><b>' + htg(a.montant) + '</b>' + (!ag ? ' · ' + esc(nomAgent(a.agent_id)) : '') + (a.note ? '<div class="sub">' + esc(a.note) + '</div>' : '') + (a.commentaire_agent ? '<div class="sub">Ajan : ' + esc(a.commentaire_agent) + '</div>' : '') + '</div>'
+      + (a._local ? '<span class="tag n">Ap voye</span>' : AV_TAG[a.statut] || '')
+      + (!mgr && a.statut === "En attente" && a.agent_id === S.moi.user_id ? '<div class="av-bt"><button class="btn" data-avok="' + a.id + '" type="button">Mwen resevwa l</button><button class="btn ghost" data-avno="' + a.id + '" type="button">Montan an pa bon</button></div>' : '')
+      + (mgr && a.statut !== "Confirmé" ? '<div class="av-bt"><button class="btn sec" data-aved="' + a.id + '" type="button">Korije</button><button class="btn ghost" data-avx="' + a.id + '" type="button">Anile</button></div>' : '')
+      + '</div>').join("")
+    + (mgr && ag ? '<div class="av-it" style="border-top:1px solid var(--line)"><input id="rAvM" type="number" inputmode="numeric" min="1" step="50" placeholder="Montan (HTG)" style="flex:1;min-width:0;font-family:var(--font-num);font-weight:700"><input id="rAvN" type="text" placeholder="Nòt (opsyonèl)" style="flex:1;min-width:0"><button class="btn" id="rAvOk" type="button" style="margin:0">Antre fon pou ' + esc(nomAg) + '</button></div>' : '')
+    + (mgr && !ag ? '<div class="sub" style="margin-top:8px">Chwazi yon ajan pou antre kòb finans ba li.</div>' : '')
+    + '</div>';
+
+  // 2-4. Frè, Remèt, Debloke
+  html += '<div class="rgrid">'
+    + '<div class="rk" style="--k:var(--ok)"><div class="h">' + ric("fre") + '</div><div class="t" style="margin-top:8px">Frè touche</div><div class="v">' + htg(r.fre.esp + r.fre.aut + r.pen.esp + r.pen.aut) + '</div>'
+      + '<span class="s">' + r.fre.n + ' frè' + (r.pen.n ? ' + ' + r.pen.n + ' penalite (' + htg(r.pen.esp + r.pen.aut) + ')' : '') + '</span></div>'
+    + '<div class="rk" style="--k:#C77800"><div class="h">' + ric("rem") + '</div><div class="t" style="margin-top:8px">Kapital remèt</div><div class="v">' + htg(r.rem.esp + r.rem.aut) + '</div>' + pc(r.rem) + '</div></div>'
+    + '<div class="rk" style="--k:#D9412F"><div class="h">' + ric("deb") + '<div class="grow"><div class="t">Kòb debloke bay kliyan</div><div class="v">' + htg(r.deb.esp + r.deb.aut) + '</div>' + pc(r.deb) + '</div></div></div>';
+
+  // 5. Rezime : sa pou depoze nan kès
+  html += '<div class="rsumm" id="rSum"><div class="lbl">Kòb pou depoze nan kès · ' + esc(nomAg) + '</div>'
+    + '<div class="ln" style="margin-top:10px"><span>Fon finans bay (konfime)</span><b>+ ' + htg(r.avOk) + '</b></div>'
+    + '<div class="ln"><span>Frè ak penalite (kach)</span><b>+ ' + htg(r.fre.esp + r.pen.esp) + '</b></div>'
+    + '<div class="ln"><span>Kapital remèt (kach)</span><b>+ ' + htg(r.rem.esp) + '</b></div>'
+    + '<div class="ln"><span>Kòb debloke (kach)</span><b>− ' + htg(r.deb.esp) + '</b></div>'
+    + '<div class="ln tot"><span class="big">' + htg(r.kes) + '</span></div>'
+    + (r.kes < 0 ? '<div class="nt"><b>Atansyon :</b> ajan an debloke plis kòb pase sa li te genyen. Verifye fon finans lan.</div>' : '')
+    + (r.avAt ? '<div class="nt">' + htg(r.avAt) + ' fon finans pa konte paske ajan an poko konfime l.</div>' : '')
+    + (r.lotMod ? '<div class="nt">' + htg(r.lotMod) + ' te pase pa MonCash / NatCash / bank : yo pa nan kès la.</div>' : '')
+    + '</div>';
+  m.innerHTML = html;
+
+  m.querySelectorAll("[data-rd]").forEach(b => b.onclick = () => { S.rDate = b.dataset.rd; renderRapo(m); });
+  m.querySelectorAll("[data-rag]").forEach(b => b.onclick = () => { S.rAg = b.dataset.rag; renderRapo(m); });
+  const go = async (kind, payload, label, apply) => { await enqueue(kind, payload, label); apply(); save("avances"); renderRapo(m); toast(label + " ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)")); };
+  const ok = $("#rAvOk", m);
+  if (ok) ok.onclick = () => {
+    const v = Math.round(Number($("#rAvM", m).value)), note = $("#rAvN", m).value.trim() || null;
+    if (!(v > 0)) return toast("Mete montan an.", true);
+    if (!confirm("Finans bay " + nomAg + " " + htg(v) + " pou " + dmy(d) + "?")) return;
+    const id = uuid();
+    go("avance", { p_id: id, p_agent: ag, p_date: d, p_montant: v, p_note: note }, "Fon " + htg(v) + " · " + nomAg,
+      () => S.avances.push({ id, agent_id: ag, date_jour: d, montant: v, note, statut: "En attente", _local: true }));
+  };
+  m.querySelectorAll("[data-aved]").forEach(b => b.onclick = () => {
+    const a = S.avances.find(x => x.id === b.dataset.aved); if (!a) return;
+    const v = Math.round(Number(prompt("Nouvo montan pou " + nomAgent(a.agent_id) + " (HTG)", Math.round(a.montant))));
+    if (!(v > 0)) return;
+    go("avance", { p_id: a.id, p_agent: a.agent_id, p_date: a.date_jour, p_montant: v, p_note: a.note || null }, "Fon korije " + htg(v),
+      () => Object.assign(a, { montant: v, statut: "En attente", commentaire_agent: null, _local: true }));
+  });
+  m.querySelectorAll("[data-avx]").forEach(b => b.onclick = () => {
+    const a = S.avances.find(x => x.id === b.dataset.avx); if (!a || !confirm("Anile fon " + htg(a.montant) + " sa a?")) return;
+    go("avance_x", { p_id: a.id }, "Fon anile", () => { S.avances = S.avances.filter(x => x.id !== a.id); });
+  });
+  m.querySelectorAll("[data-avok]").forEach(b => b.onclick = () => {
+    const a = S.avances.find(x => x.id === b.dataset.avok); if (!a || !confirm("Ou konfime ou resevwa " + htg(a.montant) + " nan men finans?")) return;
+    go("avance_ok", { p_id: a.id, p_ok: true, p_commentaire: null }, "Fon konfime", () => Object.assign(a, { statut: "Confirmé", _local: true }));
+  });
+  m.querySelectorAll("[data-avno]").forEach(b => b.onclick = () => {
+    const a = S.avances.find(x => x.id === b.dataset.avno); if (!a) return;
+    const c = prompt("Konbyen ou resevwa vrèman? Ekri yon ti mesaj pou manager a.", ""); if (c === null) return;
+    go("avance_ok", { p_id: a.id, p_ok: false, p_commentaire: c.trim() || "Montan an pa bon" }, "Ou di montan an pa bon", () => Object.assign(a, { statut: "Contesté", commentaire_agent: c.trim(), _local: true }));
+  });
+  $("#rShare", m).onclick = async () => {
+    const t = "Rapò Debloke · " + nomAg + " · " + dmy(d)
+      + "\nFon finans bay : " + htg(r.avOk) + (r.avAt ? " (+" + htg(r.avAt) + " poko konfime)" : "")
+      + "\nFrè touche : " + htg(r.fre.esp + r.fre.aut + r.pen.esp + r.pen.aut)
+      + "\nKapital remèt : " + htg(r.rem.esp + r.rem.aut)
+      + "\nKòb debloke : " + htg(r.deb.esp + r.deb.aut)
+      + "\n= Pou depoze nan kès : " + htg(r.kes);
+    try { if (navigator.share) await navigator.share({ text: t }); else { await navigator.clipboard.writeText(t); toast("Rapò a kopye ✔"); } } catch (e) {}
   };
 }
 
