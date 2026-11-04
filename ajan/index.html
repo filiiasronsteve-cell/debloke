@@ -84,6 +84,35 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
 .upd{position:fixed;left:16px;right:16px;top:calc(env(safe-area-inset-top) + 64px);z-index:40;background:var(--brand-2);color:#fff;border-radius:12px;padding:12px 14px;font-weight:700;text-align:center;max-width:600px;margin:0 auto;cursor:pointer;box-shadow:var(--shadow)}
 .search.row input{flex:1}
 .warnbox{background:var(--warn-soft);border-radius:12px;padding:10px 12px;margin-top:10px}
+.eta{font-size:12px;color:var(--brand);font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.eta:empty{display:none}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.dot.big{width:14px;height:14px;margin:0}
+.mapbox{isolation:isolate;z-index:0;position:relative;height:min(60vh,560px);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-2,0 8px 24px rgba(0,0,0,.15));margin-top:10px;background:#e8e2da}
+#map{position:absolute;inset:0}
+.fab{position:absolute;right:12px;bottom:22px;z-index:500;width:48px;height:48px;border-radius:50%;border:0;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25);font-size:22px;cursor:pointer}
+.legend{position:absolute;left:10px;bottom:22px;z-index:500;background:rgba(255,255,255,.94);color:#2B1B1E;border-radius:12px;padding:8px 10px;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.18);line-height:1.7;max-width:55%}
+.legend:empty{display:none}
+.pin{width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid var(--c);color:var(--c);display:flex;align-items:center;justify-content:center;font:800 12px/1 system-ui,sans-serif;box-shadow:0 3px 8px rgba(0,0,0,.35);position:relative}
+.pin::after{content:"";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--c)}
+.pin.num,.pin.ag{background:var(--c);color:#fff;border-color:#fff}
+.pin.num::after,.pin.ag::after{border-top-color:#fff}
+.me{width:20px;height:20px;border-radius:50%;background:#1F6FB2;border:3px solid #fff;animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,111,178,.55)}70%{box-shadow:0 0 0 18px rgba(31,111,178,0)}100%{box-shadow:0 0 0 0 rgba(31,111,178,0)}}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.kpi{background:var(--card);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow)}
+.kpi b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:11.5px;color:var(--muted);font-weight:600}
+.tl{border-left:3px solid var(--line);margin:4px 0 0 10px;padding-left:14px}
+.tl .it{position:relative;margin:0 0 10px}
+.tl .it::before{content:"";position:absolute;left:-22px;top:18px;width:13px;height:13px;border-radius:50%;background:var(--c,var(--brand));border:2px solid var(--bg)}
+.num{flex:none;width:26px;height:26px;border-radius:50%;color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.pop{font:14px/1.35 system-ui,sans-serif}
+.pop .pb{display:flex;gap:6px;margin-top:8px}
+.pop .pb button,.pop .pb a{flex:1;text-align:center;border:0;border-radius:8px;padding:8px 6px;background:#7B1E28;color:#fff!important;font-weight:700;text-decoration:none;font-size:13px;cursor:pointer}
+.pop .pb a{background:#F8E9EA;color:#7B1E28!important}
+.leaflet-popup-content-wrapper{border-radius:14px}
+nav button{font-size:11px}
 .kod{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--brand);letter-spacing:.3px}
 .switch{display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;margin-top:10px}
 .switch input{width:22px;height:22px;accent-color:var(--brand)}
@@ -123,6 +152,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
     <button data-p="kliyan" type="button"><span class="i">👥</span>Kliyan</button>
     <button data-p="tranzaksyon" type="button"><span class="i">💵</span>Tranzaksyon</button>
     <button data-p="ekip" type="button" id="navEkip" class="hidden"><span class="i">🧭</span>Ekip</button>
+    <button data-p="kat" type="button"><span class="i">🗺️</span>Kat</button>
     <button data-p="senk" type="button"><span class="i">🔄</span><span>Senk<span id="nBadge" class="badge hidden"></span></span></button>
   </nav>
 </div>
@@ -135,7 +165,7 @@ img.av{border:2px solid var(--card);box-shadow:0 0 0 1.5px var(--line)}
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "1.7 · 04/11/2026";
+const APP_VERSION = "1.8 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -243,12 +273,15 @@ const nomAgent = id => { const p = S.equipe.find(x => x.user_id === id); return 
 
 /* ================= GPS ================= */
 function getGPS(timeout = 20000){
+  // Si swivi an dirèk la fèk bay yon bon pozisyon (< 20 s), sèvi avè l : pi rapid, epi kèk telefòn bloke 2 demann GPS an menm tan
+  const fresh = maxMs => S.pos && Date.now() - Date.parse(S.pos.at) < maxMs && S.pos.acc <= 200 ? { lat: S.pos.lat, lng: S.pos.lng, acc: S.pos.acc, at: S.pos.at } : null;
+  const f = fresh(120000); if (f) return Promise.resolve(f);
   return new Promise(res => {
     if (!navigator.geolocation) return res({ err: "Telefòn sa a pa gen GPS." });
     navigator.geolocation.getCurrentPosition(
       p => res({ lat: p.coords.latitude, lng: p.coords.longitude, acc: Math.round(p.coords.accuracy), at: new Date(p.timestamp).toISOString() }),
-      e => res({ err: e.code === 1 ? "Ou pa bay app la otorizasyon GPS. Aktive l nan paramèt telefòn nan." : "GPS la pa jwenn pozisyon. Ale deyò oswa eseye ankò." }),
-      { enableHighAccuracy: true, timeout, maximumAge: 0 });
+      e => res(e.code !== 1 && fresh(120000) || { err: e.code === 1 ? "Ou pa bay app la otorizasyon GPS. Aktive l nan paramèt telefòn nan." : "GPS la pa jwenn pozisyon. Ale deyò oswa eseye ankò." }),
+      { enableHighAccuracy: true, timeout, maximumAge: 10000 });
   });
 }
 const gpsHtml = g => !g ? '<div class="gps wait">📍 Ap chèche pozisyon GPS…</div>'
@@ -377,6 +410,7 @@ async function sync(manual){
         it.status = "error"; it.error = e.message; it.tries = (it.tries || 0) + 1; await DB.set("outbox", undefined, it); fail++;
       }
     }
+    await pushPositions();
     await pull();
     S.lastSync = new Date().toISOString(); save("lastSync");
     if (manual || ok || fail) toast(fail ? (fail + " operasyon pa pase. Gade nan Senk.") : (ok ? ok + " operasyon voye ✔" : "Tout bagay ajou ✔"), !!fail);
@@ -468,14 +502,16 @@ function render(){
   const m = $("#main");
   $("#navEkip").classList.toggle("hidden", !isMgr());
   if (S.page === "ekip" && !isMgr()) S.page = "jodi";
-  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
-  hydrate(m);
+  if (S.page === "kat" && S.map && document.getElementById("map")) { katRefresh(); return; }   // pa rekonstwi kat la
+  if (S.page !== "kat" && S.map) { S.map.remove(); S.map = null; }
+  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, kat: renderKat, senk: renderSenk, ekip: renderEkip }[S.page] || renderJodi)(m);
+  hydrate(m); updateDistances();
 }
 function renderNet(){
   const b = $("#hNet");
   b.className = "pill " + (S.syncing ? "busy" : S.online ? "on" : "off");
   b.textContent = S.syncing ? "Ap senkronize…" : S.online ? "Sou entènèt" : "San entènèt";
-  $("#hWho").textContent = S.moi ? S.moi.nom + " · " + S.moi.role : "";
+  $("#hWho").textContent = S.moi ? (TRACK() && watchId !== null && !S.posErr ? "📡 " : "") + S.moi.nom + " · " + S.moi.role : "";
 }
 function renderBadge(){
   const n = S.outbox.filter(i => i.status !== "done").length, b = $("#nBadge");
@@ -554,6 +590,7 @@ function renderKliyan(m){
   const q = S.q.trim().toLowerCase(), qd = q.replace(/\D/g, ""), near = S.near;
   let list = S.clients.filter(c => !q || (c.prenom + " " + c.nom + " " + (c.code_client || "")).toLowerCase().includes(q) || (qd.length >= 3 && String(c.telephone || "").includes(qd.slice(-8))));
   if (near) list = list.filter(c => c.gps_lat != null).map(c => (c._d = distM(near, { lat: c.gps_lat, lng: c.gps_lng }), c)).filter(c => c._d <= 1000).sort((a, b) => a._d - b._d);
+  else if (S.kSort === "pre" && S.pos) list.sort((a, b) => (a.gps_lat == null) - (b.gps_lat == null) || (a.gps_lat == null ? 0 : distM(S.pos, { lat: a.gps_lat, lng: a.gps_lng }) - distM(S.pos, { lat: b.gps_lat, lng: b.gps_lng })));
   else list.sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
   const g = S.glob, mineIds = new Set(S.clients.map(c => c.id));
   const others = (g.res || []).filter(r => !(r.client_id && mineIds.has(r.client_id)));
@@ -561,11 +598,11 @@ function renderKliyan(m){
     + '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd kliyan…" value="' + esc(S.q) + '">'
     + '<button class="btn ' + (near ? "" : "sec") + '" id="qNear" type="button" style="width:auto;margin:0;padding:12px 14px" title="Kliyan toupre m">📍</button></div>'
     + (near ? '<div class="sub" style="margin-top:6px">📍 Kliyan toupre w (±' + near.acc + ' m) · <b id="nearX" style="cursor:pointer;color:var(--brand)">Retire</b></div>' : '')
-    + '<h3>Kliyan mwen (' + list.length + ')</h3>'
+    + '<div class="row" style="margin-top:10px"><h3 class="grow" style="margin:0">Kliyan mwen (' + list.length + ')</h3>' + (!near ? '<div class="chips" style="margin:0"><button class="chip' + (S.kSort !== "pre" ? " sel" : "") + '" data-ks="az" type="button">A–Z</button><button class="chip' + (S.kSort === "pre" ? " sel" : "") + '" data-ks="pre" type="button">📍 Pi pre</button></div>' : '') + '</div>'
     + (list.length ? list.map(c => {
       const ys = cyclesOfClient(c.id).filter(isOpen), late = ys.some(y => +y.frais_en_retard > 0);
       return '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
-        + '<div class="sub">' + kodHtml(c.code_client, c.telephone, c.activite, near ? "📍 " + c._d + " m" : "") + '</div></div>'
+        + '<div class="sub">' + kodHtml(c.code_client, c.telephone, c.activite) + '</div>' + etaSpan(c) + '</div>'
         + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '') + '</div></div>';
     }).join("") : '<div class="sub">Okenn nan kliyan ou yo.</div>')
     + (qValid(S.q.trim()) || near ? '<h3>Nan tout baz la</h3>'
@@ -575,6 +612,7 @@ function renderKliyan(m){
         : g.res ? (others.length ? others.map(resultCard).join("") : '<div class="sub">Pa jwenn lòt moun ki sanble.</div>') : '')
       : '<div class="sub" style="margin-top:14px">Tape omwen 3 lèt oswa yon telefòn pou chèche nan tout baz la, oswa peze 📍 pou kliyan toupre w.</div>');
   $("#kNew", m).onclick = () => { S.page = "nouvo"; render(); window.scrollTo(0, 0); };
+  m.querySelectorAll("[data-ks]").forEach(b => b.onclick = () => { S.kSort = b.dataset.ks; if (S.kSort === "pre" && !S.pos) toast("Ap tann pozisyon GPS ou…"); refreshKliyan(); });
   const i = $("#q", m); i.oninput = () => { S.q = i.value; refreshKliyan(); scheduleGlobal(); };
   $("#qNear", m).onclick = async () => {
     if (S.near) { S.near = null; S.glob.key = ""; refreshKliyan(); scheduleGlobal(); return; }
@@ -1028,7 +1066,7 @@ function renderKontAktif(open, match){
     return '<div class="card"><div class="row" data-cycle="' + y.id + '" style="cursor:pointer">' + (c ? avatar(c) : '')
       + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div>'
       + '<div class="sub">' + kodHtml(c && c.code_client, y._local ? "Nouvo cycle" : y.numero, htg(y.frais_journalier) + "/jou") + '</div>'
-      + '<div class="sub">Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + ' · pou remèt <b class="money">' + htg(rest) + '</b>' + (isMgr() && c && c.agent_id ? ' · 👤 ' + esc(nomAgent(c.agent_id)) : '') + '</div></div>'
+      + '<div class="sub">Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + ' · pou remèt <b class="money">' + htg(rest) + '</b>' + (isMgr() && c && c.agent_id ? ' · 👤 ' + esc(nomAgent(c.agent_id)) : '') + '</div>' + etaSpan(c) + '</div>'
       + (late ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : y.statut === "Prévu" ? '<span class="tag n">Pou debloke</span>' : '<span class="tag ok">Ajou</span>') + '</div>'
       + '<div class="btns" style="grid-template-columns:repeat(' + (aDeb > 0 ? 3 : 2) + ',1fr);margin-top:10px">'
       + '<button class="btn" style="padding:10px 4px;font-size:14px" data-qop="Paiement frais" data-cy="' + y.id + '" type="button">💵 Frè ' + htg(due) + '</button>'
@@ -1097,7 +1135,7 @@ function renderSenk(m){
   $("#sOut").onclick = async () => {
     const n = S.outbox.filter(i => i.status !== "done").length;
     if (n && !confirm(n + " operasyon poko voye. Si w dekonekte, yo ap rete sou telefòn nan epi y ap voye lè w konekte ankò. Kontinye?")) return;
-    S.session = null; await DB.del("kv", "session"); showLogin();
+    stopWatch(); S.session = null; await DB.del("kv", "session"); showLogin();
   };
 }
 
@@ -1107,6 +1145,298 @@ function sheet(html, tall){ $("#sheetBody").style.minHeight = tall ? "80vh" : ""
 function closeSheet(){ $("#sheet").classList.add("hidden"); $("#sheetBody").innerHTML = ""; }
 $("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
 
+/* ================= POZISYON AN DIRÈK + SWIVI PAKOU ================= */
+S.pos = null; let watchId = null, lastRec = null;
+const TRACK = () => !!S.moi && S.moi.role === "agent";            // se sèlman ajan yo ki swiv
+const inHaiti = g => g.lat >= 17.5 && g.lat <= 20.5 && g.lng >= -75 && g.lng <= -71.5;
+function startWatch(){
+  if (!navigator.geolocation || watchId !== null || !S.session) return;
+  watchId = navigator.geolocation.watchPosition(p => onPos(posOf(p)), () => { S.posErr = true; renderNet(); },
+    { enableHighAccuracy: true, maximumAge: 20000, timeout: 60000 });
+  renderNet();
+}
+function stopWatch(){ if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; } renderNet(); }
+const posOf = p => ({ lat: p.coords.latitude, lng: p.coords.longitude, acc: Math.round(p.coords.accuracy), spd: p.coords.speed, at: new Date(p.timestamp || Date.now()).toISOString() });
+let posQ = Promise.resolve();
+function onPos(g){
+  S.pos = g; S.posErr = false;
+  updateDistances(); if (S.map) katMe();
+  if (!TRACK() || g.acc > 100 || !inHaiti(g)) return;
+  const now = Date.parse(g.at);
+  if (lastRec && distM(lastRec, g) < 30 && now - Date.parse(lastRec.at) < 55000) return;   // yon pwen chak minit oswa chak 30 m
+  lastRec = g;
+  posQ = posQ.then(async () => {
+    const q = (await DB.get("kv", "posQueue")) || [];
+    q.push({ id: uuid(), agent_id: S.moi.user_id, lat: g.lat, lng: g.lng, precision_m: g.acc, vitesse_ms: g.spd ?? null, capture_le: g.at });
+    if (q.length > 6000) q.splice(0, q.length - 6000);
+    await DB.set("kv", "posQueue", q);
+  }).catch(() => {});
+}
+// Lè ajan an pa deplase, telefòn nan pa voye nouvo pozisyon : mande youn chak minit
+setInterval(() => { if (watchId !== null && document.visibilityState === "visible" && TRACK())
+  navigator.geolocation.getCurrentPosition(p => onPos(posOf(p)), () => {
+    // Telefòn nan pa bay nouvo pozisyon paske l pa deplase : ajan an toujou nan menm kote a
+    if (S.pos && Date.now() - Date.parse(S.pos.at) < 300000) onPos({ ...S.pos, at: new Date().toISOString() });
+  }, { enableHighAccuracy: true, maximumAge: 30000, timeout: 30000 }); }, 60000);
+
+async function pushPositions(){
+  await posQ;
+  let q = ((await DB.get("kv", "posQueue")) || []).filter(p => S.moi && p.agent_id === S.moi.user_id);
+  while (q.length) {
+    const b = q.slice(0, 300);
+    try { await http("/rest/v1/debloke_positions?on_conflict=id", { method: "POST", body: b, headers: { Prefer: "resolution=ignore-duplicates,return=minimal" } }); }
+    catch (e) { if (e.status === 0 || e.code === "relogin") throw e; }      // lòt erè : pa bloke fil la
+    const ids = new Set(b.map(x => x.id)), cur = (await DB.get("kv", "posQueue")) || [];
+    await DB.set("kv", "posQueue", cur.filter(x => !ids.has(x.id)));
+    q = q.slice(300);
+  }
+}
+
+/* Distans ak tan pou rive bò kliyan an (estimasyon : wout ≈ 1,3 × liy dwat) */
+const ROAD = 1.3, V_PYE = 4.5, V_MOTO = 20;
+const fmtD = d => d < 1000 ? Math.round(d / 10) * 10 + " m" : (d / 1000).toFixed(d < 10000 ? 1 : 0).replace(".", ",") + " km";
+const mins = (d, v) => Math.max(1, Math.round(d / 1000 / v * 60));
+function etaText(lat, lng){
+  if (!S.pos || lat == null || lat === "") return "";
+  const d = distM(S.pos, { lat: +lat, lng: +lng }) * ROAD;
+  return "📍 " + fmtD(d) + " · 🚶 " + mins(d, V_PYE) + " min · 🛵 " + mins(d, V_MOTO) + " min";
+}
+const etaSpan = c => c && c.gps_lat != null ? '<div class="eta" data-lat="' + c.gps_lat + '" data-lng="' + c.gps_lng + '">' + etaText(c.gps_lat, c.gps_lng) + '</div>' : '';
+function updateDistances(){ document.querySelectorAll(".eta[data-lat]").forEach(e => { const t = etaText(e.dataset.lat, e.dataset.lng); if (e.textContent !== t) e.textContent = t; }); }
+
+/* ================= KAT ================= */
+let LF = null;
+function loadLeaflet(){
+  if (window.L) return Promise.resolve();
+  if (LF) return LF;
+  LF = new Promise((ok, ko) => {
+    const l = document.createElement("link"); l.rel = "stylesheet"; l.href = "vendor/leaflet/leaflet.css"; document.head.appendChild(l);
+    const s = document.createElement("script"); s.src = "vendor/leaflet/leaflet.js"; s.onload = () => ok(); s.onerror = () => { LF = null; ko(new Error("Kat la pa ka chaje.")); };
+    document.head.appendChild(s);
+  });
+  return LF;
+}
+const AG_COL = ["#7B1E28", "#1F6FB2", "#2F7D32", "#B26A00", "#6B3FA0", "#00838F", "#C2185B", "#5D4037"];
+const agColor = id => { const i = S.equipe.findIndex(p => p.user_id === id); return AG_COL[(i < 0 ? 0 : i) % AG_COL.length]; };
+const ST = { reta: { c: "#C0352B", l: "An reta" }, ajou: { c: "#2F7D32", l: "Ajou" }, prevu: { c: "#B26A00", l: "Pou debloke" }, san: { c: "#7A6A6C", l: "San cycle" } };
+function clientState(c){
+  const ys = cyclesOfClient(c.id).filter(isOpen);
+  if (!ys.length) return "san";
+  if (ys.some(y => +y.frais_en_retard > 0 || (y.date_limite && y.date_limite < today() && +y.fonds_a_restituer > 0))) return "reta";
+  if (ys.every(y => y.statut === "Prévu")) return "prevu";
+  return "ajou";
+}
+const hhmm = s => { try { return new Date(s).toLocaleTimeString("fr-HT", { hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+const dur = ms => { const m = Math.round(ms / 60000); return m < 60 ? m + " min" : Math.floor(m / 60) + " è " + String(m % 60).padStart(2, "0"); };
+S.kat = { agent: "", date: today(), mode: "kliyan", track: null, last: null };
+
+function renderKat(m){
+  const mgr = isMgr(), k = S.kat;
+  if (!mgr) k.agent = "";
+  const modes = [["kliyan", "👥 Kliyan"], ["optim", "🧭 Pakou optimize"]].concat(mgr ? [["pakou", "👣 Pakou ajan"]] : []);
+  m.innerHTML = '<div class="row" style="margin:4px 0 8px"><h2 class="grow" style="margin:0">Kat</h2>'
+    + (TRACK() ? '<span class="tag ' + (watchId !== null && !S.posErr ? "ok" : "warn") + '">📡 ' + (watchId !== null && !S.posErr ? "Pozisyon ap anrejistre" : "GPS pa aktif") + '</span>' : '') + '</div>'
+    + '<div class="chips">' + modes.map(([v, l]) => '<button class="chip' + (k.mode === v ? " sel" : "") + '" data-km="' + v + '" type="button">' + l + '</button>').join("") + '</div>'
+    + (mgr && S.equipe.length ? '<div class="chips">' + (k.mode !== "pakou" ? '<button class="chip' + (!k.agent ? " sel" : "") + '" data-ka="" type="button">Tout ekip la</button>' : '')
+      + S.equipe.filter(p => p.actif !== false && p.role === "agent").map(p => '<button class="chip' + (k.agent === p.user_id ? " sel" : "") + '" data-ka="' + p.user_id + '" type="button"><i class="dot" style="background:' + agColor(p.user_id) + '"></i>' + esc(p.nom) + '</button>').join("") + '</div>' : '')
+    + (mgr && k.mode === "pakou" ? '<div class="row" style="margin-top:8px"><label for="kDate" style="margin:0">Dat</label><input id="kDate" type="date" value="' + k.date + '" max="' + today() + '" style="flex:1"></div>' : '')
+    + '<div class="mapbox"><div id="map"></div><button id="mMe" class="fab" type="button" title="Kote m ye">🎯</button><div class="legend" id="mLeg"></div></div>'
+    + '<div id="mPanel"></div>';
+  m.querySelectorAll("[data-km]").forEach(b => b.onclick = () => { k.mode = b.dataset.km; if (k.mode === "pakou" && !k.agent) { const a = S.equipe.find(p => p.role === "agent" && p.actif !== false); k.agent = a ? a.user_id : ""; } katRebuild(); });
+  m.querySelectorAll("[data-ka]").forEach(b => b.onclick = () => { k.agent = b.dataset.ka; k.track = null; katRebuild(); });
+  const kd = $("#kDate", m); if (kd) kd.onchange = () => { k.date = kd.value || today(); k.track = null; katRebuild(); };
+  $("#mMe", m).onclick = () => { if (S.pos && S.map) S.map.setView([S.pos.lat, S.pos.lng], 16); else toast("Ap chèche pozisyon w… (aktive GPS la)", true); };
+  loadLeaflet().then(() => { initMap(); katRefresh(); }).catch(e => { $("#mPanel").innerHTML = '<div class="err-msg">' + esc(e.message) + '</div>'; });
+}
+function katRebuild(){ if (S.map) { S.map.remove(); S.map = null; } renderKat($("#main")); }
+
+function initMap(){
+  if (S.map) return;
+  S.map = L.map("map", { zoomControl: true, attributionControl: true }).setView([18.54, -72.34], 13);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(S.map);
+  S.layers = { route: L.layerGroup().addTo(S.map), cl: L.layerGroup().addTo(S.map), me: L.layerGroup().addTo(S.map) };
+  S.map.on("popupopen", e => {
+    const el = e.popup.getElement(); if (!el) return;
+    el.querySelectorAll("[data-open]").forEach(b => b.onclick = () => { S.map.closePopup(); openClient(b.dataset.open); });
+  });
+  S.fitted = false;
+  setTimeout(() => S.map && S.map.invalidateSize(), 120);
+}
+function pinIcon(color, label, cls){
+  return L.divIcon({ className: "", iconSize: [36, 46], iconAnchor: [18, 44], popupAnchor: [0, -40],
+    html: '<div class="pin ' + (cls || "") + '" style="--c:' + color + '"><span>' + esc(label) + '</span></div>' });
+}
+function katMe(){
+  if (!S.map || !S.layers) return;
+  S.layers.me.clearLayers();
+  if (!S.pos) return;
+  L.circle([S.pos.lat, S.pos.lng], { radius: Math.min(S.pos.acc || 30, 300), color: "#1F6FB2", weight: 1, fillOpacity: .08 }).addTo(S.layers.me);
+  L.marker([S.pos.lat, S.pos.lng], { icon: L.divIcon({ className: "", iconSize: [22, 22], iconAnchor: [11, 11], html: '<div class="me"></div>' }), zIndexOffset: 1000 })
+    .bindPopup("<b>Ou la</b><br><span style='font-size:12px'>±" + S.pos.acc + " m</span>").addTo(S.layers.me);
+}
+function popHtml(c){
+  const st = ST[clientState(c)];
+  return '<div class="pop"><b>' + esc(c.prenom + " " + c.nom) + '</b><div style="font-size:12px;color:#7A6A6C">' + kodHtml(c.code_client, c.telephone) + '</div>'
+    + '<div style="margin-top:4px"><span class="tag" style="background:' + st.c + '22;color:' + st.c + '">' + st.l + '</span>'
+    + (isMgr() && c.agent_id ? ' <span style="font-size:12px">👤 ' + esc(nomAgent(c.agent_id)) + '</span>' : '') + '</div>'
+    + '<div class="eta" data-lat="' + c.gps_lat + '" data-lng="' + c.gps_lng + '">' + etaText(c.gps_lat, c.gps_lng) + '</div>'
+    + '<div class="pb"><button data-open="' + c.id + '" type="button">Fich kliyan</button><a href="https://www.google.com/maps/dir/?api=1&destination=' + c.gps_lat + ',' + c.gps_lng + '" target="_blank" rel="noopener">Itinerè</a></div></div>';
+}
+const katClients = () => S.clients.filter(c => c.gps_lat != null && (!S.kat.agent || c.agent_id === S.kat.agent));
+
+async function katRefresh(){
+  if (!S.map) return;
+  const k = S.kat, mgr = isMgr();
+  S.layers.cl.clearLayers(); S.layers.route.clearLayers(); katMe();
+  const list = katClients(), bounds = [];
+  const colorMode = mgr && !k.agent && k.mode === "kliyan" ? "agent" : "etat";
+  // Lejand
+  $("#mLeg").innerHTML = colorMode === "agent"
+    ? S.equipe.filter(p => p.role === "agent" && p.actif !== false).map(p => '<div><i class="dot" style="background:' + agColor(p.user_id) + '"></i>' + esc(p.nom) + '</div>').join("")
+    : Object.values(ST).map(s => '<div><i class="dot" style="background:' + s.c + '"></i>' + s.l + '</div>').join("");
+  if (k.mode !== "optim") list.forEach(c => {
+    const col = colorMode === "agent" ? agColor(c.agent_id) : ST[clientState(c)].c;
+    L.marker([c.gps_lat, c.gps_lng], { icon: pinIcon(col, initials(c)) }).bindPopup(popHtml(c), { minWidth: 220 }).addTo(S.layers.cl);
+    bounds.push([c.gps_lat, c.gps_lng]);
+  });
+  if (mgr) { try { if (S.online && (!k.last || Date.now() - k.last.t > 60000)) k.last = { t: Date.now(), rows: await sel("debloke_v_derniere_position", "select=*") }; } catch {} }
+  if (!S.map) return;
+  const panel = $("#mPanel");
+  if (k.mode === "kliyan") {
+    const sansGps = S.clients.filter(c => c.gps_lat == null && (!k.agent || c.agent_id === k.agent)).length;
+    const cnt = st => list.filter(c => clientState(c) === st).length;
+    let html = '<div class="kpis"><div class="kpi"><b>' + list.length + '</b><span>Kliyan sou kat la</span></div><div class="kpi"><b style="color:' + ST.reta.c + '">' + cnt("reta") + '</b><span>An reta</span></div><div class="kpi"><b>' + sansGps + '</b><span>San GPS</span></div></div>';
+    if (mgr) {
+      const rows = (k.last && k.last.rows || []).filter(r => !k.agent || r.agent_id === k.agent);
+      rows.forEach(r => { const col = agColor(r.agent_id);
+        L.marker([r.lat, r.lng], { icon: pinIcon(col, "👤", "ag"), zIndexOffset: 900 }).bindPopup("<b>" + esc(nomAgent(r.agent_id)) + "</b><br><span style='font-size:12px'>Dènye pozisyon : " + hhmm(r.capture_le) + (r.capture_le.slice(0, 10) !== today() ? " (" + dmy(r.capture_le.slice(0, 10)) + ")" : "") + "</span>").addTo(S.layers.cl);
+        bounds.push([r.lat, r.lng]); });
+      if (rows.length) html += '<h3>Kote ajan yo ye</h3>' + rows.map(r => '<div class="card"><div class="row"><i class="dot big" style="background:' + agColor(r.agent_id) + '"></i><div class="grow"><div class="name" style="font-size:15px">' + esc(nomAgent(r.agent_id)) + '</div><div class="sub">Dènye pozisyon : ' + hhmm(r.capture_le) + (r.capture_le.slice(0, 10) !== today() ? " · " + dmy(r.capture_le.slice(0, 10)) : "") + '</div></div></div></div>').join("");
+    } else if (S.pos) {
+      const near = list.map(c => ({ c, d: distM(S.pos, { lat: c.gps_lat, lng: c.gps_lng }) })).sort((a, b) => a.d - b.d).slice(0, 6);
+      if (near.length) html += '<h3>Kliyan ki pi pre w</h3>' + near.map(({ c }) => '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c.prenom + " " + c.nom) + '</div>' + etaSpan(c) + '</div><i class="dot big" style="background:' + ST[clientState(c)].c + '"></i></div></div>').join("");
+    }
+    panel.innerHTML = html; hydrate(panel);
+  } else if (k.mode === "optim") {
+    katOptim(list, bounds);
+  } else if (k.mode === "pakou") {
+    await katPakou(bounds);
+  }
+  if (S.pos && k.mode !== "pakou") bounds.push([S.pos.lat, S.pos.lng]);
+  if (bounds.length && !S.fitted) { S.map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 }); S.fitted = true; }
+}
+
+/* Pakou optimize : vwazen ki pi pre + amelyorasyon 2-opt (wout ouvè, pa retounen) */
+function optimize(start, pts){
+  const s = start ? [start] : [], rest = pts.slice();
+  let cur = start || rest.shift(); if (!start) s.push(cur);
+  while (rest.length) { let bi = 0, bd = Infinity; rest.forEach((p, i) => { const d = distM(cur, p); if (d < bd) { bd = d; bi = i; } }); cur = rest.splice(bi, 1)[0]; s.push(cur); }
+  const D = (a, b) => (a && b ? distM(a, b) : 0);
+  for (let it = 0, imp = true; imp && it < 60; it++) {
+    imp = false;
+    for (let i = 1; i < s.length - 1; i++) for (let j = i + 1; j < s.length; j++) {
+      const delta = D(s[i - 1], s[j]) + D(s[i], s[j + 1]) - D(s[i - 1], s[i]) - D(s[j], s[j + 1]);
+      if (delta < -1) { s.splice(i, j - i + 1, ...s.slice(i, j + 1).reverse()); imp = true; }
+    }
+  }
+  return start ? s.slice(1) : s;
+}
+function katOptim(list, bounds){
+  const k = S.kat, panel = $("#mPanel");
+  let pts = list.filter(c => cyclesOfClient(c.id).some(isOpen));
+  const tous = !pts.length; if (tous) pts = list.slice();
+  let start = null, startLbl = "";
+  if (isMgr() && k.agent) { const r = (k.last && k.last.rows || []).find(x => x.agent_id === k.agent); if (r) { start = { lat: r.lat, lng: r.lng }; startLbl = "Dènye pozisyon " + nomAgent(k.agent); } }
+  if (!start && S.pos) { start = { lat: S.pos.lat, lng: S.pos.lng }; startLbl = "Kote w ye kounye a"; }
+  if (!pts.length) { panel.innerHTML = '<div class="empty">Pa gen kliyan ki gen pozisyon GPS' + (isMgr() && !k.agent ? " (chwazi yon ajan)" : "") + '.</div>'; return; }
+  if (pts.length > 60) { const ref = start || pts[0]; pts = pts.map(c => ({ c, d: distM(ref, { lat: c.gps_lat, lng: c.gps_lng }) })).sort((a, b) => a.d - b.d).slice(0, 60).map(x => x.c); }
+  const tour = optimize(start, pts.map(c => ({ lat: c.gps_lat, lng: c.gps_lng, c })));
+  const line = (start ? [[start.lat, start.lng]] : []).concat(tour.map(p => [p.lat, p.lng]));
+  L.polyline(line, { color: "#7B1E28", weight: 4, opacity: .85, dashArray: "8 8" }).addTo(S.layers.route);
+  if (start) L.marker([start.lat, start.lng], { icon: pinIcon("#1F6FB2", "▶", "num"), zIndexOffset: 800 }).bindPopup("<b>Depa</b><br>" + esc(startLbl)).addTo(S.layers.route);
+  let cum = 0, prev = start; const rows = [];
+  tour.forEach((p, i) => {
+    const leg = prev ? distM(prev, p) * ROAD : 0; cum += leg; prev = p;
+    const col = ST[clientState(p.c)].c;
+    L.marker([p.lat, p.lng], { icon: pinIcon(col, String(i + 1), "num"), zIndexOffset: 500 }).bindPopup(popHtml(p.c), { minWidth: 220 }).addTo(S.layers.route);
+    bounds.push([p.lat, p.lng]);
+    rows.push('<div class="it" style="--c:' + col + '"><div class="card" data-client="' + p.c.id + '" style="margin:0"><div class="row"><span class="num" style="background:' + col + '">' + (i + 1) + '</span>' + avatar(p.c)
+      + '<div class="grow"><div class="name" style="font-size:15px">' + esc(p.c.prenom + " " + p.c.nom) + '</div><div class="sub">' + (i || start ? "+" + fmtD(leg) + " · 🛵 " + mins(leg, V_MOTO) + " min" : "Premye kliyan") + '</div></div>'
+      + '<div class="sub" style="text-align:right">🛵 ' + mins(cum, V_MOTO) + ' min<br>🚶 ' + mins(cum, V_PYE) + ' min</div></div></div></div>');
+  });
+  const wp = tour.slice(0, -1).slice(0, 9).map(p => p.lat + "," + p.lng).join("|"), last = tour[tour.length - 1];
+  const gm = "https://www.google.com/maps/dir/?api=1" + (start ? "&origin=" + start.lat + "," + start.lng : "") + "&destination=" + last.lat + "," + last.lng + (wp ? "&waypoints=" + encodeURIComponent(wp) : "") + "&travelmode=driving";
+  panel.innerHTML = '<div class="kpis"><div class="kpi"><b>' + tour.length + '</b><span>' + (tous ? "Kliyan (tout)" : "Kliyan ak cycle aktif") + '</span></div><div class="kpi"><b>' + fmtD(cum) + '</b><span>Distans total</span></div><div class="kpi"><b>' + mins(cum, V_MOTO) + ' min</b><span>🛵 Moto (🚶 ' + mins(cum, V_PYE) + ' min)</span></div></div>'
+    + '<div class="sub" style="margin:8px 2px">' + (start ? "Depa : " + esc(startLbl) + ". " : "Aktive GPS la pou pakou a kòmanse kote w ye. ") + 'Tan yo se estimasyon (wout ≈ 1,3 × distans an liy dwat), san tan pou fè koleksyon an.</div>'
+    + '<a class="btn sec" style="text-align:center;text-decoration:none" href="' + gm + '" target="_blank" rel="noopener">🗺️ Swiv pakou a nan Google Maps' + (tour.length > 10 ? " (10 premye yo)" : "") + '</a>'
+    + '<h3>Lòd vizit la</h3><div class="tl">' + rows.join("") + '</div>';
+  hydrate(panel);
+}
+
+/* Pakou yon ajan pou yon jou : wout, kanpe, tan bò chak kliyan */
+function detectStops(pts, rad = 40, minMs = 180000){
+  const out = []; let i = 0;
+  while (i < pts.length) {
+    let j = i + 1; const a = pts[i];
+    while (j < pts.length && distM(a, pts[j]) <= rad) j++;
+    const d = Date.parse(pts[j - 1].capture_le) - Date.parse(a.capture_le);
+    if (j - 1 > i && d >= minMs) {
+      const sub = pts.slice(i, j);
+      out.push({ lat: sub.reduce((s, p) => s + p.lat, 0) / sub.length, lng: sub.reduce((s, p) => s + p.lng, 0) / sub.length, from: a.capture_le, to: pts[j - 1].capture_le, dur: d });
+      i = j;
+    } else i++;
+  }
+  return out;
+}
+async function katPakou(bounds){
+  const k = S.kat, panel = $("#mPanel");
+  if (!k.agent) { panel.innerHTML = '<div class="empty">Chwazi yon ajan.</div>'; return; }
+  if (!k.track || k.track.key !== k.agent + k.date) {
+    if (!S.online) { panel.innerHTML = '<div class="empty">Pakou ajan an bezwen entènèt.</div>'; return; }
+    panel.innerHTML = '<div class="sub" style="margin-top:10px">Ap chaje pakou a…</div>';
+    const d0 = new Date(k.date + "T00:00:00").toISOString(), d1 = new Date(addDays(k.date, 1) + "T00:00:00").toISOString();
+    try {
+      const pts = await sel("debloke_positions", "select=lat,lng,precision_m,capture_le&agent_id=eq." + k.agent + "&capture_le=gte." + encodeURIComponent(d0) + "&capture_le=lt." + encodeURIComponent(d1) + "&order=capture_le.asc&limit=5000");
+      k.track = { key: k.agent + k.date, pts: pts.filter(p => (p.precision_m || 0) <= 100) };
+    } catch (e) { panel.innerHTML = '<div class="err-msg">' + esc(e.message) + '</div>'; return; }
+  }
+  const pts = k.track.pts, col = agColor(k.agent);
+  if (!pts.length) { panel.innerHTML = '<div class="empty">Pa gen pozisyon pou ' + esc(nomAgent(k.agent)) + ' ' + (k.date === today() ? "jodi a" : "nan dat sa a") + '.<br><span class="sub">Ajan an dwe gen app la louvri pou pakou a anrejistre.</span></div>'; return; }
+  L.polyline(pts.map(p => [p.lat, p.lng]), { color: col, weight: 5, opacity: .8 }).addTo(S.layers.route);
+  pts.forEach(p => bounds.push([p.lat, p.lng]));
+  const a = pts[0], z = pts[pts.length - 1];
+  L.marker([a.lat, a.lng], { icon: pinIcon("#2F7D32", "▶", "num"), zIndexOffset: 800 }).bindPopup("<b>Kòmanse</b> " + hhmm(a.capture_le)).addTo(S.layers.route);
+  L.marker([z.lat, z.lng], { icon: pinIcon("#C0352B", "■", "num"), zIndexOffset: 800 }).bindPopup("<b>Dènye pozisyon</b> " + hhmm(z.capture_le)).addTo(S.layers.route);
+  // Distans pakouri (inyore so GPS ki pa reyèl)
+  let km = 0; for (let i = 1; i < pts.length; i++) { const d = distM(pts[i - 1], pts[i]); if (d < 3000) km += d; }
+  // Kanpe → vizit kliyan
+  const mine = S.clients.filter(c => c.agent_id === k.agent && c.gps_lat != null), all = S.clients.filter(c => c.gps_lat != null);
+  const stops = detectStops(pts).map(s => {
+    let best = null, bd = 80;
+    (mine.length ? mine : all).forEach(c => { const d = distM(s, { lat: c.gps_lat, lng: c.gps_lng }); if (d < bd) { bd = d; best = c; } });
+    if (!best) all.forEach(c => { const d = distM(s, { lat: c.gps_lat, lng: c.gps_lng }); if (d < bd) { bd = d; best = c; } });
+    const txs = best ? S.tx.filter(t => { const y = S.cycles.find(x => x.id === t.cycle_id); return y && clientOfCycle(y) && clientOfCycle(y).id === best.id
+      && Date.parse(t.capture_le) >= Date.parse(s.from) - 600000 && Date.parse(t.capture_le) <= Date.parse(s.to) + 600000; }) : [];
+    return { ...s, c: best, txs };
+  });
+  stops.forEach(s => L.marker([s.lat, s.lng], { icon: pinIcon(s.c ? col : "#7A6A6C", "⏱", "num"), zIndexOffset: 700 })
+    .bindPopup("<b>" + (s.c ? esc(s.c.prenom + " " + s.c.nom) : "Kanpe") + "</b><br>" + hhmm(s.from) + " → " + hhmm(s.to) + " · <b>" + dur(s.dur) + "</b>").addTo(S.layers.route));
+  // Twou (app fèmen / pa gen siyal)
+  const gaps = []; for (let i = 1; i < pts.length; i++) { const g = Date.parse(pts[i].capture_le) - Date.parse(pts[i - 1].capture_le); if (g > 15 * 60000) gaps.push({ from: pts[i - 1].capture_le, to: pts[i].capture_le, g }); }
+  const visits = stops.filter(s => s.c), tVis = visits.reduce((t, s) => t + s.dur, 0);
+  const events = stops.map(s => ({ t: s.from, h: s.c
+      ? '<div class="it" style="--c:' + col + '"><div class="card" data-client="' + s.c.id + '" style="margin:0"><div class="row">' + avatar(s.c) + '<div class="grow"><div class="name" style="font-size:15px">' + esc(s.c.prenom + " " + s.c.nom) + '</div><div class="sub">' + hhmm(s.from) + ' → ' + hhmm(s.to)
+        + (s.txs.length ? ' · ' + s.txs.map(t => (TX_ICO[t.type] || "") + " " + htg(t.montant)).join(", ") : ' · pa gen operasyon') + '</div></div><span class="tag ok">⏱ ' + dur(s.dur) + '</span></div></div></div>'
+      : '<div class="it" style="--c:#7A6A6C"><div class="sub" style="padding:6px 0">⏸ Kanpe ' + dur(s.dur) + ' (' + hhmm(s.from) + ' → ' + hhmm(s.to) + '), pa toupre okenn kliyan</div></div>' }))
+    .concat(gaps.map(g => ({ t: g.from, h: '<div class="it" style="--c:#B26A00"><div class="sub" style="padding:6px 0;color:var(--warn)">⚠️ Pa gen pozisyon ' + hhmm(g.from) + ' → ' + hhmm(g.to) + ' (' + dur(g.g) + ') : app la te fèmen oswa pa t gen siyal GPS</div></div>' })))
+    .sort((x, y) => String(x.t).localeCompare(String(y.t)));
+  panel.innerHTML = '<div class="kpis"><div class="kpi"><b>' + hhmm(a.capture_le) + '</b><span>Kòmanse</span></div><div class="kpi"><b>' + hhmm(z.capture_le) + '</b><span>Dènye pozisyon</span></div><div class="kpi"><b>' + fmtD(km) + '</b><span>Distans pakouri</span></div>'
+    + '<div class="kpi"><b>' + visits.length + '</b><span>Vizit kliyan</span></div><div class="kpi"><b>' + dur(tVis) + '</b><span>Tan bò kliyan</span></div><div class="kpi"><b>' + dur(Date.parse(z.capture_le) - Date.parse(a.capture_le)) + '</b><span>Tan sou teren</span></div></div>'
+    + '<div class="sub" style="margin:8px 2px">Yon vizit = ajan an rete omwen 3 min nan menm kote a (± 40 m), a mwens pase 80 m de yon kliyan.</div>'
+    + '<h3>Jounen ' + esc(nomAgent(k.agent)) + '</h3>' + (events.length ? '<div class="tl">' + events.map(e => e.h).join("") + '</div>' : '<div class="sub">Pa gen kanpe detekte.</div>');
+  hydrate(panel);
+}
+
 /* ================= DEMARAJ ================= */
 function showLogin(relog){
   $("#vApp").classList.add("hidden"); $("#vLogin").classList.remove("hidden");
@@ -1114,7 +1444,7 @@ function showLogin(relog){
 }
 async function showApp(){
   $("#vLogin").classList.add("hidden"); $("#vApp").classList.remove("hidden");
-  renderNet(); renderBadge(); render();
+  renderNet(); renderBadge(); render(); startWatch();
 }
 $("#lBtn").onclick = async () => {
   const tel = normTel($("#lTel").value), pwd = $("#lPwd").value;
@@ -1148,7 +1478,10 @@ $("#hNet").onclick = () => sync(true);
 window.addEventListener("online", () => { S.online = true; renderNet(); sync(); });
 window.addEventListener("offline", () => { S.online = false; renderNet(); });
 setInterval(() => { if (S.online && S.session && document.visibilityState === "visible") sync(); }, 120000);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.online && S.session) sync(); });
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") { if (S.session && !$("#vApp").classList.contains("hidden")) startWatch(); if (S.online && S.session) sync(); }
+  else stopWatch();
+});
 
 const hadController = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
 (async function start(){
