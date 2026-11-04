@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DEBLOKE Ajan</title>
+<meta name="theme-color" content="#7B1E28">
+<meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="../icon-192.png">
+<link rel="apple-touch-icon" href="../icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --bg:#FAF5EE; --card:#fff; --ink:#2B1B1E; --muted:#7A6A6C; --line:#EDE3DA;
+  --brand:#7B1E28; --brand-2:#5E141C; --brand-soft:#F8E9EA; --cream:#F6E7C8;
+  --ok:#2F7D32; --ok-soft:#E6F3E6; --warn:#A35C00; --warn-soft:#FCF0DE; --err:#C0352B; --err-soft:#FCE9E7;
+  --radius:14px; --shadow:0 1px 2px rgba(70,25,30,.06),0 6px 18px rgba(70,25,30,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#191214; --card:#241A1C; --ink:#F3E9E6; --muted:#B5A3A5; --line:#3A2C2F;
+    --brand-soft:#3A1E23; --ok-soft:#1E3320; --warn-soft:#3A2A12; --err-soft:#3D1D1A; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;display:flex;align-items:center;gap:10px}
+header .logo{font-weight:800;letter-spacing:.5px;font-size:18px}
+header .who{font-size:13px;opacity:.85;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;border:0;cursor:pointer}
+.pill.on{background:#E6F3E6;color:#1F5E22}.pill.off{background:#FCF0DE;color:#7A4300}.pill.busy{background:var(--cream);color:var(--brand-2)}
+.test{background:#FFD54A;color:#3A2A00;text-align:center;font-size:12px;font-weight:700;padding:3px}
+main{padding:12px 16px calc(84px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;padding:8px 2px 10px;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav button .i{font-size:22px;line-height:1}
+nav button.act{color:var(--brand);font-weight:700}
+nav .badge{background:var(--err);color:#fff;border-radius:9px;font-size:10px;padding:0 5px;margin-left:2px}
+h2{font-size:18px;margin:14px 0 8px}
+h3{font-size:15px;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;margin:0 0 10px}
+.row{display:flex;align-items:center;gap:10px}
+.grow{flex:1;min-width:0}
+.name{font-weight:700;font-size:16px}
+.sub{color:var(--muted);font-size:13px}
+.money{font-variant-numeric:tabular-nums;font-weight:700}
+.tag{display:inline-block;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}.tag.warn{background:var(--warn-soft);color:var(--warn)}.tag.err{background:var(--err-soft);color:var(--err)}.tag.n{background:var(--line);color:var(--muted)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-weight:700;font-size:16px;cursor:pointer;background:var(--brand);color:#fff;margin:8px 0}
+.btn.sec{background:var(--brand-soft);color:var(--brand)}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
+.btn:disabled{opacity:.5}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btns .btn{margin:0}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);font-size:16px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
+.big{font-size:26px;font-weight:800;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer}
+.chip.sel{background:var(--brand);border-color:var(--brand);color:#fff}
+.search{position:sticky;top:0}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.kv div:nth-child(odd){color:var(--muted)}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(90px + env(safe-area-inset-bottom));z-index:20;background:#2B1B1E;color:#fff;border-radius:12px;padding:12px 14px;font-weight:600;box-shadow:var(--shadow);max-width:600px;margin:0 auto}
+.toast.err{background:var(--err)}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 8px}
+.gps{border-radius:10px;padding:10px 12px;font-size:14px;margin-top:8px}
+.gps.ok{background:var(--ok-soft);color:var(--ok)}.gps.wait{background:var(--warn-soft);color:var(--warn)}.gps.err{background:var(--err-soft);color:var(--err)}
+.photo{width:96px;height:96px;border-radius:12px;object-fit:cover;background:var(--line);display:block}
+.switch{display:flex;align-items:center;gap:10px;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);cursor:pointer;margin-top:10px}
+.switch input{width:22px;height:22px;accent-color:var(--brand)}
+.login{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px;max-width:420px;margin:0 auto}
+.login .mark{width:72px;height:72px;border-radius:18px;background:var(--brand);color:var(--cream);font-weight:900;font-size:40px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.err-msg{color:var(--err);font-weight:600;margin-top:8px}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+.bar > i{display:block;height:100%;background:var(--brand)}
+</style>
+</head>
+<body>
+<div id="testBanner" class="test hidden">BAZ TÈS · done yo pa reyèl</div>
+
+<!-- KONEKSYON -->
+<section id="vLogin" class="login hidden">
+  <div class="mark">D</div>
+  <h2 style="text-align:center;margin-top:0">DEBLOKE · Ajan</h2>
+  <label for="lTel">Nimewo telefòn</label>
+  <input id="lTel" type="tel" inputmode="tel" autocomplete="username" placeholder="3700 1234">
+  <label for="lPwd">Modpas</label>
+  <input id="lPwd" type="password" autocomplete="current-password">
+  <button id="lBtn" class="btn" type="button">Konekte</button>
+  <div id="lErr" class="err-msg"></div>
+  <p class="sub" style="text-align:center;margin-top:18px">Premye koneksyon an bezwen entènèt. Apre sa, app la mache san entènèt.</p>
+</section>
+
+<!-- APP -->
+<div id="vApp" class="hidden">
+  <header>
+    <span class="logo">DEBLOKE</span>
+    <span class="who" id="hWho"></span>
+    <button id="hNet" class="pill off" type="button">San entènèt</button>
+  </header>
+  <main id="main"></main>
+  <nav>
+    <button data-p="jodi" class="act" type="button"><span class="i">☀️</span>Jodi a</button>
+    <button data-p="kliyan" type="button"><span class="i">👥</span>Kliyan</button>
+    <button data-p="nouvo" type="button"><span class="i">➕</span>Nouvo</button>
+    <button data-p="senk" type="button"><span class="i">🔄</span><span>Senk<span id="nBadge" class="badge hidden"></span></span></button>
+  </nav>
+</div>
+
+<div id="sheet" class="sheet-bg hidden"><div class="sheet" id="sheetBody"></div></div>
+<div id="toast" class="toast hidden"></div>
+
+<script>
+"use strict";
+/* ================= KONFIGIRASYON ================= */
+const CFG = {
+  url: "https://riutfmqffpffniutbhue.supabase.co",
+  key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
+  test: true,
+  domen: "ajan.debloke.invalid",
+  bucket: "debloke-photos",
+  frais: [100,150,250,350,500,750,1000,1250],
+  modes: ["Espèces","MonCash","NatCash","Virement bancaire","Autre"],
+  activites: ["Restaurant","Fritay / vente de rue","Pâtisserie","Boissons / jus","Épicerie","Autre"],
+  emplacements: ["Marché","Boutique","Bord de rue","Maison","Ambulant","Autre"]
+};
+
+/* ================= ZOUTI ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const htg = n => (Math.round(Number(n || 0))).toLocaleString("fr-HT").replace(/ | /g, " ") + " HTG";
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
+  "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)));
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0"); };
+const dmy = s => s ? s.slice(8,10) + "/" + s.slice(5,7) + "/" + s.slice(0,4) : "";
+const hm = s => { try { const d = new Date(s); return d.toLocaleDateString("fr-HT") + " " + d.toLocaleTimeString("fr-HT",{hour:"2-digit",minute:"2-digit"}); } catch { return s; } };
+function normTel(t){ let d = String(t||"").replace(/\D/g,""); if (d.length === 8) d = "509" + d; return /^509\d{8}$/.test(d) ? d : null; }
+function toast(msg, err){ const t = $("#toast"); t.textContent = msg; t.className = "toast" + (err ? " err" : ""); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.add("hidden"), err ? 5000 : 2600); }
+
+/* ================= STOKAJ LOKAL (IndexedDB) ================= */
+const DB = {
+  _db: null,
+  open(){ return this._db || (this._db = new Promise((ok, ko) => {
+    const r = indexedDB.open("debloke-ajan", 1);
+    r.onupgradeneeded = () => { const d = r.result;
+      d.createObjectStore("kv"); d.createObjectStore("outbox", { keyPath: "seq", autoIncrement: true }); d.createObjectStore("photos"); };
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  })); },
+  async tx(store, mode, fn){ const d = await this.open(); return new Promise((ok, ko) => {
+    const t = d.transaction(store, mode), s = t.objectStore(store); let res;
+    Promise.resolve(fn(s)).then(v => res = v);
+    t.oncomplete = () => ok(res); t.onerror = () => ko(t.error); t.onabort = () => ko(t.error); }); },
+  req(r){ return new Promise((ok, ko) => { r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); }); },
+  get(store, k){ return this.tx(store, "readonly", s => this.req(s.get(k))); },
+  set(store, k, v){ return this.tx(store, "readwrite", s => k === undefined ? this.req(s.put(v)) : this.req(s.put(v, k))); },
+  del(store, k){ return this.tx(store, "readwrite", s => this.req(s.delete(k))); },
+  all(store){ return this.tx(store, "readonly", s => this.req(s.getAll())); },
+  clear(store){ return this.tx(store, "readwrite", s => this.req(s.clear())); }
+};
+
+/* ================= ETA ================= */
+const S = {
+  session: null, moi: null,          // moi = {user_id, nom, role, telephone}
+  clients: [], comptes: [], cycles: [], tx: [], baremes: [],
+  outbox: [], lastSync: null, online: navigator.onLine, syncing: false, page: "jodi", q: ""
+};
+async function loadState(){
+  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync"]) {
+    const v = await DB.get("kv", k); if (v !== undefined) S[k] = v;
+  }
+  S.outbox = await DB.all("outbox");
+}
+const save = k => DB.set("kv", k, S[k]);
+
+/* ================= API SUPABASE ================= */
+class ApiErr extends Error { constructor(msg, status, code){ super(msg); this.status = status; this.code = code; } }
+async function http(path, { method = "GET", body, headers = {}, auth = true, raw = false } = {}){
+  const h = { apikey: CFG.key, ...headers };
+  if (auth) { await ensureToken(); h.Authorization = "Bearer " + S.session.access_token; }
+  if (body !== undefined && !(body instanceof Blob)) { h["Content-Type"] = "application/json"; body = JSON.stringify(body); }
+  let r;
+  try { r = await fetch(CFG.url + path, { method, headers: h, body }); }
+  catch (e) { throw new ApiErr("Pa gen koneksyon", 0, "network"); }
+  const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch {}
+  if (!r.ok) {
+    const msg = (j && (j.message || j.msg || j.error_description || j.erè || j.error)) || ("Erè " + r.status);
+    throw new ApiErr(msg, r.status, j && (j.code || j.error_code));
+  }
+  return raw ? txt : j;
+}
+async function login(tel, pwd){
+  const j = await http("/auth/v1/token?grant_type=password", { method: "POST", auth: false,
+    body: { email: tel + "@" + CFG.domen, password: pwd } });
+  setSession(j);
+}
+function setSession(j){
+  S.session = { access_token: j.access_token, refresh_token: j.refresh_token,
+    expires_at: j.expires_at || (Math.floor(Date.now()/1000) + (j.expires_in || 3600)), user_id: j.user && j.user.id };
+  save("session");
+}
+async function ensureToken(){
+  if (!S.session) throw new ApiErr("Ou pa konekte", 401, "no_session");
+  if (S.session.expires_at - 60 > Date.now()/1000) return;
+  try {
+    const j = await http("/auth/v1/token?grant_type=refresh_token", { method: "POST", auth: false, body: { refresh_token: S.session.refresh_token } });
+    setSession(j);
+  } catch (e) {
+    if (e.status === 0) throw e;
+    S.needRelogin = true; throw new ApiErr("Sesyon an fini. Konekte ankò (done ki pa voye yo ap rete).", 401, "relogin");
+  }
+}
+const rpc = (fn, args) => http("/rest/v1/rpc/" + fn, { method: "POST", body: args || {} });
+const sel = (t, q) => http("/rest/v1/" + t + "?" + q);
+const ins = (t, row) => http("/rest/v1/" + t, { method: "POST", body: row, headers: { Prefer: "return=minimal" } });
+
+/* ================= GPS ================= */
+function getGPS(timeout = 20000){
+  return new Promise(res => {
+    if (!navigator.geolocation) return res({ err: "Telefòn sa a pa gen GPS." });
+    navigator.geolocation.getCurrentPosition(
+      p => res({ lat: p.coords.latitude, lng: p.coords.longitude, acc: Math.round(p.coords.accuracy), at: new Date(p.timestamp).toISOString() }),
+      e => res({ err: e.code === 1 ? "Ou pa bay app la otorizasyon GPS. Aktive l nan paramèt telefòn nan." : "GPS la pa jwenn pozisyon. Ale deyò oswa eseye ankò." }),
+      { enableHighAccuracy: true, timeout, maximumAge: 0 });
+  });
+}
+const gpsHtml = g => !g ? '<div class="gps wait">📍 Ap chèche pozisyon GPS…</div>'
+  : g.err ? '<div class="gps err">📍 ' + esc(g.err) + '</div>'
+  : g.acc > 200 ? '<div class="gps err">📍 Pozisyon pa presi ase (±' + g.acc + ' m). Eseye ankò.</div>'
+  : '<div class="gps ok">📍 Pozisyon anrejistre (±' + g.acc + ' m)</div>';
+
+/* ================= FOTO ================= */
+function compressImage(file, max = 1280, q = 0.72){
+  return new Promise((ok, ko) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => { const r = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(b => b ? ok(b) : ko(new Error("foto")), "image/jpeg", q); };
+    img.onerror = () => { URL.revokeObjectURL(u); ko(new Error("Foto a pa ka li.")); };
+    img.src = u;
+  });
+}
+
+/* ================= OUTBOX (operasyon k ap tann) ================= */
+async function enqueue(kind, payload, label){
+  const item = { kind, payload, label, created: new Date().toISOString(), status: "pending", error: null, user_id: S.moi && S.moi.user_id };
+  item.seq = await DB.set("outbox", undefined, item);
+  S.outbox.push(item); renderBadge();
+  if (S.online) sync();
+  return item;
+}
+
+async function pushOne(it){
+  const p = it.payload;
+  switch (it.kind) {
+    case "photo": {
+      const blob = await DB.get("photos", p.key);
+      if (blob) {
+        try { await http("/storage/v1/object/" + CFG.bucket + "/" + p.path, { method: "POST", body: blob, headers: { "Content-Type": "image/jpeg" } }); }
+        catch (e) { if (!(e.status === 409 || /exists|duplicate/i.test(e.message))) throw e; }   // deja voye
+        await DB.del("photos", p.key);
+      }
+      return;
+    }
+    case "inscrire": return rpc("debloke_inscrire_client", p);
+    case "ouvrir": {
+      const r = await rpc("debloke_ouvrir_compte", p);
+      const k = S.comptes.find(x => x.id === p.p_id); if (k && r && r.numero) { k.numero = r.numero; k._local = false; save("comptes"); }
+      return r;
+    }
+    case "gps": return rpc("debloke_enregistrer_gps_commerce", p);
+    case "tx":
+      try { return await ins("debloke_transactions", p); }
+      catch (e) { if (e.code === "23505") return; throw e; }      // deja voye
+    case "off":
+      try { return await ins("debloke_jours_off", p); }
+      catch (e) { if (e.code === "23505") return; throw e; }
+  }
+}
+
+async function sync(manual){
+  if (S.syncing) return;
+  if (!S.online) { if (manual) toast("Pa gen entènèt. Done yo ap voye lè entènèt tounen.", true); return; }
+  S.syncing = true; renderNet();
+  let ok = 0, fail = 0;
+  try {
+    const items = (await DB.all("outbox")).filter(i => i.status !== "done");
+    for (const it of items) {
+      if (it.user_id && S.moi && it.user_id !== S.moi.user_id) continue;   // pa voye done yon lòt ajan
+      try { await pushOne(it); await DB.del("outbox", it.seq); ok++; }
+      catch (e) {
+        if (e.status === 0) throw e;                                    // koneksyon koupe : kanpe
+        if (e.code === "relogin") throw e;
+        it.status = "error"; it.error = e.message; it.tries = (it.tries || 0) + 1; await DB.set("outbox", undefined, it); fail++;
+      }
+    }
+    await pull();
+    S.lastSync = new Date().toISOString(); save("lastSync");
+    if (manual || ok || fail) toast(fail ? (fail + " operasyon pa pase. Gade nan Senk.") : (ok ? ok + " operasyon voye ✔" : "Tout bagay ajou ✔"), !!fail);
+  } catch (e) {
+    if (e.code === "relogin") { toast(e.message, true); showLogin(true); }
+    else if (manual) toast(e.message, true);
+  } finally {
+    S.outbox = await DB.all("outbox"); S.syncing = false; renderNet(); renderBadge(); render();
+  }
+}
+
+async function pull(){
+  const [moi, clients, comptes, cycles, baremes] = await Promise.all([
+    sel("debloke_personnel", "select=user_id,nom,role,telephone&user_id=eq." + S.session.user_id),
+    sel("debloke_v_clients", "select=*&order=nom.asc"),
+    sel("debloke_comptes", "select=id,numero,client_id,statut,limite_autorisee,date_ouverture&order=date_ouverture.desc"),
+    sel("debloke_v_cycles", "select=*&statut=not.in.(Annulé)&order=date_debut.desc&limit=500"),
+    sel("debloke_baremes_frais", "select=frais_journalier&actif=eq.true&order=frais_journalier.asc")
+  ]);
+  const ids = cycles.filter(c => !/Terminé/.test(c.statut) || c.date_debut >= addDays(today(), -30)).map(c => c.id);
+  let tx = [];
+  if (ids.length) tx = await sel("debloke_transactions", "select=id,cycle_id,type,montant,sens,affectation,date_operation,mode_paiement,capture_le,agent_id&order=capture_le.desc&limit=1000&cycle_id=in.(" + ids.join(",") + ")");
+  if (moi[0]) { S.moi = moi[0]; save("moi"); }
+  // Kenbe done lokal ki poko pase
+  const pend = await DB.all("outbox");
+  const pendClients = new Set(pend.filter(i => i.kind === "inscrire").map(i => i.payload.p_id));
+  const pendComptes = new Set(pend.filter(i => i.kind === "ouvrir").map(i => i.payload.p_id));
+  const pendTx = new Set(pend.filter(i => i.kind === "tx").map(i => i.payload.id));
+  S.clients = clients.concat(S.clients.filter(c => c._local && pendClients.has(c.id) && !clients.some(x => x.id === c.id)));
+  S.comptes = comptes.concat(S.comptes.filter(c => c._local && pendComptes.has(c.id) && !comptes.some(x => x.id === c.id)));
+  S.cycles = cycles;
+  const localTx = S.tx.filter(t => t._local && pendTx.has(t.id) && !tx.some(x => x.id === t.id));
+  S.tx = tx.concat(localTx);
+  localTx.forEach(applyTxLocal);
+  S.baremes = baremes.map(b => Number(b.frais_journalier));
+  for (const k of ["clients","comptes","cycles","tx","baremes"]) await save(k);
+}
+function addDays(s, n){ const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0,10); }
+
+/* Mete chif cycle la ajou lokalman (san entènèt) */
+function applyTxLocal(t){
+  const c = S.cycles.find(x => x.id === t.cycle_id); if (!c) return;
+  const m = Number(t.montant);
+  if (t.type === "Paiement frais") { c.frais_payes = +c.frais_payes + m; c.frais_en_retard = Math.max(0, +c.frais_dus - c.frais_payes); }
+  if (t.type === "Restitution du fonds") { c.fonds_restitue = +c.fonds_restitue + m; c.fonds_a_restituer = +c.fonds_debloques - c.fonds_restitue; }
+  if (t.type === "Déblocage du fonds") { c.fonds_decaisse = +c.fonds_decaisse + m; if (c.statut === "Prévu") c.statut = "Actif"; }
+  if (t.type === "Pénalité") { c.penalites_payees = +c.penalites_payees + m; }
+}
+
+/* ================= DONE POU EKRAN YO ================= */
+const clientById = id => S.clients.find(c => c.id === id);
+const comptesOf = cid => S.comptes.filter(k => k.client_id === cid);
+const cyclesOfCompte = kid => S.cycles.filter(y => y.compte_id === kid);
+const cyclesOfClient = cid => comptesOf(cid).flatMap(k => cyclesOfCompte(k.id));
+const clientOfCycle = y => { const k = S.comptes.find(k => k.id === y.compte_id); return k && clientById(k.client_id); };
+const isOpen = y => !/Terminé|Annulé/.test(y.statut);
+const pendingFor = id => S.outbox.some(i => i.status !== "done" && (i.payload.p_id === id || i.payload.p_client === id || i.payload.id === id));
+
+/* ================= EKRAN ================= */
+function render(){
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page));
+  const m = $("#main");
+  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, senk: renderSenk }[S.page] || renderJodi)(m);
+}
+function renderNet(){
+  const b = $("#hNet");
+  b.className = "pill " + (S.syncing ? "busy" : S.online ? "on" : "off");
+  b.textContent = S.syncing ? "Ap senkronize…" : S.online ? "Sou entènèt" : "San entènèt";
+  $("#hWho").textContent = S.moi ? S.moi.nom + " · " + S.moi.role : "";
+}
+function renderBadge(){
+  const n = S.outbox.filter(i => i.status !== "done").length, b = $("#nBadge");
+  b.textContent = n; b.classList.toggle("hidden", !n);
+}
+
+function cycleCard(y){
+  const c = clientOfCycle(y), late = +y.frais_en_retard > 0, rest = +y.fonds_a_restituer;
+  const ech = y.date_limite && y.date_limite < today() && rest > 0;
+  const pct = Math.min(100, Math.round(100 * (+y.jours_consommes || 0) / (y.nb_jours_prevu || 1)));
+  return '<div class="card" data-cycle="' + y.id + '"><div class="row"><div class="grow">'
+    + '<div class="name">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + '</div>'
+    + '<div class="sub">' + esc(y.numero) + ' · ' + htg(y.frais_journalier) + '/jou · fen ' + dmy(y.date_limite) + '</div></div>'
+    + (ech ? '<span class="tag err">Reta remèt</span>' : late ? '<span class="tag warn">Reta ' + htg(y.frais_en_retard) + '</span>' : y.statut === "Prévu" ? '<span class="tag n">Pou debloke</span>' : '<span class="tag ok">Ajou</span>')
+    + '</div><div class="bar"><i style="width:' + pct + '%"></i></div>'
+    + '<div class="row sub" style="margin-top:6px"><span class="grow">Jou ' + (y.jours_consommes || 0) + '/' + y.nb_jours_prevu + ' · frè peye ' + htg(y.frais_payes) + '</span><span>Pou remèt <b class="money">' + htg(rest) + '</b></span></div></div>';
+}
+
+function renderJodi(m){
+  const open = S.cycles.filter(isOpen);
+  const order = y => (+y.frais_en_retard > 0 ? 0 : 1) + (y.statut === "Prévu" ? 2 : 0);
+  open.sort((a, b) => order(a) - order(b) || String(a.date_limite).localeCompare(String(b.date_limite)));
+  const sansGps = S.clients.filter(c => c.gps_statut !== "Capturé" && !c._gpsPending);
+  const kolekte = S.tx.filter(t => t.date_operation === today() && t.agent_id === (S.moi && S.moi.user_id));
+  const sum = typ => kolekte.filter(t => t.type === typ).reduce((s, t) => s + Number(t.montant), 0);
+  m.innerHTML = '<div class="card"><div class="sub">Jodi a · ' + dmy(today()) + '</div>'
+    + '<div class="kv" style="margin-top:6px"><div>Frè kolekte</div><div class="money">' + htg(sum("Paiement frais")) + '</div>'
+    + '<div>Fon remèt</div><div class="money">' + htg(sum("Restitution du fonds")) + '</div>'
+    + '<div>Fon debloke</div><div class="money">' + htg(sum("Déblocage du fonds")) + '</div></div>'
+    + (S.lastSync ? '<div class="sub" style="margin-top:6px">Dènye senk : ' + hm(S.lastSync) + '</div>' : '') + '</div>'
+    + '<h3>Cycle aktif (' + open.length + ')</h3>'
+    + (open.length ? open.map(cycleCard).join("") : '<div class="empty">Pa gen cycle aktif. Senkronize lè w gen entènèt.</div>')
+    + (sansGps.length ? '<h3>📍 Pozisyon biznis pou anrejistre (' + sansGps.length + ')</h3>'
+      + sansGps.map(c => '<div class="card" data-client="' + c.id + '"><div class="row"><div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div><div class="sub">' + esc(c.localisation || c.activite || "") + '</div></div><span class="tag warn">GPS</span></div></div>').join("") : "");
+}
+
+function renderKliyan(m){
+  const q = S.q.trim().toLowerCase();
+  const list = S.clients.filter(c => !q || (c.prenom + " " + c.nom + " " + (c.telephone || "") + " " + (c.code_client || "")).toLowerCase().includes(q))
+    .sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
+  m.innerHTML = '<div class="search"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd…" value="' + esc(S.q) + '"></div><h3>' + list.length + ' kliyan</h3>'
+    + (list.length ? list.map(c => {
+      const ys = cyclesOfClient(c.id).filter(isOpen), late = ys.some(y => +y.frais_en_retard > 0);
+      return '<div class="card" data-client="' + c.id + '"><div class="row"><div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
+        + '<div class="sub">' + esc(c.telephone || "") + (c.activite ? " · " + esc(c.activite) : "") + '</div></div>'
+        + (c._local ? '<span class="tag n">Ap tann</span>' : late ? '<span class="tag warn">Reta</span>' : ys.length ? '<span class="tag ok">Aktif</span>' : '') + '</div></div>';
+    }).join("") : '<div class="empty">Pa gen kliyan.</div>');
+  const i = $("#q", m); i.oninput = () => { S.q = i.value; const p = i.selectionStart; renderKliyan(m); const n = $("#q", m); n.focus(); n.setSelectionRange(p, p); };
+}
+
+function openClient(id){
+  const c = clientById(id); if (!c) return;
+  const ks = comptesOf(id), ys = cyclesOfClient(id);
+  const gps = c.gps_statut === "Capturé" || c._gpsPending;
+  sheet('<div class="row"><div class="grow"><div class="name" style="font-size:20px">' + esc(c.prenom + " " + c.nom) + '</div>'
+    + '<div class="sub">' + esc(c.telephone || "") + (c.code_client ? " · " + esc(c.code_client) : "") + '</div></div>'
+    + (c._local ? '<span class="tag n">Ap tann entènèt</span>' : '') + '</div>'
+    + '<div class="card" style="margin-top:10px"><div class="kv">'
+    + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
+    + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div></div></div>'
+    + (!gps ? '<button class="btn sec" id="cGps" type="button">📍 Mwen nan biznis li : anrejistre pozisyon an</button>' : '')
+    + '<h3>Kont</h3>' + (ks.length ? ks.map(k => '<div class="card"><div class="row"><div class="grow name">' + esc(k._local ? "Nouvo kont (ap tann)" : k.numero) + '</div><span class="tag ' + (k.statut === "Actif" ? "ok" : "n") + '">' + esc(k.statut) + '</span></div></div>').join("")
+      : '<div class="sub">Pa gen kont.</div><button class="btn" id="cOpen" type="button">Ouvri yon kont Debloke</button>')
+    + '<h3>Cycle</h3>' + (ys.length ? ys.map(cycleCard).join("") : '<div class="sub">Pa gen cycle. Se manager la ki kreye cycle yo.</div>'));
+  const g = $("#cGps"); if (g) g.onclick = () => captureGpsFor(c);
+  const o = $("#cOpen"); if (o) o.onclick = () => openCompte(c);
+}
+
+async function captureGpsFor(c){
+  const box = document.createElement("div"); box.innerHTML = gpsHtml(null); $("#cGps").replaceWith(box);
+  const g = await getGPS(); box.innerHTML = gpsHtml(g);
+  if (g.err || g.acc > 200) return;
+  await enqueue("gps", { p_client: c.id, p_lat: g.lat, p_lng: g.lng, p_precision: g.acc, p_capture_le: g.at }, "GPS " + c.prenom + " " + c.nom);
+  c._gpsPending = true; save("clients"); toast("Pozisyon anrejistre ✔"); render();
+}
+
+async function openCompte(c){
+  const kid = uuid();
+  const atBiz = confirm("Èske w nan biznis kliyan an kounye a?\n\nOK = wi, anrejistre pozisyon GPS la\nAnile = non, m ap anrejistre l pita");
+  let g = null;
+  if (atBiz && c.gps_statut !== "Capturé") { toast("Ap chèche pozisyon GPS…"); g = await getGPS(); if (g.err || g.acc > 200) { toast((g.err || "GPS pa presi ase") + " Kont lan ap ouvri san GPS.", true); g = null; } }
+  await enqueue("ouvrir", { p_id: kid, p_client: c.id, p_gps_lat: g && g.lat, p_gps_lng: g && g.lng, p_gps_precision: g && g.acc, p_capture_le: (g && g.at) || new Date().toISOString() }, "Kont " + c.prenom + " " + c.nom);
+  S.comptes.push({ id: kid, client_id: c.id, numero: "(ap tann)", statut: "Actif", _local: true }); save("comptes");
+  if (g) { c._gpsPending = true; save("clients"); }
+  toast("Kont lan anrejistre ✔"); openClient(c.id);
+}
+
+/* ---------- Operasyon sou yon cycle ---------- */
+function openCycle(id){
+  const y = S.cycles.find(x => x.id === id); if (!y) return;
+  const c = clientOfCycle(y);
+  const hist = S.tx.filter(t => t.cycle_id === id).sort((a, b) => String(b.capture_le).localeCompare(String(a.capture_le))).slice(0, 15);
+  sheet('<div class="name" style="font-size:20px">' + esc(c ? c.prenom + " " + c.nom : "") + '</div><div class="sub">' + esc(y.numero) + ' · ' + esc(y.statut) + '</div>'
+    + '<div class="card" style="margin-top:10px"><div class="kv">'
+    + '<div>Fon debloke</div><div class="money">' + htg(y.fonds_decaisse) + ' / ' + htg(y.fonds_debloques) + '</div>'
+    + '<div>Frè pa jou</div><div class="money">' + htg(y.frais_journalier) + '</div>'
+    + '<div>Jou konsome</div><div>' + (y.jours_consommes || 0) + ' / ' + y.nb_jours_prevu + ' (fen ' + dmy(y.date_limite) + ')</div>'
+    + '<div>Frè dwe</div><div class="money">' + htg(y.frais_dus) + '</div>'
+    + '<div>Frè peye</div><div class="money">' + htg(y.frais_payes) + '</div>'
+    + '<div>Frè an reta</div><div class="money" style="color:' + (+y.frais_en_retard > 0 ? "var(--err)" : "inherit") + '">' + htg(y.frais_en_retard) + '</div>'
+    + '<div>Pou remèt</div><div class="money">' + htg(y.fonds_a_restituer) + '</div></div></div>'
+    + (isOpen(y) ? '<div class="btns">'
+      + '<button class="btn" data-op="Paiement frais" type="button">💵 Frè</button>'
+      + '<button class="btn" data-op="Restitution du fonds" type="button">↩️ Remèt fon</button>'
+      + '<button class="btn sec" data-op="Déblocage du fonds" type="button">💸 Debloke</button>'
+      + '<button class="btn sec" data-op="Pénalité" type="button">⚠️ Penalite</button></div>'
+      + '<button class="btn ghost" id="yOff" type="button">📅 Kliyan an p ap la yon jou</button>' : '')
+    + '<h3>Dènye operasyon</h3>' + (hist.length ? hist.map(t => '<div class="row sub" style="padding:6px 0;border-bottom:1px solid var(--line)"><span class="grow">' + dmy(t.date_operation) + ' · ' + esc(t.type) + (t._local ? ' · <b>ap tann</b>' : '') + '</span><span class="money">' + htg(t.montant) + '</span></div>').join("") : '<div class="sub">Okenn.</div>'));
+  document.querySelectorAll("[data-op]").forEach(b => b.onclick = () => openOp(y, b.dataset.op));
+  const o = $("#yOff"); if (o) o.onclick = () => openOff(y);
+}
+
+function openOp(y, type){
+  const c = clientOfCycle(y);
+  const def = type === "Paiement frais" ? (+y.frais_en_retard > 0 ? y.frais_en_retard : y.frais_journalier)
+    : type === "Restitution du fonds" ? y.fonds_a_restituer
+    : type === "Déblocage du fonds" ? Math.max(0, +y.fonds_debloques - +y.fonds_decaisse) : "";
+  let gps = null, mode = "Espèces";
+  sheet('<div class="name" style="font-size:20px">' + esc(type) + '</div><div class="sub">' + esc(c ? c.prenom + " " + c.nom : "") + ' · ' + esc(y.numero) + '</div>'
+    + '<label for="opM">Montan (HTG)</label><input id="opM" class="big" type="number" inputmode="decimal" min="1" step="1" value="' + (def ? Math.round(def) : "") + '">'
+    + (type === "Paiement frais" ? '<div class="chips">' + [1,2,3].map(n => '<button class="chip" data-n="' + n + '" type="button">' + n + ' jou · ' + htg(n * y.frais_journalier) + '</button>').join("") + '</div>' : '')
+    + '<label>Mòd peman</label><div class="chips" id="opMode">' + CFG.modes.map(x => '<button class="chip' + (x === mode ? " sel" : "") + '" data-m="' + esc(x) + '" type="button">' + esc(x) + '</button>').join("") + '</div>'
+    + '<label for="opR">Referans (si se MonCash, NatCash…)</label><input id="opR" type="text" autocomplete="off">'
+    + '<label for="opC">Kòmantè</label><input id="opC" type="text" autocomplete="off">'
+    + '<div id="opG">' + gpsHtml(null) + '</div>'
+    + '<button class="btn" id="opOk" type="button">Anrejistre</button><button class="btn ghost" id="opNo" type="button">Anile</button>');
+  getGPS(15000).then(g => { gps = g; const b = $("#opG"); if (b) b.innerHTML = gpsHtml(g); });
+  document.querySelectorAll("[data-n]").forEach(b => b.onclick = () => { $("#opM").value = b.dataset.n * y.frais_journalier; });
+  document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { mode = b.dataset.m; document.querySelectorAll("[data-m]").forEach(x => x.classList.toggle("sel", x === b)); });
+  $("#opNo").onclick = closeSheet;
+  $("#opOk").onclick = async () => {
+    const m = Math.round(Number($("#opM").value));
+    if (!(m > 0)) return toast("Mete yon montan.", true);
+    if (type === "Déblocage du fonds" && m > +y.fonds_debloques - +y.fonds_decaisse) return toast("Montan an depase sa ki rete pou debloke (" + htg(+y.fonds_debloques - +y.fonds_decaisse) + ").", true);
+    if (type === "Restitution du fonds" && m > +y.fonds_a_restituer) { if (!confirm("Montan an plis pase sa kliyan an dwe remèt (" + htg(y.fonds_a_restituer) + "). Kontinye?")) return; }
+    if (!confirm(type + " · " + htg(m) + "\n" + (c ? c.prenom + " " + c.nom : "") + "\n\nKonfime?")) return;
+    $("#opOk").disabled = true;
+    const ok = gps && !gps.err && gps.acc <= 500;
+    const t = { id: uuid(), cycle_id: y.id, type, montant: m, date_operation: today(), mode_paiement: mode,
+      reference: $("#opR").value.trim() || null, commentaire: $("#opC").value.trim() || null, agent_id: S.moi.user_id,
+      gps_lat: ok ? gps.lat : null, gps_lng: ok ? gps.lng : null, gps_precision_m: ok ? gps.acc : null,
+      capture_le: new Date().toISOString(), appareil: (navigator.userAgent || "").slice(0, 120) };
+    await enqueue("tx", t, type + " " + htg(m) + " · " + (c ? c.prenom + " " + c.nom : ""));
+    S.tx.unshift({ ...t, _local: true }); applyTxLocal(t); save("tx"); save("cycles");
+    closeSheet(); toast(type + " anrejistre ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)")); render();
+  };
+}
+
+function openOff(y){
+  sheet('<div class="name" style="font-size:20px">Jou kliyan an p ap la</div><div class="sub">Jou sa a p ap konte nan frè yo.</div>'
+    + '<label for="offD">Dat</label><input id="offD" type="date" min="' + today() + '" value="' + addDays(today(), 1) + '">'
+    + '<label for="offM">Rezon</label><input id="offM" type="text" placeholder="Egz. maladi, mache fèmen…">'
+    + '<button class="btn" id="offOk" type="button">Anrejistre</button><button class="btn ghost" id="offNo" type="button">Anile</button>');
+  $("#offNo").onclick = closeSheet;
+  $("#offOk").onclick = async () => {
+    const d = $("#offD").value; if (!d) return toast("Chwazi dat la.", true);
+    await enqueue("off", { cycle_id: y.id, jour: d, motif: $("#offM").value.trim() || null }, "Jou off " + dmy(d));
+    closeSheet(); toast("Jou off anrejistre ✔");
+  };
+}
+
+/* ---------- Nouvo kliyan ---------- */
+let F = null;
+function renderNouvo(m){
+  F = F || { gps: null, atBiz: false, photo: null, photoUrl: null, compte: true };
+  m.innerHTML = '<h2>Nouvo kliyan</h2>'
+    + '<label for="nP">Prenon *</label><input id="nP" autocomplete="off" autocapitalize="words">'
+    + '<label for="nN">Non *</label><input id="nN" autocomplete="off" autocapitalize="words">'
+    + '<label for="nT">Telefòn *</label><input id="nT" type="tel" inputmode="tel" placeholder="3700 1234">'
+    + '<label for="nNif">NIF / CIN</label><input id="nNif" autocomplete="off">'
+    + '<label>Aktivite</label><div class="chips" id="nAct">' + CFG.activites.map(a => '<button class="chip" data-a="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
+    + '<label>Kote li travay</label><div class="chips" id="nEmp">' + CFG.emplacements.map(a => '<button class="chip" data-e="' + esc(a) + '" type="button">' + esc(a) + '</button>').join("") + '</div>'
+    + '<label for="nL">Adrès / repè</label><input id="nL" placeholder="Egz. Mache Petyonvil, bò pòt sid">'
+    + '<label>Foto kliyan an</label><div class="row"><img id="nImg" class="photo' + (F.photoUrl ? "" : " hidden") + '" alt="" src="' + (F.photoUrl || "") + '">'
+    + '<label class="btn sec" style="width:auto;flex:1;text-align:center;margin:0">📷 Pran foto<input id="nPh" type="file" accept="image/*" capture="environment" class="hidden"></label></div>'
+    + '<label class="switch"><input id="nBiz" type="checkbox"' + (F.atBiz ? " checked" : "") + '><span><b>Mwen nan biznis kliyan an kounye a</b><br><span class="sub">Pozisyon GPS biznis la ap anrejistre. Si w pa la, w ap fè l pita.</span></span></label>'
+    + '<div id="nG"></div>'
+    + '<label class="switch"><input id="nK" type="checkbox"' + (F.compte ? " checked" : "") + '><span><b>Ouvri yon kont Debloke tou</b></span></label>'
+    + '<label for="nNo">Nòt</label><textarea id="nNo" rows="2"></textarea>'
+    + '<button class="btn" id="nOk" type="button">Anrejistre kliyan an</button>';
+  let act = null, emp = null;
+  m.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { act = b.dataset.a; m.querySelectorAll("[data-a]").forEach(x => x.classList.toggle("sel", x === b)); });
+  m.querySelectorAll("[data-e]").forEach(b => b.onclick = () => { emp = b.dataset.e; m.querySelectorAll("[data-e]").forEach(x => x.classList.toggle("sel", x === b)); });
+  $("#nPh").onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try { F.photo = await compressImage(f); if (F.photoUrl) URL.revokeObjectURL(F.photoUrl); F.photoUrl = URL.createObjectURL(F.photo);
+      const i = $("#nImg"); i.src = F.photoUrl; i.classList.remove("hidden"); } catch (er) { toast(er.message, true); }
+  };
+  const doGps = async () => { F.gps = null; $("#nG").innerHTML = gpsHtml(null); const g = await getGPS(); if (!$("#nBiz") || !$("#nBiz").checked) return; F.gps = g; $("#nG").innerHTML = gpsHtml(g) + (g.err || g.acc > 200 ? '<button class="btn ghost" id="nGr" type="button">Eseye ankò</button>' : ""); const r = $("#nGr"); if (r) r.onclick = doGps; };
+  $("#nBiz").onchange = e => { F.atBiz = e.target.checked; if (F.atBiz) doGps(); else { F.gps = null; $("#nG").innerHTML = ""; } };
+  $("#nK").onchange = e => F.compte = e.target.checked;
+  $("#nOk").onclick = async () => {
+    const p = $("#nP").value.trim(), n = $("#nN").value.trim(), tel = normTel($("#nT").value);
+    if (p.length < 2 || n.length < 2) return toast("Mete prenon ak non kliyan an.", true);
+    if (!tel) return toast("Nimewo telefòn nan pa bon (8 chif).", true);
+    if (S.clients.some(c => c.telephone === tel)) return toast("Ou gen yon kliyan deja ak telefòn sa a.", true);
+    const g = F.atBiz && F.gps && !F.gps.err && F.gps.acc <= 200 ? F.gps : null;
+    if (F.atBiz && !g && !confirm("GPS la poko bon. Anrejistre kliyan an san pozisyon (w ap fè l pita)?")) return;
+    $("#nOk").disabled = true;
+    const cid = uuid(), now = new Date().toISOString();
+    let photoPath = null;
+    if (F.photo) { photoPath = "clients/" + cid + ".jpg"; await DB.set("photos", cid, F.photo);
+      await enqueue("photo", { key: cid, path: photoPath }, "Foto " + p + " " + n); }
+    const pl = { p_id: cid, p_prenom: p, p_nom: n, p_telephone: tel, p_nif: $("#nNif").value.trim() || null, p_activite: act,
+      p_type_emplacement: emp, p_localisation: $("#nL").value.trim() || null, p_photo_path: photoPath,
+      p_gps_lat: g && g.lat, p_gps_lng: g && g.lng, p_gps_precision: g && g.acc, p_notes: $("#nNo").value.trim() || null, p_capture_le: now };
+    await enqueue("inscrire", pl, "Kliyan " + p + " " + n);
+    S.clients.push({ id: cid, prenom: p, nom: n, telephone: tel, activite: act, localisation: pl.p_localisation, type_emplacement: emp,
+      gps_statut: g ? "Capturé" : "À capturer", _local: true });
+    save("clients");
+    if (F.compte) {
+      const kid = uuid();
+      await enqueue("ouvrir", { p_id: kid, p_client: cid, p_capture_le: now }, "Kont " + p + " " + n);
+      S.comptes.push({ id: kid, client_id: cid, numero: "(ap tann)", statut: "Actif", _local: true }); save("comptes");
+    }
+    if (F.photoUrl) URL.revokeObjectURL(F.photoUrl);
+    F = null; toast("Kliyan anrejistre ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)"));
+    S.page = "kliyan"; render();
+  };
+}
+
+/* ---------- Senkronizasyon ---------- */
+function renderSenk(m){
+  const items = S.outbox.filter(i => i.status !== "done");
+  m.innerHTML = '<h2>Senkronizasyon</h2><div class="card"><div class="kv">'
+    + '<div>Entènèt</div><div>' + (S.online ? "✔ wi" : "✖ non") + '</div>'
+    + '<div>Ap tann</div><div><b>' + items.length + '</b> operasyon</div>'
+    + '<div>Dènye senk</div><div>' + (S.lastSync ? hm(S.lastSync) : "—") + '</div></div></div>'
+    + '<button class="btn" id="sGo" type="button"' + (S.syncing ? " disabled" : "") + '>🔄 Senkronize kounye a</button>'
+    + (items.length ? '<h3>Operasyon k ap tann</h3>' + items.map(i => '<div class="card"><div class="row"><div class="grow"><div class="name" style="font-size:15px">' + esc(i.label || i.kind) + '</div><div class="sub">' + hm(i.created) + '</div>'
+        + (i.error ? '<div class="err-msg" style="font-size:13px">' + esc(i.error) + '</div>' : '') + '</div>'
+        + (i.status === "error" ? '<button class="pill off" data-del="' + i.seq + '" type="button">Retire</button>' : '<span class="tag n">Ap tann</span>') + '</div></div>').join("")
+      : '<div class="empty">✔ Tout done yo voye.</div>')
+    + '<h3>Kont</h3><div class="card"><div class="kv"><div>Non</div><div>' + esc(S.moi && S.moi.nom) + '</div><div>Telefòn</div><div>' + esc(S.moi && S.moi.telephone) + '</div><div>Wòl</div><div>' + esc(S.moi && S.moi.role) + '</div></div></div>'
+    + '<button class="btn ghost" id="sOut" type="button">Dekonekte</button>';
+  $("#sGo").onclick = () => sync(true);
+  m.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    if (!confirm("Retire operasyon sa a? Li p ap janm voye.")) return;
+    await DB.del("outbox", Number(b.dataset.del)); S.outbox = await DB.all("outbox"); renderBadge(); render();
+  });
+  $("#sOut").onclick = async () => {
+    const n = S.outbox.filter(i => i.status !== "done").length;
+    if (n && !confirm(n + " operasyon poko voye. Si w dekonekte, yo ap rete sou telefòn nan epi y ap voye lè w konekte ankò. Kontinye?")) return;
+    S.session = null; await DB.del("kv", "session"); showLogin();
+  };
+}
+
+/* ---------- Sheet ---------- */
+function sheet(html){ $("#sheetBody").innerHTML = '<div class="grab"></div>' + html; $("#sheet").classList.remove("hidden"); $("#sheetBody").scrollTop = 0;
+  $("#sheetBody").querySelectorAll("[data-cycle]").forEach(e => e.onclick = () => openCycle(e.dataset.cycle)); }
+function closeSheet(){ $("#sheet").classList.add("hidden"); $("#sheetBody").innerHTML = ""; }
+$("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
+
+/* ================= DEMARAJ ================= */
+function showLogin(relog){
+  $("#vApp").classList.add("hidden"); $("#vLogin").classList.remove("hidden");
+  if (relog && S.moi) $("#lTel").value = S.moi.telephone || "";
+}
+async function showApp(){
+  $("#vLogin").classList.add("hidden"); $("#vApp").classList.remove("hidden");
+  renderNet(); renderBadge(); render();
+}
+$("#lBtn").onclick = async () => {
+  const tel = normTel($("#lTel").value), pwd = $("#lPwd").value;
+  $("#lErr").textContent = "";
+  if (!tel) return $("#lErr").textContent = "Nimewo telefòn nan pa bon.";
+  if (!pwd) return $("#lErr").textContent = "Mete modpas ou.";
+  if (!navigator.onLine) return $("#lErr").textContent = "Premye koneksyon an bezwen entènèt.";
+  $("#lBtn").disabled = true; $("#lBtn").textContent = "Ap konekte…";
+  try {
+    await login(tel, pwd);
+    const prev = S.moi && S.moi.user_id;
+    if (prev && prev !== S.session.user_id) {   // lòt ajan sou menm telefòn : efase done ansyen an (outbox li rete)
+      for (const k of ["clients","comptes","cycles","tx"]) { S[k] = []; await DB.del("kv", k); }
+    }
+    S.moi = { user_id: S.session.user_id, telephone: tel, nom: "", role: "" };
+    await pull(); S.lastSync = new Date().toISOString(); save("lastSync");
+    if (!S.moi.role) { S.session = null; await DB.del("kv", "session"); throw new Error("Kont sa a pa yon kont Debloke aktif."); }
+    $("#lPwd").value = ""; S.needRelogin = false; showApp(); sync();
+  } catch (e) {
+    $("#lErr").textContent = /invalid/i.test(e.message) ? "Telefòn oswa modpas pa bon." : /banned/i.test(e.message) ? "Kont sa a dezaktive." : e.message;
+  } finally { $("#lBtn").disabled = false; $("#lBtn").textContent = "Konekte"; }
+};
+$("#lPwd").addEventListener("keydown", e => { if (e.key === "Enter") $("#lBtn").click(); });
+
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => { S.page = b.dataset.p; closeSheet(); render(); window.scrollTo(0, 0); });
+$("#main").addEventListener("click", e => {
+  const y = e.target.closest("[data-cycle]"); if (y) return openCycle(y.dataset.cycle);
+  const c = e.target.closest("[data-client]"); if (c) return openClient(c.dataset.client);
+});
+$("#hNet").onclick = () => sync(true);
+window.addEventListener("online", () => { S.online = true; renderNet(); sync(); });
+window.addEventListener("offline", () => { S.online = false; renderNet(); });
+setInterval(() => { if (S.online && S.session && document.visibilityState === "visible") sync(); }, 120000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.online && S.session) sync(); });
+
+(async function start(){
+  if (CFG.test) $("#testBanner").classList.remove("hidden");
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  await loadState();
+  if (S.session && S.moi && S.moi.role) { showApp(); if (S.online) sync(); }
+  else showLogin();
+})();
+</script>
+</body>
+</html>
