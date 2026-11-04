@@ -1,10 +1,10 @@
 // DEBLOKE Ajan : app la louvri menm san entènèt.
 // Paj yo : entènèt an premye, sinon kopi ki sou telefòn nan. Demann Supabase yo PA janm kache isit la.
 // Kare kat OpenStreetMap yo : kopi sou telefòn nan an premye (zòn ajan an deja gade yo parèt san entènèt).
-var CACHE = "debloke-ajan-v11";
+var CACHE = "debloke-ajan-v12";
 var FONTS = "debloke-font-v1";
 var TILES = "debloke-kat-v1";
-var FILES = ["./", "index.html", "manifest.json", "../icon-192.png", "../icon-512.png",
+var FILES = ["./", "index.html", "i18n.js", "manifest.json", "../icon-192.png", "../icon-512.png",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/layers.png", "vendor/leaflet/images/layers-2x.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }));

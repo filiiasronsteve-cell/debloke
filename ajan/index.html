@@ -6,6 +6,7 @@
 <title>DEBLOKE Ajan</title>
 <meta name="theme-color" content="#F3F4F6">
 <script>(function(){var t="kle";try{t=localStorage.getItem("dbk_theme")||"kle"}catch(e){}document.documentElement.setAttribute("data-theme",t);var c={kle:"#F3F4F6",nwit:"#0D0F14",mache:"#22307A"}[t];if(c)document.querySelector('meta[name=theme-color]').setAttribute("content",c)})();</script>
+<script src="i18n.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -250,11 +251,16 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 :root[data-theme="kle"] .rsumm{background:#111827}
 :root[data-theme="nwit"] .rsumm{background:var(--brand);color:#0D0F14}
 .rsumm .ln{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:4px 0;opacity:.88;font-variant-numeric:tabular-nums}
-.rsumm .ln b{font-family:var(--font-num)}
+.rsumm .ln b{font-family:var(--font-num);white-space:nowrap}
 .rsumm .tot{border-top:1px dashed currentColor;margin-top:8px;padding-top:10px;opacity:1}
 .rsumm .big{font-family:var(--font-num);font-size:38px;font-weight:800;letter-spacing:-1px;line-height:1.05;text-align:left}
 .rsumm .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.75}
 .rsumm .nt{font-size:12px;opacity:.75;margin-top:8px}
+.lsw{display:flex;gap:4px;justify-content:center;margin-top:14px}
+.lsw button{border:1.5px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:6px 14px;font-weight:700;font-size:13px;cursor:pointer}
+.lsw button.on{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.lsw.big{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.lsw.big button{padding:12px;font-size:15px;border-radius:14px}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -276,13 +282,14 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
   <button id="lBtn" class="btn" type="button">Konekte</button>
   <div id="lErr" class="err-msg"></div>
   <p class="sub" style="text-align:center;margin-top:18px">Premye koneksyon an bezwen entènèt. Apre sa, app la mache san entènèt.</p>
+  <div class="lsw" data-notr><button type="button" data-lang="ht">Kreyòl</button><button type="button" data-lang="fr">Français</button></div>
 </section>
 
 <!-- APP -->
 <div id="vApp" class="hidden">
   <header>
     <span class="logo">DEBLOKE</span>
-    <span class="who" id="hWho"></span>
+    <span class="who" id="hWho" data-notr></span>
     <button id="hNet" class="pill off" type="button">San entènèt</button>
   </header>
   <main id="main"></main>
@@ -305,7 +312,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.2 · 04/11/2026";
+const APP_VERSION = "2.3 · 04/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -839,7 +846,7 @@ function openClient(id){
       + '<span class="grow"><b style="display:block">' + esc(c.localisation || "Biznis kliyan an") + '</b>' + etaSpan(c) + '</span><span class="sub" style="font-weight:700;color:var(--brand)">Itinerè</span></a>' : '')
     + '<div class="card" style="margin-top:10px"><div class="kv">'
     + '<div>Aktivite</div><div>' + esc(c.activite || "—") + '</div><div>Kote</div><div>' + esc(c.localisation || "—") + '</div>'
-    + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div>'
+    + '<div>Pozisyon</div><div>' + (gps ? '<span class="tag ok">Li anrejistre</span>' : '<span class="tag warn">Pou anrejistre</span>') + '</div>'
     + (isMgr() && c.agent_id ? '<div>Ajan</div><div>' + esc(nomAgent(c.agent_id)) + '</div>' : '')
     + (isMgr() && c.correspondance ? '<div>Doublon</div><div>' + ({ nouveau: "Nouvo moun", nif: "Konekte pa NIF", telephone: "Konekte pa telefòn", a_verifier: '<span class="tag err">A verifye</span> telefòn oswa NIF sa a egziste deja pou lòt moun' }[c.correspondance] || esc(c.correspondance)) + '</div>' : '') + '</div></div>'
     + (!gps ? '<button class="btn sec" id="cGps" type="button">📍 Mwen nan biznis li : anrejistre pozisyon an</button>'
@@ -1319,9 +1326,11 @@ function renderSenk(m){
     + '<h3>Tèm app la</h3><div class="themes">' + THEMES.map(t => '<button class="th' + (curTheme() === t.id ? ' sel' : '') + '" data-th="' + t.id + '" type="button" aria-pressed="' + (curTheme() === t.id) + '">'
         + '<div class="pv" style="background:' + t.bg + '"><i style="top:8px;height:26px;background:' + t.hero + '"></i><i style="top:40px;height:12px;background:' + t.card + '"></i><i style="top:56px;height:12px;background:' + t.card + '"></i><i style="top:72px;height:6px;right:auto;width:40%;background:' + t.brand + '"></i></div>'
         + t.nom + '</button>').join("") + '</div>'
+    + '<h3>Lang app la</h3><div class="lsw big" data-notr><button type="button" data-lang="ht">Kreyòl</button><button type="button" data-lang="fr">Français</button></div>'
     + '<button class="btn ghost" id="sOut" type="button">Dekonekte</button>'
     + '<p class="sub" style="text-align:center">Vèsyon app la : ' + APP_VERSION + '</p>';
   $("#sGo").onclick = () => sync(true);
+  wireLang(m);
   m.querySelectorAll("[data-th]").forEach(b => b.onclick = () => { setTheme(b.dataset.th); renderSenk(m); });
   m.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
     if (!confirm("Retire operasyon sa a? Li p ap janm voye.")) return;
@@ -1359,6 +1368,7 @@ const RIC = {
   av: '<path d="M3 7h18v10H3z"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/>',
   fre: '<path d="M12 3v18M16 7.5c0-1.7-1.8-3-4-3s-4 1.3-4 3 1.8 2.6 4 3 4 1.3 4 3-1.8 3-4 3-4-1.3-4-3"/>',
   rem: '<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',
+  pen: '<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.5v.01"/>',
   deb: '<path d="M15 10l5 5-5 5"/><path d="M20 15H9a5 5 0 0 1 0-10h3"/>'
 };
 const ric = k => '<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + RIC[k] + '</svg></span>';
@@ -1390,15 +1400,17 @@ function renderRapo(m){
 
   // 2-4. Frè, Remèt, Debloke
   html += '<div class="rgrid">'
-    + '<div class="rk" style="--k:var(--ok)"><div class="h">' + ric("fre") + '</div><div class="t" style="margin-top:8px">Frè touche</div><div class="v">' + htg(r.fre.esp + r.fre.aut + r.pen.esp + r.pen.aut) + '</div>'
-      + '<span class="s">' + r.fre.n + ' frè' + (r.pen.n ? ' + ' + r.pen.n + ' penalite (' + htg(r.pen.esp + r.pen.aut) + ')' : '') + '</span></div>'
-    + '<div class="rk" style="--k:#C77800"><div class="h">' + ric("rem") + '</div><div class="t" style="margin-top:8px">Kapital remèt</div><div class="v">' + htg(r.rem.esp + r.rem.aut) + '</div>' + pc(r.rem) + '</div></div>'
-    + '<div class="rk" style="--k:#D9412F"><div class="h">' + ric("deb") + '<div class="grow"><div class="t">Kòb debloke bay kliyan</div><div class="v">' + htg(r.deb.esp + r.deb.aut) + '</div>' + pc(r.deb) + '</div></div></div>';
+    + '<div class="rk" style="--k:var(--ok)"><div class="h">' + ric("fre") + '</div><div class="t" style="margin-top:8px">Frè touche</div><div class="v">' + htg(r.fre.esp + r.fre.aut) + '</div>' + pc(r.fre) + '</div>'
+    + '<div class="rk" style="--k:#7C3AED"><div class="h">' + ric("pen") + '</div><div class="t" style="margin-top:8px">Penalite touche</div><div class="v">' + htg(r.pen.esp + r.pen.aut) + '</div>' + pc(r.pen) + '</div>'
+    + '<div class="rk" style="--k:#C77800"><div class="h">' + ric("rem") + '</div><div class="t" style="margin-top:8px">Kapital remèt</div><div class="v">' + htg(r.rem.esp + r.rem.aut) + '</div>' + pc(r.rem) + '</div>'
+    + '<div class="rk" style="--k:#D9412F"><div class="h">' + ric("deb") + '</div><div class="t" style="margin-top:8px">Kòb debloke</div><div class="v">' + htg(r.deb.esp + r.deb.aut) + '</div>' + pc(r.deb) + '</div></div>'
+    ;
 
   // 5. Rezime : sa pou depoze nan kès
   html += '<div class="rsumm" id="rSum"><div class="lbl">Kòb pou depoze nan kès · ' + esc(nomAg) + '</div>'
     + '<div class="ln" style="margin-top:10px"><span>Fon finans bay (konfime)</span><b>+ ' + htg(r.avOk) + '</b></div>'
-    + '<div class="ln"><span>Frè ak penalite (kach)</span><b>+ ' + htg(r.fre.esp + r.pen.esp) + '</b></div>'
+    + '<div class="ln"><span>Frè (kach)</span><b>+ ' + htg(r.fre.esp) + '</b></div>'
+    + '<div class="ln"><span>Penalite (kach)</span><b>+ ' + htg(r.pen.esp) + '</b></div>'
     + '<div class="ln"><span>Kapital remèt (kach)</span><b>+ ' + htg(r.rem.esp) + '</b></div>'
     + '<div class="ln"><span>Kòb debloke (kach)</span><b>− ' + htg(r.deb.esp) + '</b></div>'
     + '<div class="ln tot"><span class="big">' + htg(r.kes) + '</span></div>'
@@ -1443,12 +1455,20 @@ function renderRapo(m){
   $("#rShare", m).onclick = async () => {
     const t = "Rapò Debloke · " + nomAg + " · " + dmy(d)
       + "\nFon finans bay : " + htg(r.avOk) + (r.avAt ? " (+" + htg(r.avAt) + " poko konfime)" : "")
-      + "\nFrè touche : " + htg(r.fre.esp + r.fre.aut + r.pen.esp + r.pen.aut)
+      + "\nFrè touche : " + htg(r.fre.esp + r.fre.aut)
+      + "\nPenalite touche : " + htg(r.pen.esp + r.pen.aut)
       + "\nKapital remèt : " + htg(r.rem.esp + r.rem.aut)
       + "\nKòb debloke : " + htg(r.deb.esp + r.deb.aut)
       + "\n= Pou depoze nan kès : " + htg(r.kes);
-    try { if (navigator.share) await navigator.share({ text: t }); else { await navigator.clipboard.writeText(t); toast("Rapò a kopye ✔"); } } catch (e) {}
+    const tt = window.tr ? window.tr(t) : t;
+    try { if (navigator.share) await navigator.share({ text: tt }); else { await navigator.clipboard.writeText(tt); toast("Rapò a kopye ✔"); } } catch (e) {}
   };
+}
+
+/* ---------- Lang (Kreyòl / Français) : wè i18n.js ---------- */
+function wireLang(root){
+  root.querySelectorAll("[data-lang]").forEach(b => { const on = (window.LANG || "ht") === b.dataset.lang; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on);
+    b.onclick = () => { if (!on) window.setLang(b.dataset.lang); }; });
 }
 
 /* ---------- Tèm (chak ajan chwazi pa l, li rete sou telefòn nan) ---------- */
@@ -1778,7 +1798,7 @@ async function katPakou(bounds){
 
 /* ================= DEMARAJ ================= */
 function showLogin(relog){
-  $("#vApp").classList.add("hidden"); $("#vLogin").classList.remove("hidden");
+  $("#vApp").classList.add("hidden"); $("#vLogin").classList.remove("hidden"); wireLang($("#vLogin"));
   if (relog && S.moi) $("#lTel").value = S.moi.telephone || "";
 }
 async function showApp(){
