@@ -1,7 +1,7 @@
 // DEBLOKE Ajan : app la louvri menm san entènèt.
 // Paj yo : entènèt an premye, sinon kopi ki sou telefòn nan. Demann Supabase yo PA janm kache isit la.
 // Kare kat OpenStreetMap yo : kopi sou telefòn nan an premye (zòn ajan an deja gade yo parèt san entènèt).
-var CACHE = "debloke-ajan-v15";
+var CACHE = "debloke-ajan-v16";
 var FONTS = "debloke-font-v1";
 var TILES = "debloke-kat-v1";
 var FILES = ["./", "index.html", "i18n.js", "manifest.json", "../icon-192.png", "../icon-512.png",
