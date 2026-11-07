@@ -279,6 +279,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 .ask-m{font-size:14px;color:var(--muted);margin-top:12px;line-height:1.45}
 .ask-card input{margin-top:14px;text-align:center;font-weight:700}
 .ask-b{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:18px}
+.ask-b.one{grid-template-columns:1fr}
 .ask-b .btn{margin:0;padding:14px 10px;font-size:15px}
 .ask-card.danger #askOk{background:var(--err);color:#fff}
 .mode-auto{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:13px;font-weight:700;color:var(--muted)}
@@ -396,7 +397,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.7 · 05/11/2026";
+const APP_VERSION = "2.8 · 07/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -600,7 +601,16 @@ async function pushOne(it){
       }
       return;
     }
-    case "inscrire": return rpc("debloke_inscrire_client", p);
+    case "inscrire": {
+      const r = await rpc("debloke_inscrire_client", p);
+      const c = S.clients.find(x => x.id === p.p_id);
+      if (r && r.code_client && c && c.code_client !== r.code_client) {
+        // moun nan te deja nan baz la (li kenbe kòd li) oswa yon lòt moun te gen menm kòd la
+        if (c.code_client) toast("Kòd " + c.prenom + " " + c.nom + " : " + c.code_client + " → " + r.code_client);
+        c.code_client = r.code_client; save("clients");
+      }
+      return r;
+    }
     case "ouvrir": {
       const r = await rpc("debloke_ouvrir_compte", p);
       const k = S.comptes.find(x => x.id === p.p_id); if (k && r && r.numero) { k.numero = r.numero; k._local = false; save("comptes"); }
@@ -1272,6 +1282,7 @@ function renderNouvo(m){
   // Pandan ajan an ap tape : montre moun ki sanble ki deja nan baz la
   let sugT = null, sugKey = "";
   const sug = () => { clearTimeout(sugT); sugT = setTimeout(async () => {
+    if (!$("#nT") || !$("#nSug")) return;   // fòm nan deja fèmen
     const tel = normTel($("#nT").value), nm = ($("#nP").value.trim() + " " + $("#nN").value.trim()).trim();
     const q = tel || (nm.replace(/[^a-zA-ZÀ-ÿ]/g, "").length >= 4 ? nm : "");
     const box = $("#nSug"); if (!box) return;
@@ -1301,8 +1312,9 @@ function renderNouvo(m){
     const pl = { p_id: cid, p_prenom: p, p_nom: n, p_telephone: tel, p_nif: $("#nNif").value.trim() || null, p_activite: act,
       p_type_emplacement: emp, p_localisation: $("#nL").value.trim() || null, p_photo_path: photoPath,
       p_gps_lat: g && g.lat, p_gps_lng: g && g.lng, p_gps_precision: g && g.acc, p_notes: $("#nNo").value.trim() || null, p_capture_le: now };
+    const code = genCodeClient(p, n); pl.p_code_client = code;
     await enqueue("inscrire", pl, "Kliyan " + p + " " + n);
-    S.clients.push({ id: cid, prenom: p, nom: n, telephone: tel, activite: act, localisation: pl.p_localisation, type_emplacement: emp,
+    S.clients.push({ id: cid, prenom: p, nom: n, code_client: code, telephone: tel, activite: act, localisation: pl.p_localisation, type_emplacement: emp,
       gps_statut: g ? "Capturé" : "À capturer", gps_lat: g && g.lat, gps_lng: g && g.lng, _photo: photoPath ? cid : null, _local: true });
     save("clients");
     if (F.compte) {
@@ -1311,8 +1323,10 @@ function renderNouvo(m){
       S.comptes.push({ id: kid, client_id: cid, numero: "(ap tann)", statut: "Actif", _local: true }); save("comptes");
     }
     if (F.photoUrl) URL.revokeObjectURL(F.photoUrl);
-    F = null; toast("Kliyan anrejistre ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)"));
+    F = null;
     S.page = "kliyan"; render();
+    await ask({ icon: "check", title: "Kliyan anrejistre", big: code, rows: [["Kliyan", p + " " + n], ["Telefòn", tel]],
+      msg: "Sa a se kòd kliyan an. Ekri l sou kat li." + (S.online ? "" : " Done yo ap voye lè entènèt tounen."), ok: "OK", cancel: false });
   };
 }
 
@@ -1576,6 +1590,18 @@ function renderRapo(m){
   };
 }
 
+/* Kòd kliyan kreye sou telefòn nan (menm fòma ak Bwat Sekrem : LM-Q47RX) pou l parèt menm san entènèt */
+function genCodeClient(p, n){
+  const ini = s => (String(s || "").normalize("NFD").replace(/[^A-Za-z]/g, "")[0] || "X").toUpperCase();
+  const A = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", used = new Set(S.clients.map(c => c.code_client));
+  for (let t = 0; t < 20; t++) {
+    const r = new Uint8Array(5); crypto.getRandomValues(r);
+    const k = ini(p) + ini(n) + "-" + Array.from(r, x => A[x % 36]).join("");
+    if (!used.has(k)) return k;
+  }
+  return null;
+}
+
 /* ---------- Fenèt konfimasyon (ranplase confirm/prompt navigatè a) ---------- */
 const ASK_IC = {
   q: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/>',
@@ -1600,7 +1626,7 @@ function ask(o){
       + (o.rows && o.rows.length ? '<div class="ask-rows">' + o.rows.map(r => '<div><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>').join("") + '</div>' : '')
       + (msg ? '<div class="ask-m">' + esc(msg).replace(/\n+/g, "<br>") + '</div>' : '')
       + (o.input ? '<input id="askIn" type="' + (o.input.type || "text") + '"' + (o.input.type === "number" ? ' inputmode="numeric"' : '') + ' value="' + esc(o.input.value ?? "") + '" placeholder="' + esc(o.input.placeholder || "") + '" autocomplete="off">' : '')
-      + '<div class="ask-b"><button class="btn ghost" id="askNo" type="button">' + esc(o.cancel || "Anile") + '</button><button class="btn" id="askOk" type="button">' + esc(o.ok || "Wi, konfime") + '</button></div></div>';
+      + '<div class="ask-b' + (o.cancel === false ? ' one' : '') + '">' + (o.cancel === false ? '' : '<button class="btn ghost" id="askNo" type="button">' + esc(o.cancel || "Anile") + '</button>') + '<button class="btn" id="askOk" type="button">' + esc(o.ok || "Wi, konfime") + '</button></div></div>';
     el.classList.remove("hidden");
     requestAnimationFrame(() => el.classList.add("on"));
     const inp = $("#askIn");
@@ -1608,7 +1634,7 @@ function ask(o){
     const okv = () => done(o.input ? inp.value : true), nov = () => done(o.input ? null : false);
     const kd = e => { if (e.key === "Escape") { e.preventDefault(); nov(); } else if (e.key === "Enter" && (!o.input || document.activeElement === inp)) { e.preventDefault(); okv(); } };
     document.addEventListener("keydown", kd, true);
-    $("#askOk").onclick = okv; $("#askNo").onclick = nov;
+    $("#askOk").onclick = okv; if ($("#askNo")) $("#askNo").onclick = nov;
     el.onclick = e => { if (e.target === el) nov(); };
     (inp || $("#askOk")).focus();
   });

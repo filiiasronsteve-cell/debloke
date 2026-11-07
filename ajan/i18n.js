@@ -204,6 +204,7 @@
     ["pa MonCash/lòt", "par MonCash/autre"], ["Rapò Debloke ·", "Rapport Debloke ·"], ["Rapò a kopye", "Rapport copié"], ["Ajan :", "Agent :"],
     ["Mete montan an.", "Entrez le montant."],
     // Mo jeneral
+    ["Sa a se kòd kliyan an. Ekri l sou kat li.", "Voici le code client. Notez-le sur sa carte."], ["Done yo ap voye lè entènèt tounen.", "Les données seront envoyées au retour d'Internet."], ["Kòd", "Code"],
     ["Peman an kach (Espèces)", "Paiement en espèces"],
     ["Kòb finans bay ajan", "Fonds remis à l'agent"], ["Ajan an ap resevwa l sou telefòn li pou l konfime.", "L'agent le recevra sur son téléphone pour confirmer."],
     ["Wi, anrejistre GPS", "Oui, enregistrer le GPS"], ["Wi, anrejistre", "Oui, enregistrer"], ["Non, pita", "Non, plus tard"], ["Konfimasyon", "Confirmation"],
