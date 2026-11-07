@@ -354,6 +354,29 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 .cc-codes s{color:var(--muted);text-decoration-color:var(--err);text-decoration-thickness:2px}
 .cc-codes b{color:var(--ok);font-size:24px;letter-spacing:.5px}
 .aprow{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.rk.click{cursor:pointer;position:relative}.rk.click .more{margin-left:auto;font-size:22px;color:var(--muted);line-height:1}
+.rk.click.on{box-shadow:0 0 0 2px var(--k),var(--shadow)}
+.rdet{margin-top:12px}
+.krow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.krow:first-of-type{border-top:0}
+.krow.dead .kname,.krow.dead .money{text-decoration:line-through;opacity:.6}
+.kname{font-weight:700;font-size:14px}.kname .kod{font-size:11px}
+.kamt{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.kact{display:flex;gap:6px;margin-left:auto}
+.kb{width:38px;height:38px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.kb svg{width:18px;height:18px}.kb.ok{background:var(--ok-soft);border-color:transparent;color:var(--ok)}.kb.no{background:var(--err-soft);border-color:transparent;color:var(--err)}
+.kchk{width:22px;height:22px;accent-color:var(--brand);flex:none;margin:0}
+.kgrp{padding-top:10px}.kgh{padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.kdate{display:flex;gap:6px;align-items:center;margin:6px 0 4px}.kdate input{flex:1;min-width:0;font-weight:700}.kdate .pill{font-size:18px;padding:10px 14px}
+.kstat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0}
+.kstat button{border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:10px 6px;cursor:pointer;color:var(--ink);text-align:center;min-width:0}
+.kstat b{display:block;font-family:var(--font-num);font-size:22px}.kstat span{display:block;font-size:11.5px;font-weight:700;color:var(--muted)}.kstat small{display:block;font-size:11px;color:var(--muted);font-family:var(--font-num);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kstat button.on{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand)}.kstat .attente b{color:var(--warn)}.kstat .valide b{color:var(--ok)}.kstat .rejte b{color:var(--err)}
+.kbar{position:sticky;bottom:calc(92px + env(safe-area-inset-bottom));z-index:4;display:flex;align-items:center;gap:8px;background:var(--card);border-radius:18px;padding:10px 12px;box-shadow:0 12px 30px rgba(17,24,39,.2);margin-top:12px}
+.kbar .btn{width:auto;margin:0;padding:12px 16px}
+.kret .kamt .money{font-size:18px}
+@media (max-width:767px){ .kact{width:100%;justify-content:flex-end;margin-top:-2px} }
+@media (min-width:1024px){ .kbar{bottom:16px} main[data-page=kes]{max-width:1000px} }
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -390,6 +413,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
     <button data-p="jodi" class="act" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>Jodi a</button>
     <button data-p="kliyan" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.8c2 .7 3.2 2.6 3.6 5.2"/></svg></span>Kliyan</button>
     <button data-p="tranzaksyon" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4L3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/></svg></span><span class="lg">Tranzaksyon</span><span class="sh">Tranz.</span></button>
+    <button data-p="kes" type="button" id="navKes" class="hidden"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12.5l3 3 5-6"/></svg></span>Validasyon</button>
     <button data-p="rapo" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span>Rapò</button>
     <button data-p="ekip" type="button" id="navEkip" class="hidden"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>Ekip</button>
     <button data-p="kat" type="button"><span class="i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5z"/><path d="M9 4v13M15 6.5v13"/></svg></span>Kat</button>
@@ -406,7 +430,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.9 · 07/11/2026";
+const APP_VERSION = "3.0 · 07/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -455,11 +479,11 @@ const DB = {
 /* ================= ETA ================= */
 const S = {
   session: null, moi: null,          // moi = {user_id, nom, role, telephone}
-  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], avances: [], codeChg: [], appareils: [], filtreAgent: "", rDate: "", rAg: "",
+  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], avances: [], codeChg: [], appareils: [], valid: [], remises: [], kes: {}, kDate: "", kAg: "", kF: "attente", kSel: [], rOpen: "", filtreAgent: "", rDate: "", rAg: "",
   outbox: [], lastSync: null, online: navigator.onLine, syncing: false, page: "jodi", q: ""
 };
 async function loadState(){
-  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements","avances","codeChg","appareils"]) {
+  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements","avances","codeChg","appareils","valid","remises"]) {
     const v = await DB.get("kv", k); if (v !== undefined) S[k] = v;
   }
   S.outbox = await DB.all("outbox");
@@ -534,6 +558,7 @@ const patch = (t, q, row) => http("/rest/v1/" + t + "?" + q, { method: "PATCH", 
 const kontFn = body => http("/functions/v1/debloke-kont", { method: "POST", body });
 const isMgr = () => !!S.moi && ["manager","responsable","admin"].includes(S.moi.role);
 const isAdm = () => !!S.moi && ["responsable","admin"].includes(S.moi.role);
+const isKes = () => !!S.moi && S.moi.role === "caisse";   // Responsab kès
 const nomAgent = id => { const p = S.equipe.find(x => x.user_id === id); return p ? p.nom : (S.moi && id === S.moi.user_id ? S.moi.nom : ""); };
 
 /* ================= GPS ================= */
@@ -719,7 +744,7 @@ async function pull(){
   ]);
   const ids = cycles.filter(c => !/Terminé/.test(c.statut) || c.date_debut >= addDays(today(), -30)).map(c => c.id);
   let tx = [];
-  if (ids.length) tx = await sel("debloke_transactions", "select=id,cycle_id,type,montant,sens,affectation,date_operation,mode_paiement,capture_le,agent_id&order=capture_le.desc&limit=1000&cycle_id=in.(" + ids.join(",") + ")");
+  if (ids.length) tx = await sel("debloke_transactions", "select=id,cycle_id,type,montant,sens,affectation,annule_tx,commentaire,date_operation,mode_paiement,capture_le,agent_id&order=capture_le.desc&limit=1000&cycle_id=in.(" + ids.join(",") + ")");
   if (moi[0]) { S.moi = moi[0]; save("moi"); }
   try {
     const cc = await sel("debloke_codes_changes", "select=*&corrige_le=is.null&order=cree_le.desc");
@@ -732,7 +757,13 @@ async function pull(){
     const loc = S.avances.filter(a => a._local && pendAv.some(i => (i.kind === "avance" && i.payload.p_id === a.id) || (i.kind === "avance_ok" && i.payload.p_id === a.id)));
     S.avances = av.filter(a => !loc.some(l => l.id === a.id)).concat(loc).filter(a => a.statut !== "Annulé"); save("avances");
   } catch (e) { console.warn("avances", e); }
-  if (isMgr()) {
+  try {
+    const [vl, rm] = await Promise.all([
+      sel("debloke_validations", "select=tx_id,statut,motif,remplace_par,le&le=gte." + addDays(today(), -30)),
+      sel("debloke_remises", "select=*&date_jour=gte." + addDays(today(), -30))]);
+    S.valid = vl; S.remises = rm; save("valid"); save("remises");
+  } catch (e) { console.warn("validations", e); }
+  if (isMgr() || isKes()) {
     const [eq, rp] = await Promise.all([
       sel("debloke_personnel", "select=user_id,nom,role,telephone,actif&order=nom.asc"),
       sel("debloke_remplacements", "select=*&annule=eq.false&au=gte." + addDays(today(), -1) + "&order=du.asc")
@@ -797,15 +828,21 @@ const pendingFor = id => S.outbox.some(i => i.status !== "done" && (i.payload.p_
 
 /* ================= EKRAN ================= */
 function render(){
-  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page || (S.page === "nouvo" && b.dataset.p === "kliyan")));
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("act", b.dataset.p === S.page || (S.page === "nouvo" && b.dataset.p === "kliyan") || (S.page === "jodi" && isKes() && b.dataset.p === "kes")));
   const m = $("#main");
   $("#navEkip").classList.toggle("hidden", !isMgr());
+  // Responsab kès : sèlman Validasyon, Rapò, Senk (pa gen kliyan, epay, kat)
+  const kes = isKes();
+  document.querySelectorAll("nav button").forEach(b => { if (["jodi","kliyan","tranzaksyon","kat"].includes(b.dataset.p)) b.classList.toggle("hidden", kes); });
+  $("#navKes").classList.toggle("hidden", !kes);
+  if (kes && !["kes","rapo","senk"].includes(S.page)) S.page = "kes";
+  if (!kes && S.page === "kes") S.page = "jodi";
   document.querySelector("nav").classList.toggle("mgr", isMgr());
   if (S.page === "ekip" && !isMgr()) S.page = "jodi";
   if (S.page === "kat" && S.map && document.getElementById("map")) { katRefresh(); return; }   // pa rekonstwi kat la
   if (S.page !== "kat" && S.map) { S.map.remove(); S.map = null; }
   m.dataset.page = S.page;
-  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, kat: renderKat, senk: renderSenk, ekip: renderEkip, rapo: renderRapo }[S.page] || renderJodi)(m);
+  ({ jodi: renderJodi, kliyan: renderKliyan, nouvo: renderNouvo, tranzaksyon: renderTranzaksyon, kat: renderKat, senk: renderSenk, ekip: renderEkip, rapo: renderRapo, kes: renderKes }[S.page] || renderJodi)(m);
   hydrate(m); updateDistances();
 }
 function renderNet(){
@@ -845,7 +882,8 @@ function renderJodi(m){
   const order = y => (+y.frais_en_retard > 0 ? 0 : 1) + (y.statut === "Prévu" ? 2 : 0);
   open.sort((a, b) => order(a) - order(b) || String(a.date_limite).localeCompare(String(b.date_limite)));
   const sansGps = S.clients.filter(c => c.gps_statut !== "Capturé" && !c._gpsPending);
-  const kolekte = S.tx.filter(t => t.date_operation === today() && (isMgr() ? (!fa || t.agent_id === fa) : t.agent_id === (S.moi && S.moi.user_id)));
+  const annJ = annuleSet(S.tx);
+  const kolekte = S.tx.filter(t => !annJ.has(t.id) && t.date_operation === today() && (isMgr() ? (!fa || t.agent_id === fa) : t.agent_id === (S.moi && S.moi.user_id)));
   const sum = typ => kolekte.filter(t => t.type === typ).reduce((s, t) => s + Number(t.montant), 0);
   const nb = n => Number(n || 0).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ");
   const fre = sum("Paiement frais") + sum("Pénalité"), rem = sum("Restitution du fonds"), deb = sum("Déblocage du fonds");
@@ -1189,7 +1227,7 @@ function renderEkip(m){
         + apHtml(p)
         + (isAdm() && p.user_id !== S.moi.user_id ? '<div class="btns" style="margin-top:8px"><button class="btn sec" data-pw="' + esc(p.telephone) + '" type="button">Nouvo modpas</button><button class="btn ghost" data-act="' + esc(p.telephone) + '" data-on="' + (p.actif === false ? 1 : 0) + '" type="button">' + (p.actif === false ? "Reaktive" : "Dezaktive") + '</button></div>' : '') + '</div>').join("")
     + (isAdm() ? '<h3>Nouvo kont anplwaye</h3><div class="card"><p class="sub" style="margin-top:0">Bezwen entènèt.</p><label for="kaN">Non konplè</label><input id="kaN"><label for="kaT">Telefòn</label><input id="kaT" type="tel" inputmode="tel" placeholder="3700 1234">'
-      + '<label for="kaR">Wòl</label><select id="kaR"><option value="agent">Ajan</option><option value="analyste">Analis</option><option value="manager">Manager</option>' + (S.moi.role === "admin" ? '<option value="responsable">Responsab liy</option><option value="admin">Admin</option>' : '') + '</select>'
+      + '<label for="kaR">Wòl</label><select id="kaR"><option value="agent">Ajan</option><option value="analyste">Analis</option><option value="manager">Manager</option>' + (S.moi.role === "admin" ? '<option value="responsable">Responsab liy</option><option value="caisse">Responsab kès</option><option value="admin">Admin</option>' : '') + '</select>'
       + '<label for="kaP">Modpas (8 karaktè omwen)</label><input id="kaP" type="text" autocomplete="off"><button class="btn" id="kaOk" type="button">Kreye kont lan</button></div>' : '');
 
   m.querySelectorAll("[data-rpx]").forEach(b => b.onclick = async () => {
@@ -1474,7 +1512,7 @@ function renderIstorik(match){
       + '<div class="sub">' + (TX_ICO[t.type] || "") + ' ' + esc(TX_LBL[t.type] || t.type) + ' · ' + esc(t.mode_paiement || "") + (hr ? ' · ' + hr : '')
       + (isMgr() && t.agent_id ? ' · 👤 ' + esc(nomAgent(t.agent_id)) : '') + '</div></div>'
       + '<div style="text-align:right"><div class="money" style="color:' + (out || neg ? "var(--err)" : "var(--ok)") + '">' + (out || neg ? "−" : "+") + htg(t.montant) + '</div>'
-      + (t._local ? '<span class="tag n">Ap tann</span>' : '') + '</div></div></div>';
+      + (t._local ? '<span class="tag n">Ap tann</span>' : stTag((valOf(t.id) || {}).statut || (VALIDABLE.includes(t.type) ? "En attente" : ""))) + '</div></div></div>';
   });
   return html;
 }
@@ -1515,24 +1553,37 @@ function renderSenk(m){
 
 /* ================= RAPÒ JOUNEN AN ================= */
 const RAPO_TYPES = ["Paiement frais", "Pénalité", "Restitution du fonds", "Déblocage du fonds"];
-function rapoCalc(date, ag){
+const annuleSet = list => new Set(list.filter(t => t.type === "Annulation" && t.annule_tx).map(t => t.annule_tx));
+const valOf = (id, list) => (list || S.valid).find(v => v.tx_id === id);
+function rapoCalc(date, ag, src){
   const parAg = x => !ag || x.agent_id === ag;
-  const tx = S.tx.filter(t => t.date_operation === date && parAg(t));
+  const all = (src ? src.tx : S.tx), ann = annuleSet(all);
+  // yon tranzaksyon kès anile (rejte / modifye / siprime) pa konte ; Annulation li menm pa konte
+  const tx = all.filter(t => t.date_operation === date && parAg(t) && t.type !== "Annulation" && !ann.has(t.id));
   const z = () => ({ esp: 0, aut: 0, n: 0 });
-  const r = {}; RAPO_TYPES.forEach(k => r[k] = z());
+  const r = {}; RAPO_TYPES.forEach(k => { r[k] = z(); r[k].list = []; });
   tx.forEach(t => {
-    const cat = RAPO_TYPES.includes(t.type) ? t.type : t.affectation; if (!r[cat]) return;
+    const cat = RAPO_TYPES.includes(t.type) ? t.type : ({ Frais: "Paiement frais", "Pénalité": "Pénalité" })[t.affectation]; if (!r[cat]) return;
+    if (RAPO_TYPES.includes(t.type)) r[cat].list.push(t);
     const m = Number(t.montant) * (t.type === "Ajustement" || t.type === "Annulation" ? (Number(t.sens) || -1) : 1);
     if ((t.mode_paiement || "Espèces") === "Espèces") r[cat].esp += m; else r[cat].aut += m;
     if (RAPO_TYPES.includes(t.type)) r[cat].n++;
   });
-  const av = S.avances.filter(a => a.date_jour === date && parAg(a) && a.statut !== "Annulé");
+  const av = (src ? src.av : S.avances).filter(a => a.date_jour === date && parAg(a) && a.statut !== "Annulé");
   const avOk = av.filter(a => a.statut === "Confirmé").reduce((s, a) => s + Number(a.montant), 0);
   const avAt = av.filter(a => a.statut !== "Confirmé").reduce((s, a) => s + Number(a.montant), 0);
   const fre = r["Paiement frais"], pen = r["Pénalité"], rem = r["Restitution du fonds"], deb = r["Déblocage du fonds"];
   const kes = avOk + fre.esp + pen.esp + rem.esp - deb.esp;
   const lotMod = fre.aut + pen.aut + rem.aut - deb.aut;
-  return { tx, av, avOk, avAt, fre, pen, rem, deb, kes, lotMod };
+  // validasyon kès
+  const vl = src ? src.val : S.valid, vSt = t => { const v = valOf(t.id, vl); return v ? v.statut : "En attente"; };
+  const aValide = [fre, pen, rem].flatMap(x => x.list);
+  const valide = aValide.filter(t => vSt(t) === "Validée").reduce((s, t) => s + Number(t.montant), 0);
+  const attente = aValide.filter(t => vSt(t) === "En attente").reduce((s, t) => s + Number(t.montant), 0);
+  const rejete = all.filter(t => t.date_operation === date && parAg(t) && ann.has(t.id)).map(t => ({ t, v: valOf(t.id, vl) })).filter(x => x.v);
+  const rems = (src ? src.rem : S.remises).filter(x => x.date_jour === date && parAg(x));
+  const retou = avOk - deb.esp;
+  return { tx, av, avOk, avAt, fre, pen, rem, deb, kes, lotMod, valide, attente, rejete, rems, retou, vSt };
 }
 const RIC = {
   av: '<path d="M3 7h18v10H3z"/><circle cx="12" cy="12" r="2.5"/><path d="M6 10v4M18 10v4"/>',
@@ -1545,16 +1596,20 @@ const ric = k => '<span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="
 const AV_TAG = { "En attente": '<span class="tag warn">Ap tann ajan an</span>', "Confirmé": '<span class="tag ok">Konfime</span>', "Contesté": '<span class="tag err">Ajan an di l pa bon</span>' };
 
 function renderRapo(m){
+  const kes = isKes();
   const jou = [0, -1, -2].map(n => addDays(today(), n));
-  if (!jou.includes(S.rDate)) S.rDate = today();
-  const mgr = isMgr(), ag = mgr ? S.rAg : (S.moi && S.moi.user_id);
-  const d = S.rDate, r = rapoCalc(d, ag);
-  const nomAg = ag ? (mgr ? nomAgent(ag) : (S.moi && S.moi.nom)) : "Tout ekip la";
+  if (!kes && !jou.includes(S.rDate)) S.rDate = today();
+  if (kes && !S.rDate) S.rDate = today();
+  const mgr = isMgr(), ag = (mgr || kes) ? S.rAg : (S.moi && S.moi.user_id);
+  const d = S.rDate;
+  if (kes && !S.kes[d]) { m.innerHTML = '<h2>Rapò</h2>' + rapoDateKes(d) + '<div class="empty">' + (S.online ? "Ap chaje…" : "Bezwen entènèt.") + '</div>'; wireDateKes(m, "rDate", () => renderRapo(m)); if (S.online) kesLoad(d).then(() => S.page === "rapo" && renderRapo(m)); return; }
+  const r = rapoCalc(d, ag, kes ? S.kes[d] : null);
+  const nomAg = ag ? ((mgr || kes) ? nomAgent(ag) : (S.moi && S.moi.nom)) : "Tout ekip la";
   const lbl = ["Jodi a", "Yè", "Avan yè"];
   const pc = x => '<span class="s">' + x.n + ' operasyon' + (x.aut ? ' · ' + htg(x.aut) + ' pa MonCash/lòt' : '') + '</span>';
   let html = '<div class="row" style="margin:4px 0 2px"><h2 class="grow" style="margin:0">Rapò</h2><button class="pill busy" id="rShare" type="button">Pataje</button></div>'
-    + '<div class="dsel" role="tablist">' + jou.map((x, i) => '<button type="button" role="tab" data-rd="' + x + '" class="' + (x === d ? "on" : "") + '" aria-selected="' + (x === d) + '">' + lbl[i] + '<small>' + x.slice(8, 10) + '/' + x.slice(5, 7) + '</small></button>').join("") + '</div>'
-    + (mgr && S.equipe.length ? agentPicker("data-rag", S.rAg) : '');
+    + (kes ? rapoDateKes(d) : '<div class="dsel" role="tablist">' + jou.map((x, i) => '<button type="button" role="tab" data-rd="' + x + '" class="' + (x === d ? "on" : "") + '" aria-selected="' + (x === d) + '">' + lbl[i] + '<small>' + x.slice(8, 10) + '/' + x.slice(5, 7) + '</small></button>').join("") + '</div>')
+    + ((mgr || kes) && S.equipe.length ? agentPicker("data-rag", S.rAg) : '');
 
   // 1. Fon finans bay ajan an
   html += '<div class="rk" style="--k:#1D4ED8"><div class="h">' + ric("av") + '<div class="grow"><div class="t">Fon finans bay pou debloke</div><div class="v">' + htg(r.avOk + r.avAt) + '</div>'
@@ -1570,11 +1625,20 @@ function renderRapo(m){
 
   // 2-4. Frè, Remèt, Debloke
   html += '<div class="rgrid">'
-    + '<div class="rk" style="--k:var(--ok)"><div class="h">' + ric("fre") + '</div><div class="t" style="margin-top:8px">Frè touche</div><div class="v">' + htg(r.fre.esp + r.fre.aut) + '</div>' + pc(r.fre) + '</div>'
-    + '<div class="rk" style="--k:#7C3AED"><div class="h">' + ric("pen") + '</div><div class="t" style="margin-top:8px">Penalite touche</div><div class="v">' + htg(r.pen.esp + r.pen.aut) + '</div>' + pc(r.pen) + '</div>'
-    + '<div class="rk" style="--k:#C77800"><div class="h">' + ric("rem") + '</div><div class="t" style="margin-top:8px">Kapital remèt</div><div class="v">' + htg(r.rem.esp + r.rem.aut) + '</div>' + pc(r.rem) + '</div>'
-    + '<div class="rk" style="--k:#D9412F"><div class="h">' + ric("deb") + '</div><div class="t" style="margin-top:8px">Kòb debloke</div><div class="v">' + htg(r.deb.esp + r.deb.aut) + '</div>' + pc(r.deb) + '</div></div>'
+    + '<div class="rk click' + (S.rOpen === "Paiement frais" ? " on" : "") + '" data-ropen="Paiement frais" role="button" tabindex="0" style="--k:var(--ok)"><div class="h">' + ric("fre") + '<span class="more">›</span></div><div class="t" style="margin-top:8px">Frè touche</div><div class="v">' + htg(r.fre.esp + r.fre.aut) + '</div>' + pc(r.fre) + '</div>'
+    + '<div class="rk click' + (S.rOpen === "Pénalité" ? " on" : "") + '" data-ropen="Pénalité" role="button" tabindex="0" style="--k:#7C3AED"><div class="h">' + ric("pen") + '<span class="more">›</span></div><div class="t" style="margin-top:8px">Penalite touche</div><div class="v">' + htg(r.pen.esp + r.pen.aut) + '</div>' + pc(r.pen) + '</div>'
+    + '<div class="rk click' + (S.rOpen === "Restitution du fonds" ? " on" : "") + '" data-ropen="Restitution du fonds" role="button" tabindex="0" style="--k:#C77800"><div class="h">' + ric("rem") + '<span class="more">›</span></div><div class="t" style="margin-top:8px">Kapital remèt</div><div class="v">' + htg(r.rem.esp + r.rem.aut) + '</div>' + pc(r.rem) + '</div>'
+    + '<div class="rk click' + (S.rOpen === "Déblocage du fonds" ? " on" : "") + '" data-ropen="Déblocage du fonds" role="button" tabindex="0" style="--k:#D9412F"><div class="h">' + ric("deb") + '<span class="more">›</span></div><div class="t" style="margin-top:8px">Kòb debloke</div><div class="v">' + htg(r.deb.esp + r.deb.aut) + '</div>' + pc(r.deb) + '</div></div>'
     ;
+  // Detay : chak operasyon ajan an mete nan rubrik la
+  const RK = { "Paiement frais": "fre", "Pénalité": "pen", "Restitution du fonds": "rem", "Déblocage du fonds": "deb" };
+  if (S.rOpen && RK[S.rOpen]) {
+    const L = r[RK[S.rOpen]].list, K = kes ? S.kes[d] : null;
+    html += '<div class="rdet card"><div class="row"><div class="grow name" style="font-size:15px">' + esc(TX_LBL[S.rOpen] || S.rOpen) + ' · ' + L.length + ' operasyon</div><button class="pill busy" data-ropen="" type="button">Fèmen</button></div>'
+      + (L.length ? L.map(t => kesRow(t, r.vSt(t), { kes, agent: !ag, validable: VALIDABLE.includes(t.type) })).join("") : '<div class="sub" style="margin-top:8px">Okenn operasyon.</div>') + '</div>';
+  }
+  if (r.rejete.length) html += '<div class="rdet card"><div class="name" style="font-size:15px">Rejte / modifye / siprime pa kès (' + r.rejete.length + ')</div>'
+    + r.rejete.map(x => kesRow(x.t, x.v.statut, { kes: false, agent: !ag, motif: x.v.motif })).join("") + '</div>';
 
   // 5. Rezime : sa pou depoze nan kès
   html += '<div class="rsumm" id="rSum"><div class="lbl">Kòb pou depoze nan kès · ' + esc(nomAg) + '</div>'
@@ -1584,6 +1648,10 @@ function renderRapo(m){
     + '<div class="ln"><span>Kapital remèt (kach)</span><b>+ ' + htg(r.rem.esp) + '</b></div>'
     + '<div class="ln"><span>Kòb debloke (kach)</span><b>− ' + htg(r.deb.esp) + '</b></div>'
     + '<div class="ln tot"><span class="big">' + htg(r.kes) + '</span></div>'
+    + '<div class="ln" style="margin-top:8px"><span>Valide pa kès</span><b>' + htg(r.valide) + '</b></div>'
+    + (r.attente ? '<div class="ln"><span>Ap tann validasyon kès</span><b>' + htg(r.attente) + '</b></div>' : '')
+    + (r.retou > 0 ? '<div class="ln"><span>Kòb finans ki pa debloke (dwe tounen)</span><b>' + htg(r.retou) + '</b></div>' : '')
+    + r.rems.map(x => '<div class="ln"><span>Kòb ki tounen' + (!ag ? ' · ' + esc(nomAgent(x.agent_id)) : '') + ' (' + (x.statut === "Validée" ? "valide" : "rejte") + ')</span><b>' + htg(x.montant_recu) + '</b></div>').join("")
     + (r.kes < 0 ? '<div class="nt"><b>Atansyon :</b> ajan an debloke plis kòb pase sa li te genyen. Verifye fon finans lan.</div>' : '')
     + (r.avAt ? '<div class="nt">' + htg(r.avAt) + ' fon finans pa konte paske ajan an poko konfime l.</div>' : '')
     + (r.lotMod ? '<div class="nt">' + htg(r.lotMod) + ' te pase pa MonCash / NatCash / bank : yo pa nan kès la.</div>' : '')
@@ -1591,6 +1659,8 @@ function renderRapo(m){
   m.innerHTML = html;
 
   m.querySelectorAll("[data-rd]").forEach(b => b.onclick = () => { S.rDate = b.dataset.rd; renderRapo(m); });
+  m.querySelectorAll("[data-ropen]").forEach(b => b.onclick = () => { S.rOpen = S.rOpen === b.dataset.ropen ? "" : b.dataset.ropen; renderRapo(m); });
+  if (kes) { wireDateKes(m, "rDate", () => renderRapo(m)); wireKesRows(m, d, () => renderRapo(m)); }
   m.querySelectorAll("[data-rag]").forEach(b => b.onclick = () => { S.rAg = b.dataset.rag; renderRapo(m); });
   const go = async (kind, payload, label, apply) => { await enqueue(kind, payload, label); apply(); save("avances"); renderRapo(m); toast(label + " ✔" + (S.online ? "" : " (ap voye lè entènèt tounen)")); };
   const ok = $("#rAvOk", m);
@@ -1670,6 +1740,149 @@ function genCodeClient(p, n){
     if (!used.has(k)) return k;
   }
   return null;
+}
+
+/* ================= RESPONSAB KÈS ================= */
+const VALIDABLE = ["Paiement frais", "Pénalité", "Restitution du fonds"];
+const ST_TAG = { "En attente": ["warn", "Ap tann kès"], "Validée": ["ok", "Valide"], "Rejetée": ["err", "Rejte"], "Modifiée": ["n", "Modifye"], "Supprimée": ["err", "Siprime"], "Annulée": ["n", "Anile"] };
+const stTag = st => st && ST_TAG[st] ? '<span class="tag ' + ST_TAG[st][0] + '">' + ST_TAG[st][1] + '</span>' : '';
+function rapoDateKes(d){
+  return '<div class="kdate"><button class="pill busy" data-dd="-1" type="button" aria-label="Jou anvan">‹</button><input id="kD" type="date" value="' + d + '" max="' + today() + '"><button class="pill busy" data-dd="1" type="button" aria-label="Jou apre"' + (d >= today() ? " disabled" : "") + '>›</button></div>';
+}
+function wireDateKes(m, key, rerender){
+  const i = $("#kD", m); if (i) i.onchange = () => { if (i.value) { S[key] = i.value > today() ? today() : i.value; S.kSel = []; rerender(); } };
+  m.querySelectorAll("[data-dd]").forEach(b => b.onclick = () => { const n = addDays(S[key] || today(), +b.dataset.dd); if (n <= today()) { S[key] = n; S.kSel = []; rerender(); } });
+}
+async function kesLoad(d){
+  const q = "select=id,cycle_id,type,montant,sens,affectation,annule_tx,commentaire,date_operation,mode_paiement,capture_le,agent_id&date_operation=eq." + d + "&order=capture_le.asc&limit=5000";
+  const [tx, av, rem] = await Promise.all([sel("debloke_transactions", q),
+    sel("debloke_avances", "select=*&date_jour=eq." + d + "&statut=neq.Annul%C3%A9"), sel("debloke_remises", "select=*&date_jour=eq." + d)]);
+  let val = []; const ids = tx.map(t => t.id);
+  for (let i = 0; i < ids.length; i += 120) val = val.concat(await sel("debloke_validations", "select=tx_id,statut,motif,remplace_par,le&tx_id=in.(" + ids.slice(i, i + 120).join(",") + ")"));
+  S.kes[d] = { tx, av, rem, val, at: Date.now() };
+}
+function kesStatut(t, K){
+  const v = valOf(t.id, K.val); if (v) return v.statut;
+  return annuleSet(K.tx).has(t.id) ? "Annulée" : "En attente";
+}
+function kesRow(t, st, o = {}){
+  const y = S.cycles.find(x => x.id === t.cycle_id), c = y && clientOfCycle(y);
+  let hr = ""; try { hr = new Date(t.capture_le).toLocaleTimeString("fr-HT", { hour: "2-digit", minute: "2-digit" }); } catch {}
+  const pend = st === "En attente" && o.validable !== false && VALIDABLE.includes(t.type), dead = ["Rejetée", "Modifiée", "Supprimée", "Annulée"].includes(st);
+  return '<div class="krow' + (dead ? " dead" : "") + '">'
+    + (o.check && pend ? '<input type="checkbox" class="kchk" data-ksel="' + t.id + '"' + (S.kSel.includes(t.id) ? " checked" : "") + ' aria-label="Chwazi">' : '')
+    + '<div class="grow"><div class="kname">' + esc(c ? c.prenom + " " + c.nom : "Kliyan") + (c && c.code_client ? ' <span class="kod">' + esc(c.code_client) + '</span>' : '') + '</div>'
+    + '<div class="sub">' + esc(TX_LBL[t.type] || t.type) + (hr ? ' · ' + hr : '') + (o.agent && t.agent_id ? ' · ' + esc(nomAgent(t.agent_id)) : '') + '</div>'
+    + (o.motif ? '<div class="sub" style="color:var(--err)">' + esc(o.motif) + '</div>' : '') + '</div>'
+    + '<div class="kamt"><div class="money">' + htg(t.montant) + '</div>' + stTag(st) + '</div>'
+    + (o.kes && !dead ? '<div class="kact">'
+      + (pend ? '<button type="button" class="kb ok" data-kv="' + t.id + '" title="Valide" aria-label="Valide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>'
+        + '<button type="button" class="kb no" data-kr="' + t.id + '" title="Rejte" aria-label="Rejte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>' : '')
+      + '<button type="button" class="kb" data-kmod="' + t.id + '" title="Modifye" aria-label="Modifye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>'
+      + '<button type="button" class="kb" data-kdel="' + t.id + '" title="Siprime" aria-label="Siprime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></div>' : '')
+    + '</div>';
+}
+async function kesDo(fn, args, okMsg, d, rerender){
+  if (!S.online) return toast("Fòk ou gen entènèt pou sa.", true);
+  try { const r = await rpc(fn, args); toast(typeof okMsg === "function" ? okMsg(r) : okMsg); }
+  catch (e) { toast(e.message, true); }
+  S.kSel = []; try { await kesLoad(d); } catch (e) {} rerender();
+}
+async function kesValider(ids, statut, d, rerender, K){
+  if (!ids.length) return;
+  const list = K.tx.filter(t => ids.includes(t.id)), tot = list.reduce((s, t) => s + Number(t.montant), 0);
+  if (statut === "Validée") {
+    if (!await ask({ icon: "check", title: "Valide " + ids.length + " operasyon", big: htg(tot), msg: "Kòb sa a antre nan kès la.", ok: "Wi, valide" })) return;
+    return kesDo("debloke_caisse_valider", { p_ids: ids, p_statut: "Validée" }, r => (r && r.ok) + " operasyon valide ✔", d, rerender);
+  }
+  const motif = await ask({ icon: "warn", tone: "danger", title: "Rejte " + ids.length + " operasyon", big: htg(tot), msg: "Operasyon rejte yo p ap konte ankò nan kont kliyan an. Bay rezon an :", input: { type: "text", value: "", placeholder: "Egz. ajan an pa remèt kòb la" }, ok: "Rejte" });
+  if (motif === null) return; if (!String(motif).trim()) return toast("Bay rezon an pou w rejte.", true);
+  return kesDo("debloke_caisse_valider", { p_ids: ids, p_statut: "Rejetée", p_motif: String(motif).trim() }, r => (r && r.ok) + " operasyon rejte", d, rerender);
+}
+function wireKesRows(m, d, rerender){
+  const K = S.kes[d]; if (!K) return;
+  const find = id => K.tx.find(t => t.id === id);
+  m.querySelectorAll("[data-kv]").forEach(b => b.onclick = () => kesValider([b.dataset.kv], "Validée", d, rerender, K));
+  m.querySelectorAll("[data-kr]").forEach(b => b.onclick = () => kesValider([b.dataset.kr], "Rejetée", d, rerender, K));
+  m.querySelectorAll("[data-kmod]").forEach(b => b.onclick = async () => {
+    const t = find(b.dataset.kmod); if (!t) return;
+    const v = await ask({ icon: "cash", title: "Modifye " + (TX_LBL[t.type] || t.type), big: htg(t.montant), msg: "Nouvo montan an (HTG) :", input: { type: "number", value: Math.round(t.montant) }, ok: "Kontinye" });
+    if (v === null) return; const n = Math.round(Number(v)); if (!(n > 0) || n === Math.round(t.montant)) return toast("Mete yon lòt montan.", true);
+    const motif = await ask({ icon: "warn", title: "Rezon modifikasyon an", rows: [["Ansyen montan", htg(t.montant)], ["Nouvo montan", htg(n)]], input: { type: "text", value: "", placeholder: "Egz. erè frap" }, ok: "Modifye" });
+    if (motif === null) return; if (!String(motif).trim()) return toast("Bay rezon an.", true);
+    kesDo("debloke_caisse_modifier", { p_tx: t.id, p_montant: n, p_motif: String(motif).trim() }, "Operasyon an modifye ✔", d, rerender);
+  });
+  m.querySelectorAll("[data-kdel]").forEach(b => b.onclick = async () => {
+    const t = find(b.dataset.kdel); if (!t) return;
+    const motif = await ask({ icon: "warn", tone: "danger", title: "Siprime operasyon sa a?", big: htg(t.montant), rows: [["Tip", TX_LBL[t.type] || t.type], ["Ajan", nomAgent(t.agent_id) || "—"]], msg: "Li p ap konte ankò nan kont kliyan an ni nan rapò a. Bay rezon an :", input: { type: "text", value: "", placeholder: "Egz. antre 2 fwa" }, ok: "Siprime" });
+    if (motif === null) return; if (!String(motif).trim()) return toast("Bay rezon an.", true);
+    kesDo("debloke_caisse_supprimer", { p_tx: t.id, p_motif: String(motif).trim() }, "Operasyon an siprime", d, rerender);
+  });
+  m.querySelectorAll("[data-ksel]").forEach(c => c.onchange = () => { const id = c.dataset.ksel; S.kSel = c.checked ? [...new Set(S.kSel.concat(id))] : S.kSel.filter(x => x !== id); rerender(); });
+}
+function renderKes(m){
+  if (!S.kDate) S.kDate = today();
+  const d = S.kDate, K = S.kes[d];
+  let html = '<div class="row" style="margin:4px 0 6px"><h2 class="grow" style="margin:0">Validasyon</h2><button class="pill busy" id="kRef" type="button">Rafrechi</button></div>'
+    + rapoDateKes(d) + (S.equipe.length ? agentPicker("data-kag", S.kAg, { agentsOnly: true }) : '');
+  if (!K) {
+    m.innerHTML = html + '<div class="empty">' + (S.online ? "Ap chaje…" : "Fòk ou gen entènèt pou validasyon an.") + '</div>';
+    wireDateKes(m, "kDate", () => renderKes(m)); m.querySelectorAll("[data-kag]").forEach(b => b.onclick = () => { S.kAg = b.dataset.kag; S.kSel = []; renderKes(m); });
+    if (S.online) kesLoad(d).then(() => S.page === "kes" && renderKes(m)).catch(e => toast(e.message, true));
+    return;
+  }
+  const all = K.tx.filter(t => VALIDABLE.includes(t.type) && (!S.kAg || t.agent_id === S.kAg)).map(t => ({ t, st: kesStatut(t, K) }));
+  const grp = { attente: x => x.st === "En attente", valide: x => x.st === "Validée", rejte: x => ["Rejetée", "Modifiée", "Supprimée", "Annulée"].includes(x.st), tout: () => true };
+  const sum = f => all.filter(f).reduce((s, x) => s + Number(x.t.montant), 0), cnt = f => all.filter(f).length;
+  html += '<div class="kstat">' + [["attente", "Ap tann"], ["valide", "Valide"], ["rejte", "Rejte / modifye"], ["tout", "Tout"]].map(([k, l]) =>
+      '<button type="button" data-kf="' + k + '" class="' + (S.kF === k ? "on " : "") + k + '"><b>' + cnt(grp[k]) + '</b><span>' + l + '</span><small>' + htg(sum(grp[k])) + '</small></button>').join("") + '</div>';
+  const list = all.filter(grp[S.kF] || grp.attente);
+  S.kSel = S.kSel.filter(id => list.some(x => x.t.id === id && x.st === "En attente"));
+  const byAg = {}; list.forEach(x => (byAg[x.t.agent_id] = byAg[x.t.agent_id] || []).push(x));
+  if (!list.length) html += '<div class="empty">' + (S.kF === "attente" ? "Pa gen anyen k ap tann validasyon pou dat sa a." : "Okenn operasyon.") + '</div>';
+  Object.entries(byAg).forEach(([a, xs]) => {
+    const pend = xs.filter(x => x.st === "En attente"), allSel = pend.length && pend.every(x => S.kSel.includes(x.t.id));
+    html += '<div class="card kgrp"><div class="row kgh">' + (pend.length ? '<input type="checkbox" class="kchk" data-kall="' + a + '"' + (allSel ? " checked" : "") + ' aria-label="Chwazi tout">' : '')
+      + '<div class="grow"><div class="name" style="font-size:16px">' + esc(nomAgent(a) || "Ajan") + '</div><div class="sub">' + xs.length + ' operasyon · ' + htg(xs.reduce((s, x) => s + Number(x.t.montant), 0)) + '</div></div>'
+      + (pend.length > 1 ? '<button class="pill on" data-kvall="' + a + '" type="button">Valide tout (' + pend.length + ')</button>' : '') + '</div>'
+      + xs.map(x => kesRow(x.t, x.st, { kes: true, check: true, motif: (valOf(x.t.id, K.val) || {}).motif && x.st !== "Validée" ? valOf(x.t.id, K.val).motif : "" })).join("") + '</div>';
+  });
+  // Kòb finans ki pa debloke ki tounen
+  const ags = [...new Set(K.av.map(a => a.agent_id).concat(K.tx.filter(t => t.type === "Déblocage du fonds").map(t => t.agent_id)))].filter(a => !S.kAg || a === S.kAg);
+  if (ags.length) html += '<h3>Kòb finans ki pa debloke ki tounen</h3>';
+  ags.forEach(a => {
+    const r = rapoCalc(d, a, K), dw = Math.max(0, r.retou), rm = K.rem.find(x => x.agent_id === a);
+    html += '<div class="card kret"><div class="row"><div class="grow"><div class="name" style="font-size:15px">' + esc(nomAgent(a) || "Ajan") + '</div>'
+      + '<div class="sub">Fon finans konfime ' + htg(r.avOk) + ' − debloke ' + htg(r.deb.esp) + '</div></div><div class="kamt"><div class="money">' + htg(dw) + '</div><span class="sub">dwe tounen</span></div></div>'
+      + (rm ? '<div class="row" style="margin-top:8px"><span class="grow sub">Resevwa : <b style="color:var(--ink)">' + htg(rm.montant_recu) + '</b>' + (rm.motif ? ' · ' + esc(rm.motif) : '') + '</span>' + stTag(rm.statut) + '</div>' : '')
+      + (!rm || rm.statut !== "Validée" ? '<div class="row" style="margin-top:8px;gap:6px"><input id="krm-' + a + '" type="number" inputmode="numeric" min="0" value="' + Math.round(dw) + '" style="flex:1;min-width:0;font-family:var(--font-num);font-weight:700" aria-label="Montan resevwa">'
+        + '<button class="btn" data-kremok="' + a + '" data-att="' + dw + '" type="button" style="width:auto;margin:0;padding:12px 14px">Valide</button><button class="btn ghost" data-kremno="' + a + '" data-att="' + dw + '" type="button" style="width:auto;margin:0;padding:12px 14px">Rejte</button></div>' : '')
+      + '</div>';
+  });
+  if (S.kSel.length) { const tot = K.tx.filter(t => S.kSel.includes(t.id)).reduce((s, t) => s + Number(t.montant), 0);
+    html += '<div class="kbar"><span class="grow"><b>' + S.kSel.length + '</b> chwazi · ' + htg(tot) + '</span><button class="btn ghost" id="kbR" type="button">Rejte</button><button class="btn" id="kbV" type="button">Valide</button></div>'; }
+  m.innerHTML = html;
+  const rr = () => renderKes(m);
+  wireDateKes(m, "kDate", rr); wireKesRows(m, d, rr);
+  m.querySelectorAll("[data-kag]").forEach(b => b.onclick = () => { S.kAg = b.dataset.kag; S.kSel = []; rr(); });
+  m.querySelectorAll("[data-kf]").forEach(b => b.onclick = () => { S.kF = b.dataset.kf; S.kSel = []; rr(); });
+  $("#kRef", m).onclick = async () => { if (!S.online) return toast("Fòk ou gen entènèt pou sa.", true); try { await kesLoad(d); } catch (e) { toast(e.message, true); } rr(); };
+  m.querySelectorAll("[data-kall]").forEach(c => c.onchange = () => { const ids = (byAg[c.dataset.kall] || []).filter(x => x.st === "En attente").map(x => x.t.id);
+    S.kSel = c.checked ? [...new Set(S.kSel.concat(ids))] : S.kSel.filter(id => !ids.includes(id)); rr(); });
+  m.querySelectorAll("[data-kvall]").forEach(b => b.onclick = () => kesValider((byAg[b.dataset.kvall] || []).filter(x => x.st === "En attente").map(x => x.t.id), "Validée", d, rr, K));
+  const bv = $("#kbV", m); if (bv) bv.onclick = () => kesValider(S.kSel.slice(), "Validée", d, rr, K);
+  const br = $("#kbR", m); if (br) br.onclick = () => kesValider(S.kSel.slice(), "Rejetée", d, rr, K);
+  const rem = async (a, att, statut) => {
+    const recu = Math.round(Number(($("#krm-" + a, m) || {}).value)); if (!(recu >= 0)) return toast("Mete montan ou resevwa a.", true);
+    let motif = null;
+    if (statut === "Rejetée" || recu !== Math.round(att)) {
+      motif = await ask({ icon: "warn", tone: "danger", title: statut === "Rejetée" ? "Rejte kòb ki tounen" : "Montan an pa menm", rows: [["Ajan", nomAgent(a)], ["Dwe tounen", htg(att)], ["Resevwa", htg(recu)]], msg: "Bay rezon an :", input: { type: "text", value: "" }, ok: statut === "Rejetée" ? "Rejte" : "Valide" });
+      if (motif === null) return; if (!String(motif).trim()) return toast("Bay rezon an.", true);
+    } else if (!await ask({ icon: "cash", title: "Kòb ki tounen · " + nomAgent(a), big: htg(recu), msg: "Ou resevwa kòb sa a nan men ajan an?", ok: "Wi, valide" })) return;
+    kesDo("debloke_caisse_remise", { p_agent: a, p_date: d, p_attendu: att, p_recu: recu, p_statut: statut, p_motif: motif && String(motif).trim() }, statut === "Validée" ? "Kòb ki tounen valide ✔" : "Kòb ki tounen rejte", d, rr);
+  };
+  m.querySelectorAll("[data-kremok]").forEach(b => b.onclick = () => rem(b.dataset.kremok, +b.dataset.att, "Validée"));
+  m.querySelectorAll("[data-kremno]").forEach(b => b.onclick = () => rem(b.dataset.kremno, +b.dataset.att, "Rejetée"));
 }
 
 /* ---------- Kòd kliyan ki chanje (ajan an dwe korije kat kliyan an) ---------- */

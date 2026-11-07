@@ -204,6 +204,22 @@
     ["pa MonCash/lòt", "par MonCash/autre"], ["Rapò Debloke ·", "Rapport Debloke ·"], ["Rapò a kopye", "Rapport copié"], ["Ajan :", "Agent :"],
     ["Mete montan an.", "Entrez le montant."],
     // Mo jeneral
+    ["Validasyon", "Validation"], ["Rafrechi", "Actualiser"], ["Ap tann kès", "En attente caisse"], ["Valide", "Validé"], ["Rejte", "Rejeté"], ["Modifye", "Modifié"], ["Siprime", "Supprimé"],
+    ["Rejte / modifye", "Rejetés / modifiés"], ["Pa gen anyen k ap tann validasyon pou dat sa a.", "Rien en attente de validation pour cette date."], ["Okenn operasyon.", "Aucune opération."],
+    ["Valide tout", "Tout valider"], ["chwazi", "sélectionné(s)"], ["Kòb finans ki pa debloke ki tounen", "Fonds non débloqués rendus à la caisse"], ["Fon finans konfime", "Fonds confirmés"],
+    ["dwe tounen", "à rendre"], ["Resevwa :", "Reçu :"], ["Montan resevwa", "Montant reçu"], ["Kòb ki tounen", "Argent rendu"], ["Kòb ki tounen valide", "Argent rendu validé"],
+    ["Kòb ki tounen rejte", "Argent rendu rejeté"], ["Rejte kòb ki tounen", "Rejeter l'argent rendu"], ["Montan an pa menm", "Le montant ne correspond pas"], ["Dwe tounen", "À rendre"], ["Resevwa", "Reçu"],
+    ["Ou resevwa kòb sa a nan men ajan an?", "Avez-vous reçu cet argent de l'agent ?"], ["Wi, valide", "Oui, valider"], ["Kòb sa a antre nan kès la.", "Ce montant entre dans la caisse."],
+    ["Operasyon rejte yo p ap konte ankò nan kont kliyan an. Bay rezon an :", "Les opérations rejetées ne compteront plus dans le compte du client. Indiquez la raison :"],
+    ["Egz. ajan an pa remèt kòb la", "Ex. : l'agent n'a pas remis l'argent"], ["Bay rezon an pou w rejte.", "Indiquez la raison du rejet."], ["Bay rezon an.", "Indiquez la raison."], ["Bay rezon an :", "Indiquez la raison :"],
+    ["Nouvo montan an (HTG) :", "Nouveau montant (HTG) :"], ["Kontinye", "Continuer"], ["Mete yon lòt montan.", "Entrez un autre montant."], ["Rezon modifikasyon an", "Raison de la modification"],
+    ["Ansyen montan", "Ancien montant"], ["Nouvo montan", "Nouveau montant"], ["Egz. erè frap", "Ex. : erreur de saisie"], ["Operasyon an modifye", "Opération modifiée"],
+    ["Siprime operasyon sa a?", "Supprimer cette opération ?"], ["Tip", "Type"], ["Li p ap konte ankò nan kont kliyan an ni nan rapò a. Bay rezon an :", "Elle ne comptera plus dans le compte du client ni dans le rapport. Indiquez la raison :"],
+    ["Egz. antre 2 fwa", "Ex. : saisie en double"], ["Operasyon an siprime", "Opération supprimée"], ["operasyon valide", "opération(s) validée(s)"], ["operasyon rejte", "opération(s) rejetée(s)"],
+    ["Rejte / modifye / siprime pa kès", "Rejetées / modifiées / supprimées par la caisse"], ["Valide pa kès", "Validé par la caisse"], ["Ap tann validasyon kès", "En attente de validation caisse"],
+    ["Kòb finans ki pa debloke (dwe tounen)", "Fonds non débloqués (à rendre)"], ["Fòk ou gen entènèt pou validasyon an.", "Internet est nécessaire pour la validation."], ["Responsab kès", "Responsable caisse"],
+    ["Jou anvan", "Jour précédent"], ["Jou apre", "Jour suivant"], ["Chwazi tout", "Tout sélectionner"], ["Chwazi", "Sélectionner"], ["Valide", "Valider"], ["debloke", "débloqué"],
+    ["Mete montan ou resevwa a.", "Entrez le montant reçu."], ["Ap chaje…", "Chargement…"],
     ["Kont ou louvri sou yon lòt telefòn", "Votre compte est ouvert sur un autre téléphone"], ["Manager a dekonekte telefòn sa a", "Le manager a déconnecté ce téléphone"],
     ["Manager a fèmen kont ou sou telefòn sa a.", "Le manager a fermé votre compte sur ce téléphone."],
     ["Yon sèl telefòn ka konekte sou yon kont. Kont ou ap travay sou lòt telefòn nan kounye a.", "Un seul téléphone peut être connecté à un compte. Votre compte est maintenant utilisé sur l'autre téléphone."],
@@ -253,7 +269,8 @@
   // Tèks kout pou kote ki pa gen plas (meni anba a, bouton tab yo)
   var CTX = [
     ["nav", { "Jodi a": "Accueil", "Tranzaksyon": "Transac.", "Tranz.": "Trans.", "Rapò": "Rapport", "Senk": "Synchro" }],
-    [".seg", { "Remèt": "Rembours.", "Debloke": "Déblocage", "Penalite": "Pénalité" }]
+    [".seg", { "Remèt": "Rembours.", "Debloke": "Déblocage", "Penalite": "Pénalité" }],
+    [".kbar, .kret, .ask-b", { "Valide": "Valider", "Rejte": "Rejeter", "Modifye": "Modifier", "Siprime": "Supprimer" }]
   ];
   function trText(n) {
     var p = n.parentElement, v = n.nodeValue, k = v.trim();
