@@ -345,6 +345,15 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
   main{max-width:1400px}
   main[data-page=jodi],main[data-page=kliyan],#tBody{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
 }
+.ccban{display:flex;align-items:center;gap:12px;width:100%;border:0;cursor:pointer;text-align:left;background:var(--err-soft);color:var(--ink);border-radius:18px;padding:12px 14px;margin:0 0 12px;font:inherit;grid-column:1/-1}
+.ccban .ic{width:40px;height:40px;border-radius:12px;background:var(--err);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.ccban .ic svg{width:22px;height:22px}
+.ccban b{display:block;font-size:15px;color:var(--err)}.ccban .grow span{font-size:13px;color:var(--muted)}
+.ccban .go{font-size:26px;color:var(--err);line-height:1}
+.cc-codes{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0 6px;font-family:var(--font-num);font-size:20px}
+.cc-codes s{color:var(--muted);text-decoration-color:var(--err);text-decoration-thickness:2px}
+.cc-codes b{color:var(--ok);font-size:24px;letter-spacing:.5px}
+.aprow{display:flex;align-items:center;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 .themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .th{border:2px solid var(--line);border-radius:18px;padding:6px;background:var(--card);cursor:pointer;text-align:center;font-weight:800;font-size:13px;color:var(--ink)}
 .th.sel{border-color:var(--brand)}
@@ -397,7 +406,7 @@ nav button{min-width:0}nav button>span:last-child,nav button{white-space:nowrap;
 <script>
 "use strict";
 /* ================= KONFIGIRASYON ================= */
-const APP_VERSION = "2.8 · 07/11/2026";
+const APP_VERSION = "2.9 · 07/11/2026";
 const CFG = {
   url: "https://riutfmqffpffniutbhue.supabase.co",
   key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpdXRmbXFmZnBmZm5pdXRiaHVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM3NzYwMjMsImV4cCI6MjEwOTM1MjAyM30.esDd_orfWwlGtRCDz4DDKH9Pwnz6R7mVHWilqNVkn74",
@@ -446,11 +455,11 @@ const DB = {
 /* ================= ETA ================= */
 const S = {
   session: null, moi: null,          // moi = {user_id, nom, role, telephone}
-  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], avances: [], filtreAgent: "", rDate: "", rAg: "",
+  clients: [], comptes: [], cycles: [], tx: [], baremes: [], equipe: [], remplacements: [], avances: [], codeChg: [], appareils: [], filtreAgent: "", rDate: "", rAg: "",
   outbox: [], lastSync: null, online: navigator.onLine, syncing: false, page: "jodi", q: ""
 };
 async function loadState(){
-  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements","avances"]) {
+  for (const k of ["session","moi","clients","comptes","cycles","tx","baremes","lastSync","equipe","remplacements","avances","codeChg","appareils"]) {
     const v = await DB.get("kv", k); if (v !== undefined) S[k] = v;
   }
   S.outbox = await DB.all("outbox");
@@ -473,6 +482,30 @@ async function http(path, { method = "GET", body, headers = {}, auth = true, raw
   }
   return raw ? txt : j;
 }
+/* ---------- Yon sèl telefòn pa kont ---------- */
+async function deviceId(){
+  let d = await DB.get("kv", "device_id");
+  if (!d) { d = uuid(); await DB.set("kv", "device_id", d); }
+  return d;
+}
+function deviceInfo(){
+  const ua = navigator.userAgent || "", m = ua.match(/\(([^)]+)\)/), parts = m ? m[1].split(";").map(x => x.trim()).filter(x => x && !/^(Linux|U|wv|K|x64|Win64|WOW64)$/i.test(x)) : [];
+  const nav = /Edg\//.test(ua) ? "Edge" : /Chrome\//.test(ua) ? "Chrome" : /Firefox\//.test(ua) ? "Firefox" : /Safari\//.test(ua) ? "Safari" : "";
+  return (parts.slice(0, 2).join(" · ") + (nav ? " · " + nav : "")).slice(0, 80) || "Telefòn";
+}
+const pendingMine = async () => (await DB.all("outbox")).filter(i => i.status !== "done" && (!i.user_id || !S.session || i.user_id === S.session.user_id)).length;
+function apareyOkipe(e){
+  const m = String(e && e.message || "").match(/APAREY_OKIPE:(\d+):(\d\d\/\d\d\/\d{4} \d\d:\d\d|\?):?(.*)/);
+  return m ? { n: +m[1], dat: m[2], info: m[3] || "?" } : null;
+}
+async function kickOut(raison){
+  stopWatch(); S.session = null; await DB.del("kv", "session"); showLogin(true);
+  const n = await DB.all("outbox").then(a => a.filter(i => i.status !== "done").length);
+  await ask({ icon: "warn", tone: "danger", title: raison === "libere" ? "Manager a dekonekte telefòn sa a" : "Kont ou louvri sou yon lòt telefòn",
+    msg: (raison === "libere" ? "Manager a fèmen kont ou sou telefòn sa a." : "Yon sèl telefòn ka konekte sou yon kont. Kont ou ap travay sou lòt telefòn nan kounye a.")
+      + (n ? " Gen " + n + " operasyon ki rete sou telefòn sa a : rele manager a." : ""), ok: "OK", cancel: false });
+}
+
 async function login(tel, pwd){
   const j = await http("/auth/v1/token?grant_type=password", { method: "POST", auth: false,
     body: { email: tel + "@" + CFG.domen, password: pwd } });
@@ -606,7 +639,12 @@ async function pushOne(it){
       const c = S.clients.find(x => x.id === p.p_id);
       if (r && r.code_client && c && c.code_client !== r.code_client) {
         // moun nan te deja nan baz la (li kenbe kòd li) oswa yon lòt moun te gen menm kòd la
-        if (c.code_client) toast("Kòd " + c.prenom + " " + c.nom + " : " + c.code_client + " → " + r.code_client);
+        if (c.code_client) {
+          toast("Kòd " + c.prenom + " " + c.nom + " : " + c.code_client + " → " + r.code_client);
+          S.codeChg.unshift({ id: "loc-" + c.id, client_id: r.client_id || c.id, agent_id: S.moi.user_id, ancien_code: c.code_client, nouveau_code: r.code_client,
+            raison: r.deja_kliyan_debloke ? "kliyan_egziste" : "kod_pran", cree_le: new Date().toISOString(), _nom: c.prenom + " " + c.nom, _local: true });
+          save("codeChg");
+        }
         c.code_client = r.code_client; save("clients");
       }
       return r;
@@ -633,6 +671,7 @@ async function pushOne(it){
     case "annule_rp": return patch("debloke_remplacements", "id=eq." + p.id, { annule: true });
     case "transfert": return rpc("debloke_transferer_client", p);
     case "avance": return rpc("debloke_avance_saisir", p);
+    case "code_ok": return rpc("debloke_code_corrige", p);
     case "avance_ok": return rpc("debloke_avance_confirmer", p);
     case "avance_x": return rpc("debloke_avance_annuler", p);
   }
@@ -655,6 +694,10 @@ async function sync(manual){
       }
     }
     await pushPositions();
+    try {
+      const r = await rpc("debloke_appareil_ping", { p_device: await deviceId(), p_en_attente: await pendingMine(), p_info: deviceInfo() });
+      if (r && r.actif === false) { S.syncing = false; await kickOut(r.raison); return; }
+    } catch (e) { if (e.status === 0 || e.code === "relogin") throw e; }
     await pull();
     S.lastSync = new Date().toISOString(); save("lastSync");
     if (manual || ok || fail) toast(fail ? (fail + " operasyon pa pase. Gade nan Senk.") : (ok ? ok + " operasyon voye ✔" : "Tout bagay ajou ✔"), !!fail);
@@ -679,6 +722,11 @@ async function pull(){
   if (ids.length) tx = await sel("debloke_transactions", "select=id,cycle_id,type,montant,sens,affectation,date_operation,mode_paiement,capture_le,agent_id&order=capture_le.desc&limit=1000&cycle_id=in.(" + ids.join(",") + ")");
   if (moi[0]) { S.moi = moi[0]; save("moi"); }
   try {
+    const cc = await sel("debloke_codes_changes", "select=*&corrige_le=is.null&order=cree_le.desc");
+    const pendOk = new Set((await DB.all("outbox")).filter(i => i.kind === "code_ok").map(i => i.payload.p_id));
+    S.codeChg = cc.filter(x => !pendOk.has(x.id)); save("codeChg");
+  } catch (e) { console.warn("codes", e); }
+  try {
     const av = await sel("debloke_avances", "select=*&statut=neq.Annul%C3%A9&date_jour=gte." + addDays(today(), -2) + "&order=saisi_le.asc");
     const pendAv = await DB.all("outbox");
     const loc = S.avances.filter(a => a._local && pendAv.some(i => (i.kind === "avance" && i.payload.p_id === a.id) || (i.kind === "avance_ok" && i.payload.p_id === a.id)));
@@ -690,6 +738,7 @@ async function pull(){
       sel("debloke_remplacements", "select=*&annule=eq.false&au=gte." + addDays(today(), -1) + "&order=du.asc")
     ]);
     S.equipe = eq; S.remplacements = rp; save("equipe"); save("remplacements");
+    try { S.appareils = await sel("debloke_appareils", "select=*"); save("appareils"); } catch (e) { console.warn("appareils", e); }
   }
   // Kenbe done lokal ki poko pase
   const pend = await DB.all("outbox");
@@ -800,7 +849,7 @@ function renderJodi(m){
   const sum = typ => kolekte.filter(t => t.type === typ).reduce((s, t) => s + Number(t.montant), 0);
   const nb = n => Number(n || 0).toLocaleString("fr-FR").replace(/\u202f|\u00a0/g, " ");
   const fre = sum("Paiement frais") + sum("Pénalité"), rem = sum("Restitution du fonds"), deb = sum("Déblocage du fonds");
-  m.innerHTML = '<div class="hero"><div class="lbl">' + (isMgr() ? (fa ? "Kolekte " + esc(nomAgent(fa)) : "Kolekte ekip la") : "Kolekte jodi a") + ' · ' + dmy(today()) + '</div>'
+  m.innerHTML = codeChgBanner() + '<div class="hero"><div class="lbl">' + (isMgr() ? (fa ? "Kolekte " + esc(nomAgent(fa)) : "Kolekte ekip la") : "Kolekte jodi a") + ' · ' + dmy(today()) + '</div>'
     + '<div class="tot">' + nb(fre + rem) + '<small>HTG</small></div>'
     + '<div class="tiles"><div class="tile"><span>Frè</span><b>' + nb(fre) + '</b></div>'
     + '<div class="tile"><span>Remèt</span><b>' + nb(rem) + '</b></div>'
@@ -812,6 +861,7 @@ function renderJodi(m){
     + (sansGps.length ? '<h3>📍 Pozisyon biznis pou anrejistre (' + sansGps.length + ')</h3>'
       + sansGps.map(c => '<div class="card" data-client="' + c.id + '"><div class="row">' + avatar(c) + '<div class="grow"><div class="name">' + esc(c.prenom + " " + c.nom) + '</div><div class="sub">' + esc(c.localisation || c.activite || "") + '</div></div><span class="tag warn">GPS</span></div></div>').join("") : "");
   m.querySelectorAll("[data-fa]").forEach(b => b.onclick = () => { S.filtreAgent = b.dataset.fa; renderJodi(m); });
+  wireCodeChg(m);
 }
 
 /* ---------- Rechèch : kliyan mwen (sou telefòn nan) + tout baz la (entènèt) ---------- */
@@ -855,7 +905,7 @@ function renderKliyan(m){
   else list.sort((a, b) => (a.nom + a.prenom).localeCompare(b.nom + b.prenom));
   const g = S.glob, mineIds = new Set(S.clients.map(c => c.id));
   const others = (g.res || []).filter(r => !(r.client_id && mineIds.has(r.client_id)));
-  m.innerHTML = '<div class="row" style="margin:4px 0 10px"><h2 class="grow" style="margin:0">Kliyan</h2><button class="btn" id="kNew" type="button" style="width:auto;margin:0;padding:10px 14px">➕ Nouvo kliyan</button></div>'
+  m.innerHTML = codeChgBanner() + '<div class="row" style="margin:4px 0 10px"><h2 class="grow" style="margin:0">Kliyan</h2><button class="btn" id="kNew" type="button" style="width:auto;margin:0;padding:10px 14px">➕ Nouvo kliyan</button></div>'
     + '<div class="search row"><input id="q" type="search" placeholder="🔎 Non, telefòn oswa kòd kliyan…" value="' + esc(S.q) + '">'
     + '<button class="btn ' + (near ? "" : "sec") + '" id="qNear" type="button" style="width:auto;margin:0;padding:12px 14px" title="Kliyan toupre m">📍</button></div>'
     + (near ? '<div class="sub" style="margin-top:6px">📍 Kliyan toupre w (±' + near.acc + ' m) · <b id="nearX" style="cursor:pointer;color:var(--brand)">Retire</b></div>' : '')
@@ -872,6 +922,7 @@ function renderKliyan(m){
         : g.err ? '<div class="err-msg">' + esc(g.err) + '</div>'
         : g.res ? (others.length ? others.map(resultCard).join("") : '<div class="sub">Pa jwenn lòt moun ki sanble.</div>') : '')
       : '<div class="sub" style="margin-top:14px">Tape omwen 3 lèt oswa yon telefòn pou chèche nan tout baz la, oswa peze 📍 pou kliyan toupre w.</div>');
+  wireCodeChg(m);
   $("#kNew", m).onclick = () => { S.page = "nouvo"; render(); window.scrollTo(0, 0); };
   m.querySelectorAll("[data-ks]").forEach(b => b.onclick = () => { S.kSort = b.dataset.ks; if (S.kSort === "pre" && !S.pos) toast("Ap tann pozisyon GPS ou…"); refreshKliyan(); });
   const i = $("#q", m); i.oninput = () => { S.q = i.value; refreshKliyan(); scheduleGlobal(); };
@@ -934,6 +985,7 @@ function openClient(id){
   const yo = ys.find(isOpen);
   sheet('<div class="prof">' + avatar(c, true) + '<div class="name">' + esc(c.prenom + " " + c.nom) + '</div>'
     + '<div class="sub">' + kodHtml(c.code_client, c.telephone) + (c.activite ? ' · ' + esc(c.activite) : '') + '</div>'
+    + (S.codeChg.some(x => x.client_id === c.id) ? '<div class="sub" style="color:var(--err);font-weight:700;margin-top:4px">Ansyen kòd : <s>' + esc(S.codeChg.find(x => x.client_id === c.id).ancien_code) + '</s> · korije kat la</div>' : '')
     + (c._local ? '<span class="tag n" style="margin-top:6px">Ap tann entènèt</span>' : '') + '</div>'
     + (yo ? '<div class="card" style="margin-top:12px" data-cycle="' + yo.id + '"><div class="row"><div class="grow"><div class="sub" style="font-weight:700">' + esc(yo._local ? "Nouvo cycle" : yo.numero) + ' · ' + htg(yo.frais_journalier) + '/jou</div><div class="name">Jou ' + (yo.jours_consommes || 0) + ' sou ' + yo.nb_jours_prevu + '</div></div>'
       + (+yo.frais_en_retard > 0 ? '<span class="tag err">Reta ' + htg(yo.frais_en_retard) + '</span>' : '<span class="tag ok">Ajou</span>') + '</div>' + dayDots(yo) + '</div>' : '')
@@ -1105,6 +1157,13 @@ function openCyclePicker(){
 }
 
 /* ================= EKRAN MANAGER ================= */
+function apHtml(p){
+  const a = S.appareils.find(x => x.user_id === p.user_id);
+  if (!a || !a.device_id) return '<div class="aprow"><span class="sub">Pa konekte sou okenn telefòn</span></div>';
+  return '<div class="aprow"><span class="grow sub"><b style="color:var(--ink)">' + esc(a.info || "Telefòn") + '</b><br>Dènye fwa : ' + (a.derniere_vue ? hm(a.derniere_vue) : '—')
+    + (a.en_attente ? ' · <b style="color:var(--warn)">' + a.en_attente + ' operasyon ap tann</b>' : '') + '</span>'
+    + (p.user_id !== S.moi.user_id ? '<button class="btn ghost" data-libere="' + p.user_id + '" type="button" style="width:auto;margin:0;padding:9px 12px;font-size:13px">Dekonekte telefòn</button>' : '<span class="tag ok">Telefòn sa a</span>') + '</div>';
+}
 function renderEkip(m){
   const open = S.cycles.filter(isOpen);
   const parAgent = {};
@@ -1127,6 +1186,7 @@ function renderEkip(m){
     + '<label for="tfM">Rezon</label><input id="tfM"><button class="btn" id="tfOk" type="button">Transfere kliyan an</button></div>'
     + '<h3>Anplwaye</h3>' + S.equipe.map(p => '<div class="card"><div class="row"><div class="grow"><div class="name" style="font-size:15px">' + esc(p.nom) + '</div><div class="sub">' + esc(p.telephone) + ' · ' + esc(p.role) + '</div></div>'
         + (p.actif === false ? '<span class="tag err">Dezaktive</span>' : '<span class="tag ok">Aktif</span>') + '</div>'
+        + apHtml(p)
         + (isAdm() && p.user_id !== S.moi.user_id ? '<div class="btns" style="margin-top:8px"><button class="btn sec" data-pw="' + esc(p.telephone) + '" type="button">Nouvo modpas</button><button class="btn ghost" data-act="' + esc(p.telephone) + '" data-on="' + (p.actif === false ? 1 : 0) + '" type="button">' + (p.actif === false ? "Reaktive" : "Dezaktive") + '</button></div>' : '') + '</div>').join("")
     + (isAdm() ? '<h3>Nouvo kont anplwaye</h3><div class="card"><p class="sub" style="margin-top:0">Bezwen entènèt.</p><label for="kaN">Non konplè</label><input id="kaN"><label for="kaT">Telefòn</label><input id="kaT" type="tel" inputmode="tel" placeholder="3700 1234">'
       + '<label for="kaR">Wòl</label><select id="kaR"><option value="agent">Ajan</option><option value="analyste">Analis</option><option value="manager">Manager</option>' + (S.moi.role === "admin" ? '<option value="responsable">Responsab liy</option><option value="admin">Admin</option>' : '') + '</select>'
@@ -1155,6 +1215,15 @@ function renderEkip(m){
     c.agent_id = a; save("clients"); toast("Transfè anrejistre ✔"); renderEkip(m);
   };
   const online = fn => async (...a) => { if (!S.online) return toast("Fòk ou gen entènèt pou sa.", true); try { await fn(...a); } catch (e) { toast(e.message, true); } };
+  m.querySelectorAll("[data-libere]").forEach(b => b.onclick = online(async () => {
+    const p = S.equipe.find(x => x.user_id === b.dataset.libere), a = S.appareils.find(x => x.user_id === b.dataset.libere) || {};
+    if (!await ask({ icon: "warn", tone: "danger", title: "Dekonekte telefòn " + (p ? p.nom : ""), rows: [["Telefòn", a.info || "?"], ["Dènye fwa", a.derniere_vue ? hm(a.derniere_vue) : "?"], ["Operasyon k ap tann", String(a.en_attente || 0)]],
+      msg: (a.en_attente ? "Atansyon : " + a.en_attente + " operasyon ki sou telefòn sa a ap PÈDI. " : "") + "Fè sa sèlman si telefòn nan pèdi, kase oswa vòlè. Ajan an ap ka konekte sou yon lòt telefòn.", ok: "Dekonekte l" })) return;
+    const r = await rpc("debloke_appareil_liberer", { p_user: b.dataset.libere });
+    toast("Telefòn nan dekonekte ✔" + (r && r.operasyon_pedi ? " (" + r.operasyon_pedi + " operasyon pèdi)" : ""));
+    try { S.appareils = await sel("debloke_appareils", "select=*"); save("appareils"); } catch (e) {}
+    renderEkip(m);
+  }));
   m.querySelectorAll("[data-pw]").forEach(b => b.onclick = online(async () => {
     const pw = await ask({ icon: "key", title: "Nouvo modpas", msg: "Nouvo modpas pou " + b.dataset.pw + " (8 karaktè omwen)", input: { type: "text", value: "" }, ok: "Chanje modpas la" }); if (!pw) return;
     if (pw.length < 8) return toast("Modpas la twò kout.", true);
@@ -1439,6 +1508,7 @@ function renderSenk(m){
   $("#sOut").onclick = async () => {
     const n = S.outbox.filter(i => i.status !== "done").length;
     if (n && !await ask(n + " operasyon poko voye. Si w dekonekte, yo ap rete sou telefòn nan epi y ap voye lè w konekte ankò. Kontinye?")) return;
+    if (S.online) { try { await rpc("debloke_appareil_quitter", { p_device: await deviceId(), p_en_attente: await pendingMine() }); } catch (e) {} }
     stopWatch(); S.session = null; await DB.del("kv", "session"); showLogin();
   };
 }
@@ -1600,6 +1670,32 @@ function genCodeClient(p, n){
     if (!used.has(k)) return k;
   }
   return null;
+}
+
+/* ---------- Kòd kliyan ki chanje (ajan an dwe korije kat kliyan an) ---------- */
+const CC_RAISON = { moun_egziste: "Moun nan te deja nan baz la : li kenbe kòd li te genyen an.", kod_pran: "Yon lòt moun te deja gen kòd sa a.", kliyan_egziste: "Moun nan te deja kliyan Debloke." };
+function codeChgBanner(){
+  const n = S.codeChg.length; if (!n) return "";
+  return '<button class="ccban" id="ccOpen" type="button"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.5v.01"/></svg></span>'
+    + '<span class="grow"><b>' + n + ' kòd kliyan chanje</b><span>Korije kat kliyan yo</span></span><span class="go">›</span></button>';
+}
+function wireCodeChg(root){ const b = root.querySelector("#ccOpen"); if (b) b.onclick = openCodeChg; }
+function openCodeChg(){
+  const list = S.codeChg;
+  sheet('<div class="name" style="font-size:20px">Kòd kliyan ki chanje</div>'
+    + '<div class="sub">Kòd sa yo te chanje lè done yo te rive sou sèvè a. Ekri nouvo kòd la sou kat kliyan an, epi peze « Kat la korije ».</div>'
+    + (list.length ? list.map(x => { const c = clientById(x.client_id);
+        return '<div class="card cc-it"><div class="row">' + (c ? avatar(c) : '') + '<div class="grow"><div class="name" style="font-size:15px">' + esc(c ? c.prenom + " " + c.nom : x._nom || "Kliyan") + '</div>'
+          + '<div class="sub">' + dmy((x.cree_le || "").slice(0, 10)) + (isMgr() && x.agent_id ? ' · ' + esc(nomAgent(x.agent_id)) : '') + '</div></div></div>'
+          + '<div class="cc-codes"><s>' + esc(x.ancien_code) + '</s><span aria-hidden="true">→</span><b>' + esc(x.nouveau_code) + '</b></div>'
+          + '<div class="sub">' + esc(CC_RAISON[x.raison] || "") + '</div>'
+          + (x._local ? '<div class="sub" style="margin-top:6px">Ap senkronize…</div>' : '<button class="btn sec" data-ccok="' + x.id + '" type="button" style="margin-top:10px">Kat la korije</button>') + '</div>'; }).join("")
+      : '<div class="empty">Tout kat yo korije.</div>'));
+  document.querySelectorAll("[data-ccok]").forEach(b => b.onclick = async () => {
+    const x = S.codeChg.find(z => z.id === b.dataset.ccok); if (!x) return;
+    await enqueue("code_ok", { p_id: x.id }, "Kat korije " + x.nouveau_code);
+    S.codeChg = S.codeChg.filter(z => z.id !== x.id); save("codeChg"); toast("Kat la korije ✔"); openCodeChg(); render();
+  });
 }
 
 /* ---------- Fenèt konfimasyon (ranplase confirm/prompt navigatè a) ---------- */
@@ -1994,6 +2090,18 @@ $("#lBtn").onclick = async () => {
       for (const k of ["clients","comptes","cycles","tx"]) { S[k] = []; await DB.del("kv", k); }
     }
     S.moi = { user_id: S.session.user_id, telephone: tel, nom: "", role: "" };
+    try { await rpc("debloke_appareil_connecter", { p_device: await deviceId(), p_info: deviceInfo(), p_en_attente: await pendingMine() }); }
+    catch (e) {
+      const o = apareyOkipe(e);
+      if (o) {
+        S.session = null; await DB.del("kv", "session");
+        await ask({ icon: "warn", tone: "danger", title: "Kont ou louvri sou yon lòt telefòn", big: o.n + " operasyon",
+          rows: [["Telefòn", o.info], ["Dènye fwa", o.dat]],
+          msg: "Lòt telefòn nan gen done ki poko voye. Louvri app la sou telefòn sa a ak entènèt pou l voye yo, epi dekonekte l. Si telefòn nan pèdi oswa kase, mande manager a dekonekte l.", ok: "OK", cancel: false });
+        throw new Error("Kont lan deja louvri sou yon lòt telefòn.");
+      }
+      if (e.status === 0 || !/function|404|PGRST/i.test(e.message + e.status)) throw e;   // ansyen sèvè san fonksyon an : kontinye
+    }
     await pull(); S.lastSync = new Date().toISOString(); save("lastSync");
     if (!S.moi.role) { S.session = null; await DB.del("kv", "session"); throw new Error("Kont sa a pa yon kont Debloke aktif."); }
     $("#lPwd").value = ""; S.needRelogin = false; showApp(); sync();
